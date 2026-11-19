@@ -1,0 +1,16 @@
+{
+  "name": "learning-tracker-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
+    "client:dev": "npm --prefix client run dev",
+    "client:build": "npm --prefix client run build",
+    "server:dev": "npm --prefix api run dev",
+    "build": "npm --prefix client run build",
+    "start": "npm --prefix api start"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
