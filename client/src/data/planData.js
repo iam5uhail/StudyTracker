@@ -1,5 +1,5 @@
-// Complete 70-Day Target Plan: All 140 Java Core Topics + 70 Rising Brain DSA Questions
-// Starts 21 Nov 2026
+// Complete 70-Day Target Plan: All 140 Java Core Topics + Exactly 70 Rising Brain DSA Questions
+// Array (24) -> Strings (11) -> Binary Search (23) -> Stack (12)
 export const DEFAULT_START_DATE = "2026-11-21";
 export const initialPlanDays = [
   {
@@ -27,9 +27,9 @@ export const initialPlanDays = [
         "type": "dsa",
         "title": "Two Sum II",
         "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/",
         "pattern": "Two-Pointer",
-        "category": "Array",
+        "topic": "Array",
+        "link": "https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/",
         "completed": false,
         "notes": ""
       }
@@ -60,9 +60,9 @@ export const initialPlanDays = [
         "type": "dsa",
         "title": "3Sum",
         "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/3sum/",
         "pattern": "Two-Pointer",
-        "category": "Array",
+        "topic": "Array",
+        "link": "https://leetcode.com/problems/3sum/",
         "completed": false,
         "notes": ""
       }
@@ -93,9 +93,9 @@ export const initialPlanDays = [
         "type": "dsa",
         "title": "Sort Colors",
         "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/sort-colors/",
         "pattern": "Two-Pointer",
-        "category": "Array",
+        "topic": "Array",
+        "link": "https://leetcode.com/problems/sort-colors/",
         "completed": false,
         "notes": ""
       }
@@ -126,9 +126,9 @@ export const initialPlanDays = [
         "type": "dsa",
         "title": "Move Zeroes",
         "difficulty": "Easy",
-        "link": "https://leetcode.com/problems/move-zeroes/",
         "pattern": "Two-Pointer",
-        "category": "Array",
+        "topic": "Array",
+        "link": "https://leetcode.com/problems/move-zeroes/",
         "completed": false,
         "notes": ""
       }
@@ -159,9 +159,9 @@ export const initialPlanDays = [
         "type": "dsa",
         "title": "Container With Most Water",
         "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/container-with-most-water/",
         "pattern": "Two-Pointer",
-        "category": "Array",
+        "topic": "Array",
+        "link": "https://leetcode.com/problems/container-with-most-water/",
         "completed": false,
         "notes": ""
       }
@@ -192,9 +192,9 @@ export const initialPlanDays = [
         "type": "dsa",
         "title": "Trapping Rain Water",
         "difficulty": "Hard",
-        "link": "https://leetcode.com/problems/trapping-rain-water/",
         "pattern": "Two-Pointer",
-        "category": "Array",
+        "topic": "Array",
+        "link": "https://leetcode.com/problems/trapping-rain-water/",
         "completed": false,
         "notes": ""
       }
@@ -223,11 +223,11 @@ export const initialPlanDays = [
       {
         "id": "d7-dsa",
         "type": "dsa",
-        "title": "Maximum Average Subarray I",
+        "title": "Maximum Sum Subarray of Size K",
         "difficulty": "Easy",
-        "link": "https://leetcode.com/problems/maximum-average-subarray-i/",
         "pattern": "Sliding Window",
-        "category": "Array",
+        "topic": "Array",
+        "link": "https://leetcode.com/problems/maximum-average-subarray-i/",
         "completed": false,
         "notes": ""
       }
@@ -256,11 +256,11 @@ export const initialPlanDays = [
       {
         "id": "d8-dsa",
         "type": "dsa",
-        "title": "Minimum Size Subarray Sum",
-        "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/minimum-size-subarray-sum/",
+        "title": "Max Consecutive ones",
+        "difficulty": "Easy",
         "pattern": "Sliding Window",
-        "category": "Array",
+        "topic": "Array",
+        "link": "https://leetcode.com/problems/max-consecutive-ones/",
         "completed": false,
         "notes": ""
       }
@@ -289,11 +289,11 @@ export const initialPlanDays = [
       {
         "id": "d9-dsa",
         "type": "dsa",
-        "title": "Longest Substring Without Repeating Characters",
+        "title": "Max Consecutive ones III",
         "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/longest-substring-without-repeating-characters/",
         "pattern": "Sliding Window",
-        "category": "String",
+        "topic": "Array",
+        "link": "https://leetcode.com/problems/max-consecutive-ones-iii/",
         "completed": false,
         "notes": ""
       }
@@ -322,11 +322,11 @@ export const initialPlanDays = [
       {
         "id": "d10-dsa",
         "type": "dsa",
-        "title": "Longest Repeating Character Replacement",
+        "title": "Subarray Product Less Than K",
         "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/longest-repeating-character-replacement/",
         "pattern": "Sliding Window",
-        "category": "String",
+        "topic": "Array",
+        "link": "https://leetcode.com/problems/subarray-product-less-than-k/",
         "completed": false,
         "notes": ""
       }
@@ -355,11 +355,11 @@ export const initialPlanDays = [
       {
         "id": "d11-dsa",
         "type": "dsa",
-        "title": "Permutation in String",
-        "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/permutation-in-string/",
+        "title": "Sliding Window Maximum",
+        "difficulty": "Hard",
         "pattern": "Sliding Window",
-        "category": "String",
+        "topic": "Array",
+        "link": "https://leetcode.com/problems/sliding-window-maximum/",
         "completed": false,
         "notes": ""
       }
@@ -388,11 +388,11 @@ export const initialPlanDays = [
       {
         "id": "d12-dsa",
         "type": "dsa",
-        "title": "Find All Anagrams in a String",
-        "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/find-all-anagrams-in-a-string/",
+        "title": "Subarray with k distinct integers",
+        "difficulty": "Hard",
         "pattern": "Sliding Window",
-        "category": "String",
+        "topic": "Array",
+        "link": "https://leetcode.com/problems/subarrays-with-k-different-integers/",
         "completed": false,
         "notes": ""
       }
@@ -421,11 +421,11 @@ export const initialPlanDays = [
       {
         "id": "d13-dsa",
         "type": "dsa",
-        "title": "Fruit Into Baskets",
+        "title": "Fruits Into Baskets",
         "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/fruit-into-baskets/",
         "pattern": "Sliding Window",
-        "category": "Array",
+        "topic": "Array",
+        "link": "https://leetcode.com/problems/fruit-into-baskets/",
         "completed": false,
         "notes": ""
       }
@@ -454,11 +454,11 @@ export const initialPlanDays = [
       {
         "id": "d14-dsa",
         "type": "dsa",
-        "title": "Minimum Window Substring",
-        "difficulty": "Hard",
-        "link": "https://leetcode.com/problems/minimum-window-substring/",
+        "title": "Minimum Size Subarray Sum",
+        "difficulty": "Medium",
         "pattern": "Sliding Window",
-        "category": "String",
+        "topic": "Array",
+        "link": "https://leetcode.com/problems/minimum-size-subarray-sum/",
         "completed": false,
         "notes": ""
       }
@@ -487,11 +487,11 @@ export const initialPlanDays = [
       {
         "id": "d15-dsa",
         "type": "dsa",
-        "title": "Linked List Cycle",
-        "difficulty": "Easy",
-        "link": "https://leetcode.com/problems/linked-list-cycle/",
-        "pattern": "Fast & Slow Pointers",
-        "category": "Linked List",
+        "title": "Subarray Sum Equals K",
+        "difficulty": "Medium",
+        "pattern": "Prefix Sum",
+        "topic": "Array",
+        "link": "https://leetcode.com/problems/subarray-sum-equals-k/",
         "completed": false,
         "notes": ""
       }
@@ -520,11 +520,11 @@ export const initialPlanDays = [
       {
         "id": "d16-dsa",
         "type": "dsa",
-        "title": "Linked List Cycle II",
+        "title": "Matrix Block Sum (Running Sum of 2D Array)",
         "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/linked-list-cycle-ii/",
-        "pattern": "Fast & Slow Pointers",
-        "category": "Linked List",
+        "pattern": "Prefix Sum",
+        "topic": "Array",
+        "link": "https://leetcode.com/problems/matrix-block-sum/",
         "completed": false,
         "notes": ""
       }
@@ -553,11 +553,11 @@ export const initialPlanDays = [
       {
         "id": "d17-dsa",
         "type": "dsa",
-        "title": "Happy Number",
-        "difficulty": "Easy",
-        "link": "https://leetcode.com/problems/happy-number/",
-        "pattern": "Fast & Slow Pointers",
-        "category": "Math",
+        "title": "Product of Array Except Self",
+        "difficulty": "Medium",
+        "pattern": "Prefix Sum",
+        "topic": "Array",
+        "link": "https://leetcode.com/problems/product-of-array-except-self/",
         "completed": false,
         "notes": ""
       }
@@ -586,11 +586,11 @@ export const initialPlanDays = [
       {
         "id": "d18-dsa",
         "type": "dsa",
-        "title": "Middle of the Linked List",
-        "difficulty": "Easy",
-        "link": "https://leetcode.com/problems/middle-of-the-linked-list/",
-        "pattern": "Fast & Slow Pointers",
-        "category": "Linked List",
+        "title": "Continuous Subarray Sum",
+        "difficulty": "Medium",
+        "pattern": "Prefix Sum",
+        "topic": "Array",
+        "link": "https://leetcode.com/problems/continuous-subarray-sum/",
         "completed": false,
         "notes": ""
       }
@@ -619,11 +619,11 @@ export const initialPlanDays = [
       {
         "id": "d19-dsa",
         "type": "dsa",
-        "title": "Palindrome Linked List",
-        "difficulty": "Easy",
-        "link": "https://leetcode.com/problems/palindrome-linked-list/",
-        "pattern": "Fast & Slow Pointers",
-        "category": "Linked List",
+        "title": "Subarray Sum Divisible by K",
+        "difficulty": "Medium",
+        "pattern": "Prefix Sum",
+        "topic": "Array",
+        "link": "https://leetcode.com/problems/subarray-sums-divisible-by-k/",
         "completed": false,
         "notes": ""
       }
@@ -652,11 +652,11 @@ export const initialPlanDays = [
       {
         "id": "d20-dsa",
         "type": "dsa",
-        "title": "Merge Intervals",
-        "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/merge-intervals/",
-        "pattern": "Intervals",
-        "category": "Array",
+        "title": "Find Pivot Index",
+        "difficulty": "Easy",
+        "pattern": "Prefix Sum",
+        "topic": "Array",
+        "link": "https://leetcode.com/problems/find-pivot-index/",
         "completed": false,
         "notes": ""
       }
@@ -685,11 +685,11 @@ export const initialPlanDays = [
       {
         "id": "d21-dsa",
         "type": "dsa",
-        "title": "Insert Interval",
+        "title": "Maximum Subarray",
         "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/insert-interval/",
-        "pattern": "Intervals",
-        "category": "Array",
+        "pattern": "Kadane's Algorithm",
+        "topic": "Array",
+        "link": "https://leetcode.com/problems/maximum-subarray/",
         "completed": false,
         "notes": ""
       }
@@ -718,11 +718,11 @@ export const initialPlanDays = [
       {
         "id": "d22-dsa",
         "type": "dsa",
-        "title": "Non-overlapping Intervals",
+        "title": "Maximum Product Subarray",
         "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/non-overlapping-intervals/",
-        "pattern": "Intervals",
-        "category": "Array",
+        "pattern": "Kadane's Algorithm",
+        "topic": "Array",
+        "link": "https://leetcode.com/problems/maximum-product-subarray/",
         "completed": false,
         "notes": ""
       }
@@ -751,11 +751,11 @@ export const initialPlanDays = [
       {
         "id": "d23-dsa",
         "type": "dsa",
-        "title": "Meeting Rooms II",
+        "title": "Maximum Sum Circular Subarray",
         "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/meeting-rooms-ii/",
-        "pattern": "Intervals",
-        "category": "Array",
+        "pattern": "Kadane's Algorithm",
+        "topic": "Array",
+        "link": "https://leetcode.com/problems/maximum-sum-circular-subarray/",
         "completed": false,
         "notes": ""
       }
@@ -784,11 +784,11 @@ export const initialPlanDays = [
       {
         "id": "d24-dsa",
         "type": "dsa",
-        "title": "Interval List Intersections",
+        "title": "Maximum Absolute Sum of Any Subarray",
         "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/interval-list-intersections/",
-        "pattern": "Intervals",
-        "category": "Array",
+        "pattern": "Kadane's Algorithm",
+        "topic": "Array",
+        "link": "https://leetcode.com/problems/maximum-absolute-sum-of-any-subarray/",
         "completed": false,
         "notes": ""
       }
@@ -817,11 +817,11 @@ export const initialPlanDays = [
       {
         "id": "d25-dsa",
         "type": "dsa",
-        "title": "Minimum Number of Arrows to Burst Balloons",
-        "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/",
-        "pattern": "Intervals",
-        "category": "Array",
+        "title": "Reverse a String",
+        "difficulty": "Easy",
+        "pattern": "Two-Pointer (Palindrome)",
+        "topic": "Strings",
+        "link": "https://leetcode.com/problems/reverse-string/",
         "completed": false,
         "notes": ""
       }
@@ -850,11 +850,11 @@ export const initialPlanDays = [
       {
         "id": "d26-dsa",
         "type": "dsa",
-        "title": "Missing Number",
+        "title": "Valid Palindrome",
         "difficulty": "Easy",
-        "link": "https://leetcode.com/problems/missing-number/",
-        "pattern": "Cyclic Sort",
-        "category": "Array",
+        "pattern": "Two-Pointer (Palindrome)",
+        "topic": "Strings",
+        "link": "https://leetcode.com/problems/valid-palindrome/",
         "completed": false,
         "notes": ""
       }
@@ -883,11 +883,11 @@ export const initialPlanDays = [
       {
         "id": "d27-dsa",
         "type": "dsa",
-        "title": "Find All Numbers Disappeared in an Array",
+        "title": "Valid Palindrome II",
         "difficulty": "Easy",
-        "link": "https://leetcode.com/problems/find-all-numbers-disappeared-in-an-array/",
-        "pattern": "Cyclic Sort",
-        "category": "Array",
+        "pattern": "Two-Pointer (Palindrome)",
+        "topic": "Strings",
+        "link": "https://leetcode.com/problems/valid-palindrome-ii/",
         "completed": false,
         "notes": ""
       }
@@ -916,11 +916,11 @@ export const initialPlanDays = [
       {
         "id": "d28-dsa",
         "type": "dsa",
-        "title": "Find the Duplicate Number",
+        "title": "Longest Palindromic Substring",
         "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/find-the-duplicate-number/",
-        "pattern": "Cyclic Sort",
-        "category": "Array",
+        "pattern": "Two-Pointer (Palindrome)",
+        "topic": "Strings",
+        "link": "https://leetcode.com/problems/longest-palindromic-substring/",
         "completed": false,
         "notes": ""
       }
@@ -949,11 +949,11 @@ export const initialPlanDays = [
       {
         "id": "d29-dsa",
         "type": "dsa",
-        "title": "Find All Duplicates in an Array",
+        "title": "Palindromic Substrings",
         "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/find-all-duplicates-in-an-array/",
-        "pattern": "Cyclic Sort",
-        "category": "Array",
+        "pattern": "Two-Pointer (Palindrome)",
+        "topic": "Strings",
+        "link": "https://leetcode.com/problems/palindromic-substrings/",
         "completed": false,
         "notes": ""
       }
@@ -982,11 +982,11 @@ export const initialPlanDays = [
       {
         "id": "d30-dsa",
         "type": "dsa",
-        "title": "First Missing Positive",
-        "difficulty": "Hard",
-        "link": "https://leetcode.com/problems/first-missing-positive/",
-        "pattern": "Cyclic Sort",
-        "category": "Array",
+        "title": "Find All Anagrams in a String",
+        "difficulty": "Medium",
+        "pattern": "Sliding Window (String)",
+        "topic": "Strings",
+        "link": "https://leetcode.com/problems/find-all-anagrams-in-a-string/",
         "completed": false,
         "notes": ""
       }
@@ -1015,11 +1015,11 @@ export const initialPlanDays = [
       {
         "id": "d31-dsa",
         "type": "dsa",
-        "title": "Reverse Linked List",
-        "difficulty": "Easy",
-        "link": "https://leetcode.com/problems/reverse-linked-list/",
-        "pattern": "Linked List Reversal",
-        "category": "Linked List",
+        "title": "Longest Substring Without Repeating Characters",
+        "difficulty": "Medium",
+        "pattern": "Sliding Window (String)",
+        "topic": "Strings",
+        "link": "https://leetcode.com/problems/longest-substring-without-repeating-characters/",
         "completed": false,
         "notes": ""
       }
@@ -1048,11 +1048,11 @@ export const initialPlanDays = [
       {
         "id": "d32-dsa",
         "type": "dsa",
-        "title": "Reverse Linked List II",
+        "title": "Longest Substring with K Uniques",
         "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/reverse-linked-list-ii/",
-        "pattern": "Linked List Reversal",
-        "category": "Linked List",
+        "pattern": "Sliding Window (String)",
+        "topic": "Strings",
+        "link": "https://leetcode.com/problems/longest-substring-with-at-most-k-distinct-characters/",
         "completed": false,
         "notes": ""
       }
@@ -1081,11 +1081,11 @@ export const initialPlanDays = [
       {
         "id": "d33-dsa",
         "type": "dsa",
-        "title": "Reverse Nodes in k-Group",
-        "difficulty": "Hard",
-        "link": "https://leetcode.com/problems/reverse-nodes-in-k-group/",
-        "pattern": "Linked List Reversal",
-        "category": "Linked List",
+        "title": "Permutation in String",
+        "difficulty": "Medium",
+        "pattern": "Sliding Window (String)",
+        "topic": "Strings",
+        "link": "https://leetcode.com/problems/permutation-in-string/",
         "completed": false,
         "notes": ""
       }
@@ -1114,11 +1114,11 @@ export const initialPlanDays = [
       {
         "id": "d34-dsa",
         "type": "dsa",
-        "title": "Rotate List",
-        "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/rotate-list/",
-        "pattern": "Linked List",
-        "category": "Linked List",
+        "title": "Minimum Window Substring",
+        "difficulty": "Hard",
+        "pattern": "Sliding Window (String)",
+        "topic": "Strings",
+        "link": "https://leetcode.com/problems/minimum-window-substring/",
         "completed": false,
         "notes": ""
       }
@@ -1147,11 +1147,11 @@ export const initialPlanDays = [
       {
         "id": "d35-dsa",
         "type": "dsa",
-        "title": "Binary Tree Level Order Traversal",
-        "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/binary-tree-level-order-traversal/",
-        "pattern": "Tree BFS",
-        "category": "Trees",
+        "title": "Substring with Concatenation of All Words",
+        "difficulty": "Hard",
+        "pattern": "Sliding Window (String)",
+        "topic": "Strings",
+        "link": "https://leetcode.com/problems/substring-with-concatenation-of-all-words/",
         "completed": false,
         "notes": ""
       }
@@ -1180,11 +1180,11 @@ export const initialPlanDays = [
       {
         "id": "d36-dsa",
         "type": "dsa",
-        "title": "Binary Tree Zigzag Level Order Traversal",
-        "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/binary-tree-zigzag-level-order-traversal/",
-        "pattern": "Tree BFS",
-        "category": "Trees",
+        "title": "Binary Search",
+        "difficulty": "Easy",
+        "pattern": "Classic Binary Search",
+        "topic": "Binary Search",
+        "link": "https://leetcode.com/problems/binary-search/",
         "completed": false,
         "notes": ""
       }
@@ -1213,11 +1213,11 @@ export const initialPlanDays = [
       {
         "id": "d37-dsa",
         "type": "dsa",
-        "title": "Average of Levels in Binary Tree",
+        "title": "Sqrt(x)",
         "difficulty": "Easy",
-        "link": "https://leetcode.com/problems/average-of-levels-in-binary-tree/",
-        "pattern": "Tree BFS",
-        "category": "Trees",
+        "pattern": "Classic Binary Search",
+        "topic": "Binary Search",
+        "link": "https://leetcode.com/problems/sqrtx/",
         "completed": false,
         "notes": ""
       }
@@ -1246,11 +1246,11 @@ export const initialPlanDays = [
       {
         "id": "d38-dsa",
         "type": "dsa",
-        "title": "Populating Next Right Pointers in Each Node",
-        "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/populating-next-right-pointers-in-each-node/",
-        "pattern": "Tree BFS",
-        "category": "Trees",
+        "title": "Search Insert Position",
+        "difficulty": "Easy",
+        "pattern": "Classic Binary Search",
+        "topic": "Binary Search",
+        "link": "https://leetcode.com/problems/search-insert-position/",
         "completed": false,
         "notes": ""
       }
@@ -1279,11 +1279,11 @@ export const initialPlanDays = [
       {
         "id": "d39-dsa",
         "type": "dsa",
-        "title": "Binary Tree Right Side View",
+        "title": "Search in Rotated Sorted Array",
         "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/binary-tree-right-side-view/",
-        "pattern": "Tree BFS",
-        "category": "Trees",
+        "pattern": "Classic Binary Search",
+        "topic": "Binary Search",
+        "link": "https://leetcode.com/problems/search-in-rotated-sorted-array/",
         "completed": false,
         "notes": ""
       }
@@ -1312,11 +1312,11 @@ export const initialPlanDays = [
       {
         "id": "d40-dsa",
         "type": "dsa",
-        "title": "Minimum Depth of Binary Tree",
-        "difficulty": "Easy",
-        "link": "https://leetcode.com/problems/minimum-depth-of-binary-tree/",
-        "pattern": "Tree BFS",
-        "category": "Trees",
+        "title": "Find Minimum in Rotated Sorted Array",
+        "difficulty": "Medium",
+        "pattern": "Classic Binary Search",
+        "topic": "Binary Search",
+        "link": "https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/",
         "completed": false,
         "notes": ""
       }
@@ -1345,11 +1345,11 @@ export const initialPlanDays = [
       {
         "id": "d41-dsa",
         "type": "dsa",
-        "title": "Maximum Depth of Binary Tree",
-        "difficulty": "Easy",
-        "link": "https://leetcode.com/problems/maximum-depth-of-binary-tree/",
-        "pattern": "Tree DFS",
-        "category": "Trees",
+        "title": "Find Peak Element",
+        "difficulty": "Medium",
+        "pattern": "Classic Binary Search",
+        "topic": "Binary Search",
+        "link": "https://leetcode.com/problems/find-peak-element/",
         "completed": false,
         "notes": ""
       }
@@ -1378,11 +1378,11 @@ export const initialPlanDays = [
       {
         "id": "d42-dsa",
         "type": "dsa",
-        "title": "Path Sum",
-        "difficulty": "Easy",
-        "link": "https://leetcode.com/problems/path-sum/",
-        "pattern": "Tree DFS",
-        "category": "Trees",
+        "title": "Find First and Last Position of Element",
+        "difficulty": "Medium",
+        "pattern": "Lower / Upper Bound",
+        "topic": "Binary Search",
+        "link": "https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/",
         "completed": false,
         "notes": ""
       }
@@ -1411,11 +1411,11 @@ export const initialPlanDays = [
       {
         "id": "d43-dsa",
         "type": "dsa",
-        "title": "Path Sum II",
-        "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/path-sum-ii/",
-        "pattern": "Tree DFS",
-        "category": "Trees",
+        "title": "Find kth rotation",
+        "difficulty": "Easy",
+        "pattern": "Lower / Upper Bound",
+        "topic": "Binary Search",
+        "link": "https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/",
         "completed": false,
         "notes": ""
       }
@@ -1444,11 +1444,11 @@ export const initialPlanDays = [
       {
         "id": "d44-dsa",
         "type": "dsa",
-        "title": "Diameter of Binary Tree",
+        "title": "Count Occurrences",
         "difficulty": "Easy",
-        "link": "https://leetcode.com/problems/diameter-of-binary-tree/",
-        "pattern": "Tree DFS",
-        "category": "Trees",
+        "pattern": "Lower / Upper Bound",
+        "topic": "Binary Search",
+        "link": "https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/",
         "completed": false,
         "notes": ""
       }
@@ -1477,11 +1477,11 @@ export const initialPlanDays = [
       {
         "id": "d45-dsa",
         "type": "dsa",
-        "title": "Binary Tree Maximum Path Sum",
-        "difficulty": "Hard",
-        "link": "https://leetcode.com/problems/binary-tree-maximum-path-sum/",
-        "pattern": "Tree DFS",
-        "category": "Trees",
+        "title": "Ceiling in a Sorted Array",
+        "difficulty": "Easy",
+        "pattern": "Lower / Upper Bound",
+        "topic": "Binary Search",
+        "link": "https://leetcode.com/problems/search-insert-position/",
         "completed": false,
         "notes": ""
       }
@@ -1510,11 +1510,11 @@ export const initialPlanDays = [
       {
         "id": "d46-dsa",
         "type": "dsa",
-        "title": "Lowest Common Ancestor of a Binary Tree",
-        "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/",
-        "pattern": "Tree DFS",
-        "category": "Trees",
+        "title": "Floor in a Sorted Array",
+        "difficulty": "Easy",
+        "pattern": "Lower / Upper Bound",
+        "topic": "Binary Search",
+        "link": "https://leetcode.com/problems/search-insert-position/",
         "completed": false,
         "notes": ""
       }
@@ -1543,11 +1543,11 @@ export const initialPlanDays = [
       {
         "id": "d47-dsa",
         "type": "dsa",
-        "title": "Validate Binary Search Tree",
+        "title": "Koko Eating Bananas",
         "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/validate-binary-search-tree/",
-        "pattern": "Tree DFS",
-        "category": "Trees",
+        "pattern": "Binary Search on Answers",
+        "topic": "Binary Search",
+        "link": "https://leetcode.com/problems/koko-eating-bananas/",
         "completed": false,
         "notes": ""
       }
@@ -1576,11 +1576,11 @@ export const initialPlanDays = [
       {
         "id": "d48-dsa",
         "type": "dsa",
-        "title": "Find Median from Data Stream",
-        "difficulty": "Hard",
-        "link": "https://leetcode.com/problems/find-median-from-data-stream/",
-        "pattern": "Two Heaps",
-        "category": "Heap",
+        "title": "Capacity To Ship Packages Within D Days",
+        "difficulty": "Medium",
+        "pattern": "Binary Search on Answers",
+        "topic": "Binary Search",
+        "link": "https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/",
         "completed": false,
         "notes": ""
       }
@@ -1609,11 +1609,11 @@ export const initialPlanDays = [
       {
         "id": "d49-dsa",
         "type": "dsa",
-        "title": "Sliding Window Median",
-        "difficulty": "Hard",
-        "link": "https://leetcode.com/problems/sliding-window-median/",
-        "pattern": "Two Heaps",
-        "category": "Heap",
+        "title": "Min Speed to Arrive on Time",
+        "difficulty": "Medium",
+        "pattern": "Binary Search on Answers",
+        "topic": "Binary Search",
+        "link": "https://leetcode.com/problems/minimum-speed-to-arrive-on-time/",
         "completed": false,
         "notes": ""
       }
@@ -1642,11 +1642,11 @@ export const initialPlanDays = [
       {
         "id": "d50-dsa",
         "type": "dsa",
-        "title": "IPO",
-        "difficulty": "Hard",
-        "link": "https://leetcode.com/problems/ipo/",
-        "pattern": "Two Heaps",
-        "category": "Heap",
+        "title": "Aggressive cows",
+        "difficulty": "Medium",
+        "pattern": "Binary Search on Answers",
+        "topic": "Binary Search",
+        "link": "https://leetcode.com/problems/magnetic-force-between-two-balls/",
         "completed": false,
         "notes": ""
       }
@@ -1675,11 +1675,11 @@ export const initialPlanDays = [
       {
         "id": "d51-dsa",
         "type": "dsa",
-        "title": "Subsets",
+        "title": "Min number of days to make m bouquets",
         "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/subsets/",
-        "pattern": "Backtracking",
-        "category": "Recursion",
+        "pattern": "Binary Search on Answers",
+        "topic": "Binary Search",
+        "link": "https://leetcode.com/problems/minimum-number-of-days-to-make-m-bouquets/",
         "completed": false,
         "notes": ""
       }
@@ -1708,11 +1708,11 @@ export const initialPlanDays = [
       {
         "id": "d52-dsa",
         "type": "dsa",
-        "title": "Subsets II",
+        "title": "Magnetic Force Between Two Balls",
         "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/subsets-ii/",
-        "pattern": "Backtracking",
-        "category": "Recursion",
+        "pattern": "Binary Search on Answers",
+        "topic": "Binary Search",
+        "link": "https://leetcode.com/problems/magnetic-force-between-two-balls/",
         "completed": false,
         "notes": ""
       }
@@ -1741,11 +1741,11 @@ export const initialPlanDays = [
       {
         "id": "d53-dsa",
         "type": "dsa",
-        "title": "Permutations",
+        "title": "Allocate Minimum Number of Pages",
         "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/permutations/",
-        "pattern": "Backtracking",
-        "category": "Recursion",
+        "pattern": "Binary Search on Answers",
+        "topic": "Binary Search",
+        "link": "https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/",
         "completed": false,
         "notes": ""
       }
@@ -1774,11 +1774,11 @@ export const initialPlanDays = [
       {
         "id": "d54-dsa",
         "type": "dsa",
-        "title": "Combination Sum",
-        "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/combination-sum/",
-        "pattern": "Backtracking",
-        "category": "Recursion",
+        "title": "Split Array Largest Sum",
+        "difficulty": "Hard",
+        "pattern": "Binary Search on Answers",
+        "topic": "Binary Search",
+        "link": "https://leetcode.com/problems/split-array-largest-sum/",
         "completed": false,
         "notes": ""
       }
@@ -1807,11 +1807,11 @@ export const initialPlanDays = [
       {
         "id": "d55-dsa",
         "type": "dsa",
-        "title": "Letter Combinations of a Phone Number",
+        "title": "Search a 2D Matrix",
         "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/letter-combinations-of-a-phone-number/",
-        "pattern": "Backtracking",
-        "category": "Recursion",
+        "pattern": "Search In 2D Matrix",
+        "topic": "Binary Search",
+        "link": "https://leetcode.com/problems/search-a-2d-matrix/",
         "completed": false,
         "notes": ""
       }
@@ -1840,11 +1840,11 @@ export const initialPlanDays = [
       {
         "id": "d56-dsa",
         "type": "dsa",
-        "title": "Word Search",
+        "title": "Search a 2D Matrix II",
         "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/word-search/",
-        "pattern": "Backtracking",
-        "category": "Matrix",
+        "pattern": "Search In 2D Matrix",
+        "topic": "Binary Search",
+        "link": "https://leetcode.com/problems/search-a-2d-matrix-ii/",
         "completed": false,
         "notes": ""
       }
@@ -1873,11 +1873,11 @@ export const initialPlanDays = [
       {
         "id": "d57-dsa",
         "type": "dsa",
-        "title": "Binary Search",
-        "difficulty": "Easy",
-        "link": "https://leetcode.com/problems/binary-search/",
-        "pattern": "Binary Search",
-        "category": "Array",
+        "title": "Kth Smallest Element in Sorted Matrix",
+        "difficulty": "Medium",
+        "pattern": "Search In 2D Matrix",
+        "topic": "Binary Search",
+        "link": "https://leetcode.com/problems/kth-smallest-element-in-a-sorted-matrix/",
         "completed": false,
         "notes": ""
       }
@@ -1906,11 +1906,11 @@ export const initialPlanDays = [
       {
         "id": "d58-dsa",
         "type": "dsa",
-        "title": "Search in Rotated Sorted Array",
-        "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/search-in-rotated-sorted-array/",
-        "pattern": "Binary Search",
-        "category": "Array",
+        "title": "Matrix Median",
+        "difficulty": "Hard",
+        "pattern": "Search In 2D Matrix",
+        "topic": "Binary Search",
+        "link": "https://leetcode.com/problems/median-of-two-sorted-arrays/",
         "completed": false,
         "notes": ""
       }
@@ -1939,11 +1939,11 @@ export const initialPlanDays = [
       {
         "id": "d59-dsa",
         "type": "dsa",
-        "title": "Find Minimum in Rotated Sorted Array",
-        "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/",
-        "pattern": "Binary Search",
-        "category": "Array",
+        "title": "Next Greater Element I",
+        "difficulty": "Easy",
+        "pattern": "Monotonic Stack",
+        "topic": "Stack",
+        "link": "https://leetcode.com/problems/next-greater-element-i/",
         "completed": false,
         "notes": ""
       }
@@ -1972,11 +1972,11 @@ export const initialPlanDays = [
       {
         "id": "d60-dsa",
         "type": "dsa",
-        "title": "Find First and Last Position of Element in Sorted Array",
+        "title": "Next Greater Element II",
         "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/",
-        "pattern": "Binary Search",
-        "category": "Array",
+        "pattern": "Monotonic Stack",
+        "topic": "Stack",
+        "link": "https://leetcode.com/problems/next-greater-element-ii/",
         "completed": false,
         "notes": ""
       }
@@ -2005,11 +2005,11 @@ export const initialPlanDays = [
       {
         "id": "d61-dsa",
         "type": "dsa",
-        "title": "Search a 2D Matrix",
+        "title": "Daily Temperatures",
         "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/search-a-2d-matrix/",
-        "pattern": "Binary Search",
-        "category": "Matrix",
+        "pattern": "Monotonic Stack",
+        "topic": "Stack",
+        "link": "https://leetcode.com/problems/daily-temperatures/",
         "completed": false,
         "notes": ""
       }
@@ -2038,11 +2038,11 @@ export const initialPlanDays = [
       {
         "id": "d62-dsa",
         "type": "dsa",
-        "title": "Peak Index in a Mountain Array",
+        "title": "Online Stock Span",
         "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/peak-index-in-a-mountain-array/",
-        "pattern": "Binary Search",
-        "category": "Array",
+        "pattern": "Monotonic Stack",
+        "topic": "Stack",
+        "link": "https://leetcode.com/problems/online-stock-span/",
         "completed": false,
         "notes": ""
       }
@@ -2071,11 +2071,11 @@ export const initialPlanDays = [
       {
         "id": "d63-dsa",
         "type": "dsa",
-        "title": "Koko Eating Bananas",
-        "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/koko-eating-bananas/",
-        "pattern": "Binary Search",
-        "category": "Binary Search on Answer",
+        "title": "Largest Rectangle in Histogram",
+        "difficulty": "Hard",
+        "pattern": "Monotonic Stack",
+        "topic": "Stack",
+        "link": "https://leetcode.com/problems/largest-rectangle-in-histogram/",
         "completed": false,
         "notes": ""
       }
@@ -2104,11 +2104,11 @@ export const initialPlanDays = [
       {
         "id": "d64-dsa",
         "type": "dsa",
-        "title": "Kth Largest Element in an Array",
-        "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/kth-largest-element-in-an-array/",
-        "pattern": "Top K Elements",
-        "category": "Heap",
+        "title": "Maximal Rectangle",
+        "difficulty": "Hard",
+        "pattern": "Monotonic Stack",
+        "topic": "Stack",
+        "link": "https://leetcode.com/problems/maximal-rectangle/",
         "completed": false,
         "notes": ""
       }
@@ -2137,11 +2137,11 @@ export const initialPlanDays = [
       {
         "id": "d65-dsa",
         "type": "dsa",
-        "title": "Top K Frequent Elements",
+        "title": "Asteroid Collision",
         "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/top-k-frequent-elements/",
-        "pattern": "Top K Elements",
-        "category": "Heap",
+        "pattern": "Monotonic Stack",
+        "topic": "Stack",
+        "link": "https://leetcode.com/problems/asteroid-collision/",
         "completed": false,
         "notes": ""
       }
@@ -2170,11 +2170,11 @@ export const initialPlanDays = [
       {
         "id": "d66-dsa",
         "type": "dsa",
-        "title": "K Closest Points to Origin",
-        "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/k-closest-points-to-origin/",
-        "pattern": "Top K Elements",
-        "category": "Heap",
+        "title": "Basic Calculator I",
+        "difficulty": "Hard",
+        "pattern": "Expression Evaluation",
+        "topic": "Stack",
+        "link": "https://leetcode.com/problems/basic-calculator/",
         "completed": false,
         "notes": ""
       }
@@ -2203,11 +2203,11 @@ export const initialPlanDays = [
       {
         "id": "d67-dsa",
         "type": "dsa",
-        "title": "Sort Characters By Frequency",
+        "title": "Basic Calculator II",
         "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/sort-characters-by-frequency/",
-        "pattern": "Top K Elements",
-        "category": "Heap",
+        "pattern": "Expression Evaluation",
+        "topic": "Stack",
+        "link": "https://leetcode.com/problems/basic-calculator-ii/",
         "completed": false,
         "notes": ""
       }
@@ -2236,11 +2236,11 @@ export const initialPlanDays = [
       {
         "id": "d68-dsa",
         "type": "dsa",
-        "title": "Kth Largest Element in a Stream",
-        "difficulty": "Easy",
-        "link": "https://leetcode.com/problems/kth-largest-element-in-a-stream/",
-        "pattern": "Top K Elements",
-        "category": "Heap",
+        "title": "Evaluate Reverse Polish Notation",
+        "difficulty": "Medium",
+        "pattern": "Expression Evaluation",
+        "topic": "Stack",
+        "link": "https://leetcode.com/problems/evaluate-reverse-polish-notation/",
         "completed": false,
         "notes": ""
       }
@@ -2269,11 +2269,11 @@ export const initialPlanDays = [
       {
         "id": "d69-dsa",
         "type": "dsa",
-        "title": "Task Scheduler",
+        "title": "Decode String",
         "difficulty": "Medium",
-        "link": "https://leetcode.com/problems/task-scheduler/",
-        "pattern": "Top K Elements",
-        "category": "Heap",
+        "pattern": "Expression Evaluation",
+        "topic": "Stack",
+        "link": "https://leetcode.com/problems/decode-string/",
         "completed": false,
         "notes": ""
       }
@@ -2302,11 +2302,11 @@ export const initialPlanDays = [
       {
         "id": "d70-dsa",
         "type": "dsa",
-        "title": "Climbing Stairs",
+        "title": "Backspace String Compare",
         "difficulty": "Easy",
-        "link": "https://leetcode.com/problems/climbing-stairs/",
-        "pattern": "Dynamic Programming",
-        "category": "1D DP",
+        "pattern": "Stack Simulation / Undo Operation",
+        "topic": "Stack",
+        "link": "https://leetcode.com/problems/backspace-string-compare/",
         "completed": false,
         "notes": ""
       }

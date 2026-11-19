@@ -3,8 +3,8 @@ import confetti from 'canvas-confetti';
 import { initialPlanDays, DEFAULT_START_DATE } from '../data/planData';
 
 const LearningContext = createContext(null);
-const PLAN_STORAGE_KEY = 'study_daywise_plan_v4';
-const START_DATE_KEY = 'study_plan_start_date_v4';
+const PLAN_STORAGE_KEY = 'study_daywise_plan_v5_exact';
+const START_DATE_KEY = 'study_plan_start_date_v5_exact';
 
 export function LearningProvider({ children }) {
   // Plan days
@@ -27,9 +27,6 @@ export function LearningProvider({ children }) {
 
   // Selected Day number (1 to 70)
   const [activeDayNumber, setActiveDayNumber] = useState(1);
-
-  // Filter: 'all', 'pending', 'completed'
-  const [filterMode, setFilterMode] = useState('all');
 
   // Search query
   const [searchQuery, setSearchQuery] = useState('');
@@ -102,6 +99,15 @@ export function LearningProvider({ children }) {
     let hardTotal = 0;
     let hardSolved = 0;
 
+    let arrayTotal = 0;
+    let arraySolved = 0;
+    let stringsTotal = 0;
+    let stringsSolved = 0;
+    let bsTotal = 0;
+    let bsSolved = 0;
+    let stackTotal = 0;
+    let stackSolved = 0;
+
     let daysCompleted = 0;
 
     days.forEach(day => {
@@ -119,6 +125,7 @@ export function LearningProvider({ children }) {
           const isDone = Boolean(task.completed);
           if (isDone) dsaCompleted++;
 
+          // Difficulty breakdown
           const diff = (task.difficulty || 'Medium').toLowerCase();
           if (diff === 'easy') {
             easyTotal++;
@@ -129,6 +136,21 @@ export function LearningProvider({ children }) {
           } else {
             medTotal++;
             if (isDone) medSolved++;
+          }
+
+          // Topic breakdown (Array 24, Strings 11, Binary Search 23, Stack 12)
+          if (task.topic === 'Array') {
+            arrayTotal++;
+            if (isDone) arraySolved++;
+          } else if (task.topic === 'Strings') {
+            stringsTotal++;
+            if (isDone) stringsSolved++;
+          } else if (task.topic === 'Binary Search') {
+            bsTotal++;
+            if (isDone) bsSolved++;
+          } else if (task.topic === 'Stack') {
+            stackTotal++;
+            if (isDone) stackSolved++;
           }
         }
       });
@@ -159,6 +181,15 @@ export function LearningProvider({ children }) {
       dsaCompleted,
       dsaRemaining: dsaTotal - dsaCompleted,
       dsaPercent,
+      // Section breakdown (Rising Brain)
+      arrayTotal,
+      arraySolved,
+      stringsTotal,
+      stringsSolved,
+      bsTotal,
+      bsSolved,
+      stackTotal,
+      stackSolved,
       // Difficulty breakdown (from Rising Brain)
       easyTotal,
       easySolved,
@@ -261,8 +292,6 @@ export function LearningProvider({ children }) {
         progressStats,
         startDateStr,
         setStartDateStr,
-        filterMode,
-        setFilterMode,
         searchQuery,
         setSearchQuery,
         toggleTask,
