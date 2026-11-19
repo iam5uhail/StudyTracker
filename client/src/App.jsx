@@ -1,154 +1,109 @@
 import React, { useState } from 'react';
 import { 
-  Sidebar, 
-  HeroHeader, 
-  ProgressCard, 
-  SheetTabs, 
-  ActiveSheetOverview, 
-  SearchAndFilter, 
-  TopicAccordion,
-  NotesModal,
-  AddTrackModal,
-  AddProblemModal,
-  ImportModal,
-  RevisionView
+  Navbar, 
+  TodayFocusCard, 
+  WeeklyConsistencyCard, 
+  SubjectTabs, 
+  SubjectDetailView, 
+  DailyLogView,
+  LogSessionModal,
+  AddSubjectModal,
+  AddTopicModal
 } from './components';
-import { useLearning } from './context/LearningContext';
-import { Plus, BookOpen, Star } from 'lucide-react';
+import { BookOpen, Calendar, Plus } from 'lucide-react';
 
 export default function App() {
-  const { activeTrack, addTopic, tracks } = useLearning();
+  const [activeMainTab, setActiveMainTab] = useState('subjects'); // 'subjects' or 'logs'
+  const [isLogModalOpen, setIsLogModalOpen] = useState(false);
+  const [isAddSubjectOpen, setIsAddSubjectOpen] = useState(false);
+  const [addTopicModalData, setAddTopicModalData] = useState(null); // { subjectId, subjectName }
 
-  const [activeView, setActiveView] = useState('all'); // 'all' or 'revision'
-  const [modalNotesItem, setModalNotesItem] = useState(null);
-  const [modalNotesTrackId, setModalNotesTrackId] = useState(null);
-  const [isAddTrackOpen, setIsAddTrackOpen] = useState(false);
-  const [isImportOpen, setIsImportOpen] = useState(false);
-  const [addProblemData, setAddProblemData] = useState(null); // { topicId, topicName }
-
-  const handleOpenNotes = (item, trackId) => {
-    setModalNotesItem(item);
-    setModalNotesTrackId(trackId);
-  };
-
-  const handleOpenAddProblem = (topicId, topicName) => {
-    setAddProblemData({ topicId, topicName, trackId: activeTrack?.id });
-  };
-
-  const handlePromptAddTopic = () => {
-    const topicName = prompt('Enter new topic title (e.g. Dynamic Programming 2D, JVM Internals):');
-    if (topicName && topicName.trim()) {
-      addTopic(activeTrack.id, { name: topicName.trim() });
-    }
+  const handleOpenAddTopic = (subjectId, subjectName) => {
+    setAddTopicModalData({ subjectId, subjectName });
   };
 
   return (
-    <div className="min-h-screen bg-[#060A08] text-gray-100 flex">
-      {/* Left Icon Dock Sidebar matching screenshot */}
-      <Sidebar
-        activeView={activeView}
-        setActiveView={setActiveView}
-        onOpenAddTrack={() => setIsAddTrackOpen(true)}
-        onOpenImport={() => setIsImportOpen(true)}
+    <div className="min-h-screen bg-[#0B0F19] text-gray-100 flex flex-col font-sans antialiased selection:bg-indigo-500/30 selection:text-indigo-200">
+      {/* Top Navbar */}
+      <Navbar
+        onOpenLogModal={() => setIsLogModalOpen(true)}
+        onOpenAddSubject={() => setIsAddSubjectOpen(true)}
       />
 
-      {/* Main Content Area */}
-      <main className="flex-1 ml-16 min-h-screen p-5 sm:p-8 lg:p-10 max-w-7xl mx-auto">
-        {/* Top Split Section: Hero + Progress Card (Screenshot Layout) */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch mb-8">
-          {/* Left Hero (spans 2 cols on lg) */}
-          <div className="lg:col-span-2 flex flex-col justify-center">
-            <HeroHeader />
+      {/* Main Container */}
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
+        {/* Top Hub: Today's Focus Checklist + Weekly Consistency Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch">
+          <TodayFocusCard />
+          <WeeklyConsistencyCard />
+        </div>
+
+        {/* View Switcher: Subjects & Syllabus vs. Day-by-Day Learning Log */}
+        <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => setActiveMainTab('subjects')}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+                activeMainTab === 'subjects'
+                  ? 'bg-indigo-600 text-white shadow-sm'
+                  : 'text-gray-400 hover:text-gray-200 hover:bg-slate-800/60'
+              }`}
+            >
+              <BookOpen className="w-4 h-4" />
+              <span>Subjects & Syllabus</span>
+            </button>
+
+            <button
+              onClick={() => setActiveMainTab('logs')}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+                activeMainTab === 'logs'
+                  ? 'bg-indigo-600 text-white shadow-sm'
+                  : 'text-gray-400 hover:text-gray-200 hover:bg-slate-800/60'
+              }`}
+            >
+              <Calendar className="w-4 h-4" />
+              <span>Day-by-Day Journal</span>
+            </button>
           </div>
 
-          {/* Right Progress Card (spans 1 col on lg) */}
-          <div className="lg:col-span-1">
-            <ProgressCard />
+          <div className="text-xs text-gray-500 hidden sm:block">
+            {activeMainTab === 'subjects' ? 'Manage your courses & syllabus' : 'Track your daily study history'}
           </div>
         </div>
 
-        {/* View Selection: All Sheets or Starred Revision */}
-        {activeView === 'revision' ? (
-          <RevisionView onOpenNotes={handleOpenNotes} />
-        ) : (
-          <>
-            {/* Sheet Tabs (Pills: 1. Pattern Wise, 2. Java & Concurrency, 3. Last Minute 100...) */}
-            <SheetTabs onOpenAddTrack={() => setIsAddTrackOpen(true)} />
+        {/* Tab 1: Subjects & Syllabus */}
+        {activeMainTab === 'subjects' && (
+          <div className="space-y-4">
+            <SubjectTabs onOpenAddSubject={() => setIsAddSubjectOpen(true)} />
+            <SubjectDetailView onOpenAddTopic={handleOpenAddTopic} />
+          </div>
+        )}
 
-            {/* Active Sheet Card with Progress */}
-            <ActiveSheetOverview />
-
-            {/* Search & Filter Controls */}
-            <SearchAndFilter />
-
-            {/* List of Topic Accordions */}
-            <div className="space-y-4">
-              {activeTrack?.topics && activeTrack.topics.length > 0 ? (
-                activeTrack.topics.map((topic) => (
-                  <TopicAccordion
-                    key={topic.id}
-                    topic={topic}
-                    trackId={activeTrack.id}
-                    onOpenNotes={handleOpenNotes}
-                    onOpenAddProblem={handleOpenAddProblem}
-                  />
-                ))
-              ) : (
-                <div className="glow-card rounded-2xl p-10 text-center border border-[#16241D]">
-                  <BookOpen className="w-8 h-8 text-gray-500 mx-auto mb-2" />
-                  <p className="text-gray-400 text-sm">This sheet currently has no topics.</p>
-                  <button
-                    onClick={handlePromptAddTopic}
-                    className="mt-4 px-4 py-2 rounded-xl bg-emerald-500 text-black font-semibold text-xs inline-flex items-center space-x-1.5"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Add First Topic</span>
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Add Topic Floating / Bottom Button */}
-            <div className="mt-6 flex justify-center">
-              <button
-                onClick={handlePromptAddTopic}
-                className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl border border-dashed border-[#1E3127] hover:border-emerald-500/50 text-gray-400 hover:text-emerald-400 text-xs font-semibold bg-[#0A100D] hover:bg-[#0E1C15]/50 transition-all"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add New Topic to "{activeTrack?.name}"</span>
-              </button>
-            </div>
-          </>
+        {/* Tab 2: Day-by-Day Learning Journal */}
+        {activeMainTab === 'logs' && (
+          <DailyLogView onOpenLogModal={() => setIsLogModalOpen(true)} />
         )}
       </main>
 
+      {/* Footer */}
+      <footer className="border-t border-slate-800/80 py-4 text-center text-xs text-gray-500">
+        StudyTrack — Personal Daily Learning Companion for Students
+      </footer>
+
       {/* Modals */}
-      {modalNotesItem && (
-        <NotesModal
-          item={modalNotesItem}
-          trackId={modalNotesTrackId}
-          onClose={() => setModalNotesItem(null)}
-        />
+      {isLogModalOpen && (
+        <LogSessionModal onClose={() => setIsLogModalOpen(false)} />
       )}
 
-      {isAddTrackOpen && (
-        <AddTrackModal
-          onClose={() => setIsAddTrackOpen(false)}
-        />
+      {isAddSubjectOpen && (
+        <AddSubjectModal onClose={() => setIsAddSubjectOpen(false)} />
       )}
 
-      {isImportOpen && (
-        <ImportModal
-          onClose={() => setIsImportOpen(false)}
-        />
-      )}
-
-      {addProblemData && (
-        <AddProblemModal
-          trackId={addProblemData.trackId}
-          topicId={addProblemData.topicId}
-          topicName={addProblemData.topicName}
-          onClose={() => setAddProblemData(null)}
+      {addTopicModalData && (
+        <AddTopicModal
+          subjectId={addTopicModalData.subjectId}
+          subjectName={addTopicModalData.subjectName}
+          onClose={() => setAddTopicModalData(null)}
         />
       )}
     </div>

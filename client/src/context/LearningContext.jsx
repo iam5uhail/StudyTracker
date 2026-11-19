@@ -1,428 +1,330 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import confetti from 'canvas-confetti';
-import { initialTracks } from '../data/fallbackData';
+import { initialSubjects, initialDailyGoals, initialDailyLogs } from '../data/fallbackData';
 
 const LearningContext = createContext(null);
-const STORAGE_KEY = 'learn_tracker_tracks_v1';
-const ACTIVE_TRACK_KEY = 'learn_tracker_active_track_v1';
+const SUBJECTS_KEY = 'studytrack_subjects_v2';
+const GOALS_KEY = 'studytrack_goals_v2';
+const LOGS_KEY = 'studytrack_logs_v2';
 
 export function LearningProvider({ children }) {
-  const [tracks, setTracks] = useState(() => {
+  const [subjects, setSubjects] = useState(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-      }
-    } catch (e) {
-      console.warn('Failed to load tracks from localStorage', e);
-    }
-    return initialTracks;
-  });
-
-  const [activeTrackId, setActiveTrackId] = useState(() => {
-    try {
-      const saved = localStorage.getItem(ACTIVE_TRACK_KEY);
-      if (saved && tracks.some(t => t.id === saved)) return saved;
+      const saved = localStorage.getItem(SUBJECTS_KEY);
+      if (saved) return JSON.parse(saved);
     } catch (e) {}
-    return tracks[0]?.id || 'pattern-wise';
+    return initialSubjects;
   });
 
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedDifficulty, setSelectedDifficulty] = useState('All');
-  const [selectedStatus, setSelectedStatus] = useState('All'); // 'All', 'Solved', 'Unsolved', 'Revision'
+  const [dailyGoals, setDailyGoals] = useState(() => {
+    try {
+      const saved = localStorage.getItem(GOALS_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return initialDailyGoals;
+  });
 
-  // Persist tracks
+  const [dailyLogs, setDailyLogs] = useState(() => {
+    try {
+      const saved = localStorage.getItem(LOGS_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return initialDailyLogs;
+  });
+
+  const [selectedSubjectId, setSelectedSubjectId] = useState(subjects[0]?.id || 'sub-java');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Persist to localStorage
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(tracks));
-    } catch (e) {
-      console.error('Failed to save tracks to localStorage', e);
-    }
-  }, [tracks]);
+      localStorage.setItem(SUBJECTS_KEY, JSON.stringify(subjects));
+    } catch (e) {}
+  }, [subjects]);
 
-  // Persist active track id
   useEffect(() => {
-    if (activeTrackId) {
-      localStorage.setItem(ACTIVE_TRACK_KEY, activeTrackId);
-    }
-  }, [activeTrackId]);
+    try {
+      localStorage.setItem(GOALS_KEY, JSON.stringify(dailyGoals));
+    } catch (e) {}
+  }, [dailyGoals]);
 
-  // Background sync with API if server is alive
   useEffect(() => {
-    let mounted = true;
-    fetch('/api/tracks')
-      .then(res => {
-        if (!res.ok) throw new Error('API offline');
-        return res.json();
-      })
-      .then(data => {
-        if (mounted && Array.isArray(data) && data.length > 0) {
-          // If server responded with data, merge progress gracefully
-          // For now, client localStorage takes priority for local user changes
-        }
-      })
-      .catch(() => {
-        // Silently keep local state
-      });
-    return () => { mounted = false; };
-  }, []);
+    try {
+      localStorage.setItem(LOGS_KEY, JSON.stringify(dailyLogs));
+    } catch (e) {}
+  }, [dailyLogs]);
 
-  const activeTrack = useMemo(() => {
-    return tracks.find(t => t.id === activeTrackId) || tracks[0] || null;
-  }, [tracks, activeTrackId]);
+  // Active Subject
+  const activeSubject = useMemo(() => {
+    return subjects.find(s => s.id === selectedSubjectId) || subjects[0] || null;
+  }, [subjects, selectedSubjectId]);
 
-  // Overall Global Stats across ALL sheets (for the top right widget)
-  const globalStats = useMemo(() => {
-    let totalProblems = 0;
-    let solvedProblems = 0;
-    let easyTotal = 0;
-    let easySolved = 0;
-    let mediumTotal = 0;
-    let mediumSolved = 0;
-    let hardTotal = 0;
-    let hardSolved = 0;
+  // Overall Learning Stats
+  const stats = useMemo(() => {
     let totalTopics = 0;
+    let completedTopics = 0;
+    let inProgressTopics = 0;
+    let totalMinutes = 0;
 
-    tracks.forEach(t => {
-      totalTopics += (t.topics || []).length;
-      (t.topics || []).forEach(topic => {
-        (topic.items || []).forEach(item => {
-          totalProblems++;
-          const isDone = Boolean(item.isSolved);
-          if (isDone) solvedProblems++;
+    subjects.forEach(sub => {
+      (sub.topics || []).forEach(top => {
+        totalTopics++;
+        if (top.status === 'completed') completedTopics++;
+        if (top.status === 'in_progress') inProgressTopics++;
+        totalMinutes += Number(top.minutesSpent) || 0;
+      });
+    });
 
-          const diff = (item.difficulty || 'Medium').toLowerCase();
-          if (diff === 'easy') {
-            easyTotal++;
-            if (isDone) easySolved++;
-          } else if (diff === 'hard') {
-            hardTotal++;
-            if (isDone) hardSolved++;
+    // Also add minutes from daily study logs
+    dailyLogs.forEach(log => {
+      totalMinutes += Number(log.durationMinutes) || 0;
+    });
+
+    const percent = totalTopics === 0 ? 0 : Math.round((completedTopics / totalTopics) * 100);
+    const totalHours = (totalMinutes / 60).toFixed(1);
+
+    // Calculate streak from unique consecutive log dates
+    const logDates = [...new Set(dailyLogs.map(l => l.date))].sort().reverse();
+    let streak = 0;
+    const today = new Date().toISOString().slice(0, 10);
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+
+    if (logDates.includes(today) || logDates.includes(yesterday)) {
+      streak = 1;
+      let checkDate = new Date(logDates[0]);
+      for (let i = 1; i < logDates.length; i++) {
+        const prev = new Date(logDates[i]);
+        const diffDays = Math.round((checkDate - prev) / (1000 * 60 * 60 * 24));
+        if (diffDays === 1) {
+          streak++;
+          checkDate = prev;
+        } else {
+          break;
+        }
+      }
+    }
+
+    return {
+      totalSubjects: subjects.length,
+      totalTopics,
+      completedTopics,
+      inProgressTopics,
+      percent,
+      totalHours,
+      streak: Math.max(streak, 1) // default encouraging 1 day minimum
+    };
+  }, [subjects, dailyLogs]);
+
+  // Cycle topic status: todo -> in_progress -> completed -> todo
+  const toggleTopicStatus = (subjectId, topicId) => {
+    setSubjects(prev => prev.map(sub => {
+      if (sub.id !== subjectId) return sub;
+      return {
+        ...sub,
+        topics: (sub.topics || []).map(top => {
+          if (top.id !== topicId) return top;
+          let nextStatus = 'in_progress';
+          if (top.status === 'todo') nextStatus = 'in_progress';
+          else if (top.status === 'in_progress') {
+            nextStatus = 'completed';
+            // Celebration confetti!
+            try {
+              confetti({
+                particleCount: 40,
+                spread: 60,
+                origin: { y: 0.8 },
+                colors: ['#3B82F6', '#6366F1', '#10B981', '#F59E0B']
+              });
+            } catch (e) {}
           } else {
-            mediumTotal++;
-            if (isDone) mediumSolved++;
+            nextStatus = 'todo';
           }
-        });
-      });
-    });
-
-    const percent = totalProblems === 0 ? 0 : Math.round((solvedProblems / totalProblems) * 100);
-    const easyPercent = easyTotal === 0 ? 0 : Math.round((easySolved / easyTotal) * 100);
-    const medPercent = mediumTotal === 0 ? 0 : Math.round((mediumSolved / mediumTotal) * 100);
-    const hardPercent = hardTotal === 0 ? 0 : Math.round((hardSolved / hardTotal) * 100);
-
-    return {
-      sheetsCount: tracks.length,
-      topicsCount: totalTopics,
-      totalProblems,
-      solvedProblems,
-      percent,
-      easy: { total: easyTotal, solved: easySolved, percent: easyPercent },
-      medium: { total: mediumTotal, solved: mediumSolved, percent: medPercent },
-      hard: { total: hardTotal, solved: hardSolved, percent: hardPercent },
-    };
-  }, [tracks]);
-
-  // Current Active Track Stats
-  const activeTrackStats = useMemo(() => {
-    if (!activeTrack) return { total: 0, solved: 0, percent: 0, topicsCount: 0 };
-    let total = 0;
-    let solved = 0;
-    (activeTrack.topics || []).forEach(top => {
-      (top.items || []).forEach(item => {
-        total++;
-        if (item.isSolved) solved++;
-      });
-    });
-    const percent = total === 0 ? 0 : Math.round((solved / total) * 100);
-    return {
-      total,
-      solved,
-      percent,
-      topicsCount: (activeTrack.topics || []).length
-    };
-  }, [activeTrack]);
-
-  // Toggle item solved status
-  const toggleSolved = (trackId, itemId) => {
-    setTracks(prev => prev.map(t => {
-      if (t.id !== trackId) return t;
-      return {
-        ...t,
-        topics: (t.topics || []).map(topic => ({
-          ...topic,
-          items: (topic.items || []).map(item => {
-            if (item.id === itemId) {
-              const nextSolved = !item.isSolved;
-              if (nextSolved) {
-                // Fire mini celebratory confetti!
-                try {
-                  confetti({
-                    particleCount: 45,
-                    spread: 60,
-                    origin: { y: 0.8 },
-                    colors: ['#10B981', '#34D399', '#6EE7B7', '#F59E0B']
-                  });
-                } catch (e) {}
-              }
-              return { ...item, isSolved: nextSolved, solvedAt: nextSolved ? new Date().toISOString() : null };
-            }
-            return item;
-          })
-        }))
+          return { ...top, status: nextStatus };
+        })
       };
     }));
   };
 
-  // Toggle item revision / bookmark star
-  const toggleRevision = (trackId, itemId) => {
-    setTracks(prev => prev.map(t => {
-      if (t.id !== trackId) return t;
+  // Update Topic details (notes, confidence, title)
+  const updateTopic = (subjectId, topicId, updates) => {
+    setSubjects(prev => prev.map(sub => {
+      if (sub.id !== subjectId) return sub;
       return {
-        ...t,
-        topics: (t.topics || []).map(topic => ({
-          ...topic,
-          items: (topic.items || []).map(item => {
-            if (item.id === itemId) {
-              return { ...item, isRevision: !item.isRevision };
-            }
-            return item;
-          })
-        }))
+        ...sub,
+        topics: (sub.topics || []).map(top => {
+          if (top.id !== topicId) return top;
+          return { ...top, ...updates };
+        })
       };
     }));
   };
 
-  // Update item notes & code snippet
-  const updateItemNotes = (trackId, itemId, { notes, codeSnippet, tags }) => {
-    setTracks(prev => prev.map(t => {
-      if (t.id !== trackId) return t;
-      return {
-        ...t,
-        topics: (t.topics || []).map(topic => ({
-          ...topic,
-          items: (topic.items || []).map(item => {
-            if (item.id === itemId) {
-              return {
-                ...item,
-                notes: notes !== undefined ? notes : item.notes,
-                codeSnippet: codeSnippet !== undefined ? codeSnippet : item.codeSnippet,
-                tags: tags !== undefined ? tags : item.tags,
-                updatedAt: new Date().toISOString()
-              };
-            }
-            return item;
-          })
-        }))
-      };
-    }));
-  };
-
-  // Create a brand new track (Universal sheet creator)
-  const createTrack = ({ name, subtitle, description, category, topics }) => {
-    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || `sheet-${Date.now()}`;
-    const newTrack = {
-      id: slug,
+  // Add Subject
+  const addSubject = ({ name, category, color, description }) => {
+    const newSub = {
+      id: 'sub-' + Date.now().toString(36),
       name,
-      badge: String(tracks.length + 1),
-      subtitle: subtitle || 'Custom curated learning roadmap',
-      description: description || 'Track your daily topics, problems, and concepts.',
+      category: category || 'Course',
+      color: color || 'blue',
       icon: 'BookOpen',
-      category: category || 'Custom',
-      topics: Array.isArray(topics) && topics.length > 0 ? topics : [
+      description: description || 'Study goals and syllabus',
+      topics: [
         {
-          id: `${slug}-topic-1`,
-          name: 'Getting Started',
-          description: 'Core concepts and foundational problems',
-          items: []
+          id: 'top-' + Date.now(),
+          title: 'Introduction & Foundations',
+          status: 'todo',
+          notes: '',
+          minutesSpent: 0,
+          confidence: 'medium'
         }
       ]
     };
-    setTracks(prev => [...prev, newTrack]);
-    setActiveTrackId(newTrack.id);
-    return newTrack;
+    setSubjects(prev => [...prev, newSub]);
+    setSelectedSubjectId(newSub.id);
   };
 
-  // Import track from JSON or custom structure
-  const importTrack = (trackData) => {
-    if (!trackData || !trackData.name) {
-      throw new Error('Invalid track data: Must contain a name');
-    }
-    const slug = (trackData.id || trackData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')) + `-${Date.now().toString().slice(-4)}`;
-    const importedTrack = {
-      ...trackData,
-      id: slug,
-      badge: String(tracks.length + 1),
-      topics: (trackData.topics || []).map((topic, tIdx) => ({
-        id: topic.id || `${slug}-t-${tIdx + 1}`,
-        name: topic.name || `Topic ${tIdx + 1}`,
-        description: topic.description || '',
-        items: (topic.items || []).map((item, iIdx) => ({
-          id: item.id || `${slug}-item-${tIdx}-${iIdx}`,
-          title: item.title || item.name || `Problem ${iIdx + 1}`,
-          difficulty: item.difficulty || 'Medium',
-          platform: item.platform || 'General',
-          link: item.link || '',
-          tags: item.tags || [],
-          notes: item.notes || '',
-          codeSnippet: item.codeSnippet || '',
-          isSolved: Boolean(item.isSolved),
-          isRevision: Boolean(item.isRevision)
-        }))
-      }))
-    };
-    setTracks(prev => [...prev, importedTrack]);
-    setActiveTrackId(importedTrack.id);
-    return importedTrack;
-  };
-
-  // Delete a track
-  const deleteTrack = (trackId) => {
-    if (tracks.length <= 1) {
-      alert('You must have at least one active track.');
+  // Delete Subject
+  const deleteSubject = (subjectId) => {
+    if (subjects.length <= 1) {
+      alert('You should keep at least one subject to track.');
       return;
     }
-    const nextTracks = tracks.filter(t => t.id !== trackId);
-    setTracks(nextTracks);
-    if (activeTrackId === trackId) {
-      setActiveTrackId(nextTracks[0].id);
+    const next = subjects.filter(s => s.id !== subjectId);
+    setSubjects(next);
+    if (selectedSubjectId === subjectId) {
+      setSelectedSubjectId(next[0].id);
     }
   };
 
-  // Reset progress of a track
-  const resetTrack = (trackId) => {
-    setTracks(prev => prev.map(t => {
-      if (t.id !== trackId) return t;
-      return {
-        ...t,
-        topics: (t.topics || []).map(topic => ({
-          ...topic,
-          items: (topic.items || []).map(item => ({
-            ...item,
-            isSolved: false,
-            isRevision: false
-          }))
-        }))
-      };
-    }));
-  };
-
-  // Add topic to a track
-  const addTopic = (trackId, { name, description }) => {
-    const topicId = `topic-${Date.now()}`;
-    setTracks(prev => prev.map(t => {
-      if (t.id !== trackId) return t;
-      return {
-        ...t,
-        topics: [
-          ...(t.topics || []),
-          {
-            id: topicId,
-            name: name || 'New Topic',
-            description: description || '',
-            items: []
-          }
-        ]
-      };
-    }));
-  };
-
-  // Add item / question to a topic
-  const addItem = (trackId, topicId, itemData) => {
-    const itemId = `item-${Date.now()}`;
-    const newItem = {
-      id: itemId,
-      title: itemData.title || 'Untitled Problem',
-      difficulty: itemData.difficulty || 'Medium',
-      platform: itemData.platform || 'Custom',
-      link: itemData.link || '',
-      tags: itemData.tags ? (Array.isArray(itemData.tags) ? itemData.tags : itemData.tags.split(',').map(s => s.trim())) : [],
-      notes: itemData.notes || '',
-      codeSnippet: itemData.codeSnippet || '',
-      isSolved: false,
-      isRevision: false
+  // Add Topic to a Subject
+  const addTopic = (subjectId, { title, notes, confidence }) => {
+    const newTop = {
+      id: 'top-' + Date.now(),
+      title: title || 'New Chapter / Topic',
+      status: 'todo',
+      notes: notes || '',
+      minutesSpent: 0,
+      confidence: confidence || 'medium'
     };
-
-    setTracks(prev => prev.map(t => {
-      if (t.id !== trackId) return t;
+    setSubjects(prev => prev.map(sub => {
+      if (sub.id !== subjectId) return sub;
       return {
-        ...t,
-        topics: (t.topics || []).map(topic => {
-          if (topic.id !== topicId) return topic;
-          return {
-            ...topic,
-            items: [...(topic.items || []), newItem]
-          };
-        })
+        ...sub,
+        topics: [...(sub.topics || []), newTop]
       };
     }));
   };
 
-  // Delete item from topic
-  const deleteItem = (trackId, topicId, itemId) => {
-    setTracks(prev => prev.map(t => {
-      if (t.id !== trackId) return t;
+  // Delete Topic
+  const deleteTopic = (subjectId, topicId) => {
+    setSubjects(prev => prev.map(sub => {
+      if (sub.id !== subjectId) return sub;
       return {
-        ...t,
-        topics: (t.topics || []).map(topic => {
-          if (topic.id !== topicId) return topic;
-          return {
-            ...topic,
-            items: (topic.items || []).filter(item => item.id !== itemId)
-          };
-        })
+        ...sub,
+        topics: (sub.topics || []).filter(t => t.id !== topicId)
       };
     }));
   };
 
-  // Export data as JSON file
-  const exportData = () => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(tracks, null, 2));
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `learn_tracker_backup_${new Date().toISOString().slice(0, 10)}.json`);
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
+  // Toggle Daily Goal Checkbox
+  const toggleGoal = (goalId) => {
+    setDailyGoals(prev => prev.map(g => {
+      if (g.id !== goalId) return g;
+      const nextDone = !g.isCompleted;
+      if (nextDone) {
+        try {
+          confetti({
+            particleCount: 30,
+            spread: 50,
+            origin: { y: 0.85 }
+          });
+        } catch (e) {}
+      }
+      return { ...g, isCompleted: nextDone };
+    }));
   };
 
-  // Reset everything to default template
-  const restoreDefaults = () => {
-    if (confirm('Restore default sheets (Pattern Wise, Java & Concurrency, Last Minute 100)? This will reset your progress to defaults.')) {
-      setTracks(initialTracks);
-      setActiveTrackId(initialTracks[0].id);
-      localStorage.removeItem(STORAGE_KEY);
+  // Add Daily Goal
+  const addGoal = ({ title, subjectName, estimatedMinutes }) => {
+    const newGoal = {
+      id: 'g-' + Date.now(),
+      title,
+      subjectName: subjectName || 'General',
+      isCompleted: false,
+      estimatedMinutes: Number(estimatedMinutes) || 30
+    };
+    setDailyGoals(prev => [newGoal, ...prev]);
+  };
+
+  // Delete Daily Goal
+  const deleteGoal = (goalId) => {
+    setDailyGoals(prev => prev.filter(g => g.id !== goalId));
+  };
+
+  // Add Day-by-Day Study Session Log
+  const addDailyLog = ({ subjectName, topicTitle, durationMinutes, summary, rating }) => {
+    const newLog = {
+      id: 'log-' + Date.now(),
+      date: new Date().toISOString().slice(0, 10),
+      subjectName: subjectName || 'General Study',
+      topicTitle: topicTitle || 'Study Session',
+      durationMinutes: Number(durationMinutes) || 45,
+      summary: summary || '',
+      rating: rating || 'Solid Progress'
+    };
+    setDailyLogs(prev => [newLog, ...prev]);
+
+    try {
+      confetti({
+        particleCount: 45,
+        spread: 60,
+        origin: { y: 0.7 }
+      });
+    } catch (e) {}
+  };
+
+  // Delete Study Log
+  const deleteDailyLog = (logId) => {
+    setDailyLogs(prev => prev.filter(l => l.id !== logId));
+  };
+
+  // Reset all to sample defaults
+  const resetToDefaults = () => {
+    if (confirm('Reset to starter subjects and study data?')) {
+      setSubjects(initialSubjects);
+      setDailyGoals(initialDailyGoals);
+      setDailyLogs(initialDailyLogs);
+      setSelectedSubjectId(initialSubjects[0].id);
+      localStorage.removeItem(SUBJECTS_KEY);
+      localStorage.removeItem(GOALS_KEY);
+      localStorage.removeItem(LOGS_KEY);
     }
   };
 
   return (
     <LearningContext.Provider
       value={{
-        tracks,
-        activeTrackId,
-        setActiveTrackId,
-        activeTrack,
-        globalStats,
-        activeTrackStats,
+        subjects,
+        activeSubject,
+        selectedSubjectId,
+        setSelectedSubjectId,
+        dailyGoals,
+        dailyLogs,
+        stats,
         searchQuery,
         setSearchQuery,
-        selectedDifficulty,
-        setSelectedDifficulty,
-        selectedStatus,
-        setSelectedStatus,
-        toggleSolved,
-        toggleRevision,
-        updateItemNotes,
-        createTrack,
-        importTrack,
-        deleteTrack,
-        resetTrack,
+        toggleTopicStatus,
+        updateTopic,
+        addSubject,
+        deleteSubject,
         addTopic,
-        addItem,
-        deleteItem,
-        exportData,
-        restoreDefaults
+        deleteTopic,
+        toggleGoal,
+        addGoal,
+        deleteGoal,
+        addDailyLog,
+        deleteDailyLog,
+        resetToDefaults
       }}
     >
       {children}
@@ -432,8 +334,6 @@ export function LearningProvider({ children }) {
 
 export function useLearning() {
   const context = useContext(LearningContext);
-  if (!context) {
-    throw new Error('useLearning must be used within a LearningProvider');
-  }
+  if (!context) throw new Error('useLearning must be used within LearningProvider');
   return context;
 }

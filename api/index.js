@@ -1,188 +1,146 @@
 const express = require("express");
 const cors = require("cors");
-const { initialTracks } = require("./data/seedData");
+const { initialSubjects, initialDailyGoals, initialDailyLogs } = require("./data/seedData");
 
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
 
-// In-memory / persistent track storage
-let tracksState = JSON.parse(JSON.stringify(initialTracks));
+// In-memory state for API (client also saves in localStorage for full offline support)
+let state = {
+  subjects: JSON.parse(JSON.stringify(initialSubjects)),
+  dailyGoals: JSON.parse(JSON.stringify(initialDailyGoals)),
+  dailyLogs: JSON.parse(JSON.stringify(initialDailyLogs))
+};
 
 // Health check
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
-// GET all tracks
+// GET all student data
+app.get("/api/data", (req, res) => {
+  res.json({ success: true, ...state });
+});
+
+// Legacy fallback route for /api/tracks
 app.get("/api/tracks", (req, res) => {
-  res.json({ success: true, tracks: tracksState });
+  res.json({ success: true, tracks: state.subjects });
 });
 
-// GET single track
-app.get("/api/tracks/:trackId", (req, res) => {
-  const track = tracksState.find(t => t.id === req.params.trackId);
-  if (!track) {
-    return res.status(404).json({ success: false, message: "Track not found" });
-  }
-  res.json({ success: true, track });
-});
+// CREATE Subject
+app.post("/api/subjects", (req, res) => {
+  const { name, category, color, description } = req.body;
+  if (!name) return res.status(400).json({ success: false, message: "Name is required" });
 
-// CREATE a new track (Universal Track Creator)
-app.post("/api/tracks", (req, res) => {
-  const { name, subtitle, description, category, icon, topics } = req.body;
-  if (!name) {
-    return res.status(400).json({ success: false, message: "Track name is required" });
-  }
-
-  const newId = name.toLowerCase().replace(/[^a-z0-9]/g, "-") + "-" + Date.now().toString(36);
-  const newTrack = {
-    id: newId,
+  const newSubject = {
+    id: "sub-" + Date.now().toString(36),
     name,
-    badge: (tracksState.length + 1).toString(),
-    subtitle: subtitle || "Custom Learning Roadmap",
-    description: description || "Custom track created to track personal goals",
-    icon: icon || "BookOpen",
     category: category || "General",
-    topics: topics || []
-  };
-
-  tracksState.push(newTrack);
-  res.status(201).json({ success: true, track: newTrack });
-});
-
-// DELETE a track
-app.delete("/api/tracks/:trackId", (req, res) => {
-  tracksState = tracksState.filter(t => t.id !== req.params.trackId);
-  res.json({ success: true, message: "Track deleted successfully", tracks: tracksState });
-});
-
-// ADD a topic to a track
-app.post("/api/tracks/:trackId/topics", (req, res) => {
-  const { name, description } = req.body;
-  const track = tracksState.find(t => t.id === req.params.trackId);
-  if (!track) {
-    return res.status(404).json({ success: false, message: "Track not found" });
-  }
-
-  const newTopic = {
-    id: "topic-" + Date.now().toString(36),
-    name: name || "New Topic",
+    color: color || "blue",
+    icon: "BookOpen",
     description: description || "",
-    items: []
+    topics: []
   };
 
-  track.topics.push(newTopic);
-  res.status(201).json({ success: true, topic: newTopic, track });
+  state.subjects.push(newSubject);
+  res.status(201).json({ success: true, subject: newSubject, subjects: state.subjects });
 });
 
-// ADD an item/question to a topic
-app.post("/api/tracks/:trackId/topics/:topicId/items", (req, res) => {
-  const { title, difficulty, platform, link, tags, notes } = req.body;
-  const track = tracksState.find(t => t.id === req.params.trackId);
-  if (!track) {
-    return res.status(404).json({ success: false, message: "Track not found" });
-  }
+// DELETE Subject
+app.delete("/api/subjects/:id", (req, res) => {
+  state.subjects = state.subjects.filter(s => s.id !== req.params.id);
+  res.json({ success: true, subjects: state.subjects });
+});
 
-  const topic = track.topics.find(top => top.id === req.params.topicId);
-  if (!topic) {
-    return res.status(404).json({ success: false, message: "Topic not found" });
-  }
+// ADD Topic
+app.post("/api/subjects/:id/topics", (req, res) => {
+  const subject = state.subjects.find(s => s.id === req.params.id);
+  if (!subject) return res.status(404).json({ success: false, message: "Subject not found" });
 
-  const newItem = {
-    id: "item-" + Date.now().toString(36),
-    title: title || "New Learning Item",
-    difficulty: difficulty || "Medium",
-    platform: platform || "Custom",
-    link: link || "",
-    tags: Array.isArray(tags) ? tags : (tags ? tags.split(",").map(t => t.trim()) : []),
+  const { title, notes, confidence } = req.body;
+  const newTopic = {
+    id: "top-" + Date.now().toString(36),
+    title: title || "New Topic",
+    status: "todo",
     notes: notes || "",
-    isSolved: false,
-    isRevision: false
+    minutesSpent: 0,
+    confidence: confidence || "medium"
   };
 
-  topic.items.push(newItem);
-  res.status(201).json({ success: true, item: newItem, track });
+  subject.topics.push(newTopic);
+  res.status(201).json({ success: true, topic: newTopic, subject });
 });
 
-// TOGGLE item solved / revision / update notes
-app.patch("/api/tracks/:trackId/items/:itemId", (req, res) => {
-  const { isSolved, isRevision, notes, difficulty, title, link } = req.body;
-  const track = tracksState.find(t => t.id === req.params.trackId);
-  if (!track) {
-    return res.status(404).json({ success: false, message: "Track not found" });
-  }
+// UPDATE Topic status / notes / confidence
+app.patch("/api/subjects/:id/topics/:topicId", (req, res) => {
+  const subject = state.subjects.find(s => s.id === req.params.id);
+  if (!subject) return res.status(404).json({ success: false, message: "Subject not found" });
 
-  let foundItem = null;
-  for (const topic of track.topics) {
-    const item = topic.items.find(i => i.id === req.params.itemId);
-    if (item) {
-      if (typeof isSolved !== "undefined") {
-        item.isSolved = isSolved;
-        item.solvedAt = isSolved ? new Date().toISOString() : null;
-      }
-      if (typeof isRevision !== "undefined") item.isRevision = isRevision;
-      if (typeof notes !== "undefined") item.notes = notes;
-      if (typeof difficulty !== "undefined") item.difficulty = difficulty;
-      if (typeof title !== "undefined") item.title = title;
-      if (typeof link !== "undefined") item.link = link;
-      foundItem = item;
-      break;
-    }
-  }
+  const topic = subject.topics.find(t => t.id === req.params.topicId);
+  if (!topic) return res.status(404).json({ success: false, message: "Topic not found" });
 
-  if (!foundItem) {
-    return res.status(404).json({ success: false, message: "Item not found" });
-  }
+  const { status, notes, confidence, minutesSpent, title } = req.body;
+  if (status !== undefined) topic.status = status;
+  if (notes !== undefined) topic.notes = notes;
+  if (confidence !== undefined) topic.confidence = confidence;
+  if (minutesSpent !== undefined) topic.minutesSpent = minutesSpent;
+  if (title !== undefined) topic.title = title;
 
-  res.json({ success: true, item: foundItem, track });
+  res.json({ success: true, topic, subject });
 });
 
-// RESET track progress
-app.post("/api/tracks/:trackId/reset", (req, res) => {
-  const track = tracksState.find(t => t.id === req.params.trackId);
-  if (!track) {
-    return res.status(404).json({ success: false, message: "Track not found" });
-  }
-
-  for (const topic of track.topics) {
-    for (const item of topic.items) {
-      item.isSolved = false;
-      item.isRevision = false;
-      item.solvedAt = null;
-    }
-  }
-
-  res.json({ success: true, message: "Track progress reset", track });
-});
-
-// IMPORT custom sheet (JSON / list)
-app.post("/api/tracks/import", (req, res) => {
-  const { sheetData } = req.body;
-  if (!sheetData || !sheetData.name) {
-    return res.status(400).json({ success: false, message: "Invalid sheet data" });
-  }
-
-  const newTrack = {
-    id: "imported-" + Date.now().toString(36),
-    name: sheetData.name,
-    badge: (tracksState.length + 1).toString(),
-    subtitle: sheetData.subtitle || "Imported Roadmap",
-    description: sheetData.description || "Imported roadmap / sheet",
-    icon: sheetData.icon || "Sparkles",
-    category: sheetData.category || "Custom",
-    topics: sheetData.topics || []
+// LOG Study Session
+app.post("/api/logs", (req, res) => {
+  const { subjectName, topicTitle, durationMinutes, summary, rating } = req.body;
+  const newLog = {
+    id: "log-" + Date.now().toString(36),
+    date: new Date().toISOString().slice(0, 10),
+    subjectName: subjectName || "General Study",
+    topicTitle: topicTitle || "Study Session",
+    durationMinutes: Number(durationMinutes) || 30,
+    summary: summary || "",
+    rating: rating || "Solid Progress"
   };
 
-  tracksState.push(newTrack);
-  res.status(201).json({ success: true, track: newTrack, tracks: tracksState });
+  state.dailyLogs.unshift(newLog);
+  res.status(201).json({ success: true, log: newLog, dailyLogs: state.dailyLogs });
+});
+
+// GOALS: Create, Toggle, Delete
+app.post("/api/goals", (req, res) => {
+  const { title, subjectName, estimatedMinutes } = req.body;
+  const newGoal = {
+    id: "g-" + Date.now().toString(36),
+    title: title || "Study Goal",
+    subjectName: subjectName || "General",
+    isCompleted: false,
+    estimatedMinutes: Number(estimatedMinutes) || 30
+  };
+  state.dailyGoals.push(newGoal);
+  res.status(201).json({ success: true, goal: newGoal, dailyGoals: state.dailyGoals });
+});
+
+app.patch("/api/goals/:id", (req, res) => {
+  const goal = state.dailyGoals.find(g => g.id === req.params.id);
+  if (!goal) return res.status(404).json({ success: false, message: "Goal not found" });
+
+  if (req.body.isCompleted !== undefined) goal.isCompleted = req.body.isCompleted;
+  if (req.body.title !== undefined) goal.title = req.body.title;
+
+  res.json({ success: true, goal, dailyGoals: state.dailyGoals });
+});
+
+app.delete("/api/goals/:id", (req, res) => {
+  state.dailyGoals = state.dailyGoals.filter(g => g.id !== req.params.id);
+  res.json({ success: true, dailyGoals: state.dailyGoals });
 });
 
 // Standalone local server listener
 if (process.env.NODE_ENV !== "production" || !process.env.VERCEL) {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
-    console.log(`Learning Tracker API server running on port ${PORT}`);
+    console.log(`Student Learning Tracker API running on port ${PORT}`);
   });
 }
 

@@ -1,96 +1,48 @@
-# 🚀 LearnTracker — Universal Mastery & Pattern Tracker
+# 🎓 StudyTrack — Daily Learning & Progress Companion
 
-> **"Learn patterns, not the problem."**  
-> A stylish, high-performance personal learning tracker built for mastering **Java topics**, **DSA patterns**, and **any custom roadmap or mentor sheet**. Ready for one-click deployment on **Vercel** with the **MERN** stack.
+A simple, distraction-free, day-by-day learning tracker for students. Track **any subject, course, or exam prep** (Java, Math, Science, Humanities, DSA, Languages) with syllabus progress, daily goals, and a study journal. Ready for 1-click deployment on **Vercel**.
 
 ---
 
 ## ✨ Features
 
-- 🌿 **Ultra-Sleek Dark Obsidian Aesthetic**: Inspired by modern mastery platforms with dark obsidian backgrounds (`#060A08`), emerald highlights (`#10B981`), glowing borders, and smooth micro-interactions.
-- ⚡ **Universal Sheet Architecture**:
-  - Not restricted to DSA or coding! Track Java, System Design, DevOps, Spring Boot, or any mentor's roadmap.
-  - Create custom sheets with customized topics and questions.
-  - **One-Click Import**: Paste any mentor's list (e.g. `Topic: Problem Name (Difficulty) - Link`) or import JSON backups directly.
-  - Export your complete learning data anytime as JSON.
-- 🎯 **Preloaded Starter Roadmaps**:
-  1. **Pattern Wise DSA Sheet**: Two Pointers, Sliding Window, Binary Search, Trees, and Dynamic Programming.
-  2. **Java Core & Concurrency Mastery**: JVM Memory & GC internals, Collections architecture (HashMap, ConcurrentHashMap), Multithreading, ThreadPoolExecutor, and Java 21 Virtual Threads.
-  3. **Last Minute 100**: High-yield questions when the interview is close.
-- 📊 **Dynamic Analytics & Progress Ring**:
-  - SVG Circular progress ring showing overall % completed across all sheets.
-  - Difficulty breakdown with visual progress bars for **Easy**, **Medium**, and **Hard**.
-- ⭐ **Interview Revision Mode**:
-  - Star (⭐) any high-yield problem or tricky Java concept.
-  - Switch to the dedicated **Revision Mode** from the left dock for quick last-minute review.
-- 📝 **Personal Notes & Solution Code Editor**:
-  - Write intuition, time/space complexity, and common edge cases.
-  - Store clean solution code with one-click copy.
-- 🎉 **Celebration Confetti**:
-  - Instant micro-celebrations upon problem completion.
+- 📚 **Universal Subjects & Syllabus**:
+  - Add any subject (Computer Science, Java, Mathematics, History, Physics, etc.).
+  - Break down each subject into chapters/topics.
+  - Cycle topic progress: `🔘 To Do` ➔ `⏳ In Progress` ➔ `✅ Completed`.
+  - Add personal notes, key formulas, and confidence ratings to each topic.
+- 🎯 **Today's Focus & Goals Checklist**:
+  - Plan your daily study tasks (e.g. "Read Chapter 4", "Solve 5 practice problems").
+  - Check off tasks with instant progress calculation.
+- 📅 **Day-by-Day Learning Journal**:
+  - Log daily study sessions with minutes studied and what you learned.
+  - View your full chronological history of daily learning.
+- 🔥 **Study Consistency & Streaks**:
+  - 7-day activity bubbles showing your active study days.
+  - Tracks continuous study streak and total hours studied.
 - ☁️ **Vercel & Offline Ready**:
-  - Works 100% offline via local browser storage synchronization.
-  - Ready for serverless deployment on Vercel with Express API routes.
+  - Works 100% offline via local browser storage (`localStorage`).
+  - Express serverless API configured in `vercel.json` for one-click deployment on Vercel.
 
 ---
 
-## 🛠️ Tech Stack
+## 🏃 Running Locally
 
-- **Frontend**: React 18, Vite, Tailwind CSS, Lucide React, Canvas Confetti
-- **Backend / Serverless**: Node.js, Express, Cors, Dotenv
-- **Deployment**: Vercel (Monorepo: Vite client + Express serverless API)
-
----
-
-## 🏃 Getting Started Locally
-
-### 1. Clone or Open Project
-```bash
-cd learning-tracker
-```
-
-### 2. Install Root & Client Dependencies
-```bash
-npm install
-npm run install-all
-```
-
-### 3. Run Development Server
-```bash
+```powershell
+cd C:\Users\suhai\Desktop\learning-tracker
 npm run dev
 ```
-- Client runs on: `http://localhost:3000`
-- API runs on: `http://localhost:5000`
+
+Open your browser at:
+👉 **`http://localhost:3000`**
 
 ---
 
-## 🚀 Deploying to Vercel (1-Click)
+## 🚀 Deploying to Vercel
 
-The repository includes a preconfigured `vercel.json`:
-
-```json
-{
-  "version": 2,
-  "buildCommand": "npm run build --prefix client",
-  "outputDirectory": "client/dist",
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/index.js"
-    }
-  ]
-}
+```powershell
+git add .
+git commit -m "Update: Simple general student study tracker"
+git push origin main
 ```
-
-### Steps to Deploy:
-1. Push your repository to GitHub / GitLab:
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit: LearnTracker project"
-   git remote add origin https://github.com/your-username/learning-tracker.git
-   git push -u origin main
-   ```
-2. Go to [vercel.com](https://vercel.com) and click **"Add New Project"**.
-3. Import your repository. Vercel automatically detects the Vite client build and the serverless Express API at `/api/index.js`.
-4. Click **Deploy**! 🚀
+Import repository into [vercel.com](https://vercel.com) and deploy!
