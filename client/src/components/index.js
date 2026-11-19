@@ -1,9 +1,5 @@
-export { default as Navbar } from './Navbar';
-export { default as TodayFocusCard } from './TodayFocusCard';
-export { default as WeeklyConsistencyCard } from './WeeklyConsistencyCard';
-export { default as SubjectTabs } from './SubjectTabs';
-export { default as SubjectDetailView } from './SubjectDetailView';
-export { default as DailyLogView } from './DailyLogView';
-export { default as LogSessionModal } from './LogSessionModal';
-export { default as AddSubjectModal } from './AddSubjectModal';
-export { default as AddTopicModal } from './AddTopicModal';
+export { default as ProgressOverviewBars } from './ProgressOverviewBars';
+export { default as DayNavigatorTimeline } from './DayNavigatorTimeline';
+export { default as DayTargetCard } from './DayTargetCard';
+export { default as AllTargetsTableView } from './AllTargetsTableView';
+export { default as SimpleNotesModal } from './SimpleNotesModal';

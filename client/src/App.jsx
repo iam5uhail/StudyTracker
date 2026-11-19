@@ -1,109 +1,94 @@
 import React, { useState } from 'react';
 import { 
-  Navbar, 
-  TodayFocusCard, 
-  WeeklyConsistencyCard, 
-  SubjectTabs, 
-  SubjectDetailView, 
-  DailyLogView,
-  LogSessionModal,
-  AddSubjectModal,
-  AddTopicModal
+  ProgressOverviewBars, 
+  DayNavigatorTimeline, 
+  DayTargetCard, 
+  AllTargetsTableView, 
+  SimpleNotesModal 
 } from './components';
-import { BookOpen, Calendar, Plus } from 'lucide-react';
+import { Calendar, ListChecks } from 'lucide-react';
 
 export default function App() {
-  const [activeMainTab, setActiveMainTab] = useState('subjects'); // 'subjects' or 'logs'
-  const [isLogModalOpen, setIsLogModalOpen] = useState(false);
-  const [isAddSubjectOpen, setIsAddSubjectOpen] = useState(false);
-  const [addTopicModalData, setAddTopicModalData] = useState(null); // { subjectId, subjectName }
+  const [activeTab, setActiveTab] = useState('dayView'); // 'dayView' or 'allView'
+  const [activeNotesData, setActiveNotesData] = useState(null); // { dayNumber, task }
 
-  const handleOpenAddTopic = (subjectId, subjectName) => {
-    setAddTopicModalData({ subjectId, subjectName });
+  const handleOpenNotes = (dayNumber, task) => {
+    setActiveNotesData({ dayNumber, task });
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0F19] text-gray-100 flex flex-col font-sans antialiased selection:bg-indigo-500/30 selection:text-indigo-200">
-      {/* Top Navbar */}
-      <Navbar
-        onOpenLogModal={() => setIsLogModalOpen(true)}
-        onOpenAddSubject={() => setIsAddSubjectOpen(true)}
-      />
+    <div className="min-h-screen bg-[#0A0E1A] text-gray-100 flex flex-col font-sans antialiased selection:bg-indigo-500/30 selection:text-indigo-200">
+      {/* Top Navbar Header */}
+      <header className="border-b border-slate-800 bg-[#0F172A]/90 backdrop-blur-md sticky top-0 z-30">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 text-lg font-black">
+              2+1
+            </div>
+            <div>
+              <h1 className="text-base font-bold text-white tracking-tight flex items-center space-x-2">
+                <span>Daily Learning Tracker</span>
+                <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                  Target: 2 Java + 1 DSA
+                </span>
+              </h1>
+              <p className="text-xs text-gray-400">Day-wise & Date-wise Structured Roadmap</p>
+            </div>
+          </div>
+
+          {/* View Mode Switcher */}
+          <div className="flex items-center space-x-1 bg-slate-900 border border-slate-700 p-1 rounded-xl text-xs">
+            <button
+              onClick={() => setActiveTab('dayView')}
+              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg font-semibold transition-colors ${
+                activeTab === 'dayView'
+                  ? 'bg-indigo-600 text-white'
+                  : 'text-gray-400 hover:text-gray-200'
+              }`}
+            >
+              <Calendar className="w-3.5 h-3.5" />
+              <span>Day-by-Day</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('allView')}
+              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg font-semibold transition-colors ${
+                activeTab === 'allView'
+                  ? 'bg-indigo-600 text-white'
+                  : 'text-gray-400 hover:text-gray-200'
+              }`}
+            >
+              <ListChecks className="w-3.5 h-3.5" />
+              <span>All 24 Days</span>
+            </button>
+          </div>
+        </div>
+      </header>
 
       {/* Main Container */}
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
-        {/* Top Hub: Today's Focus Checklist + Weekly Consistency Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch">
-          <TodayFocusCard />
-          <WeeklyConsistencyCard />
-        </div>
+        {/* 1. Progress Overview with 3 Dedicated Progress Bars */}
+        <ProgressOverviewBars />
 
-        {/* View Switcher: Subjects & Syllabus vs. Day-by-Day Learning Log */}
-        <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => setActiveMainTab('subjects')}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
-                activeMainTab === 'subjects'
-                  ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'text-gray-400 hover:text-gray-200 hover:bg-slate-800/60'
-              }`}
-            >
-              <BookOpen className="w-4 h-4" />
-              <span>Subjects & Syllabus</span>
-            </button>
+        {/* 2. Switchable Content */}
+        {activeTab === 'dayView' ? (
+          <>
+            {/* Horizontal 24-day timeline slider */}
+            <DayNavigatorTimeline />
 
-            <button
-              onClick={() => setActiveMainTab('logs')}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
-                activeMainTab === 'logs'
-                  ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'text-gray-400 hover:text-gray-200 hover:bg-slate-800/60'
-              }`}
-            >
-              <Calendar className="w-4 h-4" />
-              <span>Day-by-Day Journal</span>
-            </button>
-          </div>
-
-          <div className="text-xs text-gray-500 hidden sm:block">
-            {activeMainTab === 'subjects' ? 'Manage your courses & syllabus' : 'Track your daily study history'}
-          </div>
-        </div>
-
-        {/* Tab 1: Subjects & Syllabus */}
-        {activeMainTab === 'subjects' && (
-          <div className="space-y-4">
-            <SubjectTabs onOpenAddSubject={() => setIsAddSubjectOpen(true)} />
-            <SubjectDetailView onOpenAddTopic={handleOpenAddTopic} />
-          </div>
-        )}
-
-        {/* Tab 2: Day-by-Day Learning Journal */}
-        {activeMainTab === 'logs' && (
-          <DailyLogView onOpenLogModal={() => setIsLogModalOpen(true)} />
+            {/* Target card for the active day */}
+            <DayTargetCard onOpenNotes={handleOpenNotes} />
+          </>
+        ) : (
+          /* Full Table / List view of all 24 days */
+          <AllTargetsTableView onOpenNotes={handleOpenNotes} />
         )}
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-800/80 py-4 text-center text-xs text-gray-500">
-        StudyTrack — Personal Daily Learning Companion for Students
-      </footer>
-
-      {/* Modals */}
-      {isLogModalOpen && (
-        <LogSessionModal onClose={() => setIsLogModalOpen(false)} />
-      )}
-
-      {isAddSubjectOpen && (
-        <AddSubjectModal onClose={() => setIsAddSubjectOpen(false)} />
-      )}
-
-      {addTopicModalData && (
-        <AddTopicModal
-          subjectId={addTopicModalData.subjectId}
-          subjectName={addTopicModalData.subjectName}
-          onClose={() => setAddTopicModalData(null)}
+      {/* Simple Notes Modal */}
+      {activeNotesData && (
+        <SimpleNotesModal
+          taskData={activeNotesData}
+          onClose={() => setActiveNotesData(null)}
         />
       )}
     </div>

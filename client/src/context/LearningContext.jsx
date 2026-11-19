@@ -1,330 +1,232 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import confetti from 'canvas-confetti';
-import { initialSubjects, initialDailyGoals, initialDailyLogs } from '../data/fallbackData';
+import { initialPlanDays } from '../data/planData';
 
 const LearningContext = createContext(null);
-const SUBJECTS_KEY = 'studytrack_subjects_v2';
-const GOALS_KEY = 'studytrack_goals_v2';
-const LOGS_KEY = 'studytrack_logs_v2';
+const PLAN_STORAGE_KEY = 'study_daywise_plan_v3';
+const START_DATE_KEY = 'study_plan_start_date_v3';
 
 export function LearningProvider({ children }) {
-  const [subjects, setSubjects] = useState(() => {
+  // Plan days
+  const [days, setDays] = useState(() => {
     try {
-      const saved = localStorage.getItem(SUBJECTS_KEY);
+      const saved = localStorage.getItem(PLAN_STORAGE_KEY);
       if (saved) return JSON.parse(saved);
     } catch (e) {}
-    return initialSubjects;
+    return initialPlanDays;
   });
 
-  const [dailyGoals, setDailyGoals] = useState(() => {
+  // Start date (default: today's date)
+  const [startDateStr, setStartDateStr] = useState(() => {
     try {
-      const saved = localStorage.getItem(GOALS_KEY);
-      if (saved) return JSON.parse(saved);
+      const saved = localStorage.getItem(START_DATE_KEY);
+      if (saved) return saved;
     } catch (e) {}
-    return initialDailyGoals;
+    return new Date().toISOString().slice(0, 10);
   });
 
-  const [dailyLogs, setDailyLogs] = useState(() => {
-    try {
-      const saved = localStorage.getItem(LOGS_KEY);
-      if (saved) return JSON.parse(saved);
-    } catch (e) {}
-    return initialDailyLogs;
-  });
+  // Selected Day number (1 to 24)
+  const [activeDayNumber, setActiveDayNumber] = useState(1);
 
-  const [selectedSubjectId, setSelectedSubjectId] = useState(subjects[0]?.id || 'sub-java');
+  // Filter: 'all', 'pending', 'completed'
+  const [filterMode, setFilterMode] = useState('all');
+
+  // Search query
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Persist to localStorage
+  // Persist plan
   useEffect(() => {
     try {
-      localStorage.setItem(SUBJECTS_KEY, JSON.stringify(subjects));
+      localStorage.setItem(PLAN_STORAGE_KEY, JSON.stringify(days));
     } catch (e) {}
-  }, [subjects]);
+  }, [days]);
 
+  // Persist start date
   useEffect(() => {
     try {
-      localStorage.setItem(GOALS_KEY, JSON.stringify(dailyGoals));
+      localStorage.setItem(START_DATE_KEY, startDateStr);
     } catch (e) {}
-  }, [dailyGoals]);
+  }, [startDateStr]);
 
-  useEffect(() => {
-    try {
-      localStorage.setItem(LOGS_KEY, JSON.stringify(dailyLogs));
-    } catch (e) {}
-  }, [dailyLogs]);
-
-  // Active Subject
-  const activeSubject = useMemo(() => {
-    return subjects.find(s => s.id === selectedSubjectId) || subjects[0] || null;
-  }, [subjects, selectedSubjectId]);
-
-  // Overall Learning Stats
-  const stats = useMemo(() => {
-    let totalTopics = 0;
-    let completedTopics = 0;
-    let inProgressTopics = 0;
-    let totalMinutes = 0;
-
-    subjects.forEach(sub => {
-      (sub.topics || []).forEach(top => {
-        totalTopics++;
-        if (top.status === 'completed') completedTopics++;
-        if (top.status === 'in_progress') inProgressTopics++;
-        totalMinutes += Number(top.minutesSpent) || 0;
+  // Compute calendar dates for all days based on startDateStr
+  const daysWithDates = useMemo(() => {
+    const baseDate = new Date(startDateStr);
+    return days.map((day, idx) => {
+      const dayDate = new Date(baseDate.getTime() + idx * 86400000);
+      const dateDisplay = dayDate.toLocaleDateString('en-US', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric'
       });
+      const dateIso = dayDate.toISOString().slice(0, 10);
+
+      // Status of day
+      const totalTasks = day.tasks.length;
+      const completedTasks = day.tasks.filter(t => t.completed).length;
+      const isDayComplete = completedTasks === totalTasks && totalTasks > 0;
+      const isDayInProgress = completedTasks > 0 && !isDayComplete;
+
+      return {
+        ...day,
+        dateDisplay,
+        dateIso,
+        totalTasks,
+        completedTasks,
+        isDayComplete,
+        isDayInProgress
+      };
     });
+  }, [days, startDateStr]);
 
-    // Also add minutes from daily study logs
-    dailyLogs.forEach(log => {
-      totalMinutes += Number(log.durationMinutes) || 0;
-    });
+  // Overall Statistics & Progress Bar metrics
+  const progressStats = useMemo(() => {
+    let totalTasks = 0;
+    let completedTasks = 0;
 
-    const percent = totalTopics === 0 ? 0 : Math.round((completedTopics / totalTopics) * 100);
-    const totalHours = (totalMinutes / 60).toFixed(1);
+    let javaTotal = 0;
+    let javaCompleted = 0;
 
-    // Calculate streak from unique consecutive log dates
-    const logDates = [...new Set(dailyLogs.map(l => l.date))].sort().reverse();
-    let streak = 0;
-    const today = new Date().toISOString().slice(0, 10);
-    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    let dsaTotal = 0;
+    let dsaCompleted = 0;
 
-    if (logDates.includes(today) || logDates.includes(yesterday)) {
-      streak = 1;
-      let checkDate = new Date(logDates[0]);
-      for (let i = 1; i < logDates.length; i++) {
-        const prev = new Date(logDates[i]);
-        const diffDays = Math.round((checkDate - prev) / (1000 * 60 * 60 * 24));
-        if (diffDays === 1) {
-          streak++;
-          checkDate = prev;
-        } else {
-          break;
+    let daysCompleted = 0;
+
+    days.forEach(day => {
+      let allDayDone = true;
+      day.tasks.forEach(task => {
+        totalTasks++;
+        if (task.completed) completedTasks++;
+        else allDayDone = false;
+
+        if (task.type === 'java') {
+          javaTotal++;
+          if (task.completed) javaCompleted++;
+        } else if (task.type === 'dsa') {
+          dsaTotal++;
+          if (task.completed) dsaCompleted++;
         }
-      }
-    }
+      });
+      if (allDayDone && day.tasks.length > 0) daysCompleted++;
+    });
+
+    const overallPercent = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
+    const javaPercent = javaTotal === 0 ? 0 : Math.round((javaCompleted / javaTotal) * 100);
+    const dsaPercent = dsaTotal === 0 ? 0 : Math.round((dsaCompleted / dsaTotal) * 100);
+    const daysPercent = days.length === 0 ? 0 : Math.round((daysCompleted / days.length) * 100);
 
     return {
-      totalSubjects: subjects.length,
-      totalTopics,
-      completedTopics,
-      inProgressTopics,
-      percent,
-      totalHours,
-      streak: Math.max(streak, 1) // default encouraging 1 day minimum
+      totalTasks,
+      completedTasks,
+      remainingTasks: totalTasks - completedTasks,
+      overallPercent,
+      // Java metrics
+      javaTotal,
+      javaCompleted,
+      javaRemaining: javaTotal - javaCompleted,
+      javaPercent,
+      // DSA metrics
+      dsaTotal,
+      dsaCompleted,
+      dsaRemaining: dsaTotal - dsaCompleted,
+      dsaPercent,
+      // Days completed
+      totalDays: days.length,
+      daysCompleted,
+      daysRemaining: days.length - daysCompleted,
+      daysPercent
     };
-  }, [subjects, dailyLogs]);
+  }, [days]);
 
-  // Cycle topic status: todo -> in_progress -> completed -> todo
-  const toggleTopicStatus = (subjectId, topicId) => {
-    setSubjects(prev => prev.map(sub => {
-      if (sub.id !== subjectId) return sub;
+  // Active Day Object
+  const activeDay = useMemo(() => {
+    return daysWithDates.find(d => d.dayNumber === activeDayNumber) || daysWithDates[0];
+  }, [daysWithDates, activeDayNumber]);
+
+  // Toggle Task Completed
+  const toggleTask = (dayNumber, taskId) => {
+    setDays(prev => prev.map(d => {
+      if (d.dayNumber !== dayNumber) return d;
       return {
-        ...sub,
-        topics: (sub.topics || []).map(top => {
-          if (top.id !== topicId) return top;
-          let nextStatus = 'in_progress';
-          if (top.status === 'todo') nextStatus = 'in_progress';
-          else if (top.status === 'in_progress') {
-            nextStatus = 'completed';
-            // Celebration confetti!
+        ...d,
+        tasks: d.tasks.map(t => {
+          if (t.id !== taskId) return t;
+          const nextCompleted = !t.completed;
+          if (nextCompleted) {
             try {
               confetti({
-                particleCount: 40,
-                spread: 60,
+                particleCount: 35,
+                spread: 50,
                 origin: { y: 0.8 },
-                colors: ['#3B82F6', '#6366F1', '#10B981', '#F59E0B']
+                colors: ['#3B82F6', '#10B981', '#6366F1', '#F59E0B']
               });
             } catch (e) {}
-          } else {
-            nextStatus = 'todo';
           }
-          return { ...top, status: nextStatus };
+          return { ...t, completed: nextCompleted };
         })
       };
     }));
   };
 
-  // Update Topic details (notes, confidence, title)
-  const updateTopic = (subjectId, topicId, updates) => {
-    setSubjects(prev => prev.map(sub => {
-      if (sub.id !== subjectId) return sub;
+  // Update Task Notes
+  const updateTaskNotes = (dayNumber, taskId, notes) => {
+    setDays(prev => prev.map(d => {
+      if (d.dayNumber !== dayNumber) return d;
       return {
-        ...sub,
-        topics: (sub.topics || []).map(top => {
-          if (top.id !== topicId) return top;
-          return { ...top, ...updates };
+        ...d,
+        tasks: d.tasks.map(t => {
+          if (t.id !== taskId) return t;
+          return { ...t, notes };
         })
       };
     }));
   };
 
-  // Add Subject
-  const addSubject = ({ name, category, color, description }) => {
-    const newSub = {
-      id: 'sub-' + Date.now().toString(36),
-      name,
-      category: category || 'Course',
-      color: color || 'blue',
-      icon: 'BookOpen',
-      description: description || 'Study goals and syllabus',
-      topics: [
-        {
-          id: 'top-' + Date.now(),
-          title: 'Introduction & Foundations',
-          status: 'todo',
-          notes: '',
-          minutesSpent: 0,
-          confidence: 'medium'
-        }
-      ]
-    };
-    setSubjects(prev => [...prev, newSub]);
-    setSelectedSubjectId(newSub.id);
-  };
-
-  // Delete Subject
-  const deleteSubject = (subjectId) => {
-    if (subjects.length <= 1) {
-      alert('You should keep at least one subject to track.');
-      return;
-    }
-    const next = subjects.filter(s => s.id !== subjectId);
-    setSubjects(next);
-    if (selectedSubjectId === subjectId) {
-      setSelectedSubjectId(next[0].id);
-    }
-  };
-
-  // Add Topic to a Subject
-  const addTopic = (subjectId, { title, notes, confidence }) => {
-    const newTop = {
-      id: 'top-' + Date.now(),
-      title: title || 'New Chapter / Topic',
-      status: 'todo',
-      notes: notes || '',
-      minutesSpent: 0,
-      confidence: confidence || 'medium'
-    };
-    setSubjects(prev => prev.map(sub => {
-      if (sub.id !== subjectId) return sub;
-      return {
-        ...sub,
-        topics: [...(sub.topics || []), newTop]
-      };
-    }));
-  };
-
-  // Delete Topic
-  const deleteTopic = (subjectId, topicId) => {
-    setSubjects(prev => prev.map(sub => {
-      if (sub.id !== subjectId) return sub;
-      return {
-        ...sub,
-        topics: (sub.topics || []).filter(t => t.id !== topicId)
-      };
-    }));
-  };
-
-  // Toggle Daily Goal Checkbox
-  const toggleGoal = (goalId) => {
-    setDailyGoals(prev => prev.map(g => {
-      if (g.id !== goalId) return g;
-      const nextDone = !g.isCompleted;
-      if (nextDone) {
+  // Mark entire day complete or reset
+  const toggleAllDayTasks = (dayNumber, markCompleted) => {
+    setDays(prev => prev.map(d => {
+      if (d.dayNumber !== dayNumber) return d;
+      if (markCompleted) {
         try {
           confetti({
-            particleCount: 30,
-            spread: 50,
-            origin: { y: 0.85 }
+            particleCount: 50,
+            spread: 70,
+            origin: { y: 0.75 }
           });
         } catch (e) {}
       }
-      return { ...g, isCompleted: nextDone };
+      return {
+        ...d,
+        tasks: d.tasks.map(t => ({ ...t, completed: markCompleted }))
+      };
     }));
   };
 
-  // Add Daily Goal
-  const addGoal = ({ title, subjectName, estimatedMinutes }) => {
-    const newGoal = {
-      id: 'g-' + Date.now(),
-      title,
-      subjectName: subjectName || 'General',
-      isCompleted: false,
-      estimatedMinutes: Number(estimatedMinutes) || 30
-    };
-    setDailyGoals(prev => [newGoal, ...prev]);
-  };
-
-  // Delete Daily Goal
-  const deleteGoal = (goalId) => {
-    setDailyGoals(prev => prev.filter(g => g.id !== goalId));
-  };
-
-  // Add Day-by-Day Study Session Log
-  const addDailyLog = ({ subjectName, topicTitle, durationMinutes, summary, rating }) => {
-    const newLog = {
-      id: 'log-' + Date.now(),
-      date: new Date().toISOString().slice(0, 10),
-      subjectName: subjectName || 'General Study',
-      topicTitle: topicTitle || 'Study Session',
-      durationMinutes: Number(durationMinutes) || 45,
-      summary: summary || '',
-      rating: rating || 'Solid Progress'
-    };
-    setDailyLogs(prev => [newLog, ...prev]);
-
-    try {
-      confetti({
-        particleCount: 45,
-        spread: 60,
-        origin: { y: 0.7 }
-      });
-    } catch (e) {}
-  };
-
-  // Delete Study Log
-  const deleteDailyLog = (logId) => {
-    setDailyLogs(prev => prev.filter(l => l.id !== logId));
-  };
-
-  // Reset all to sample defaults
-  const resetToDefaults = () => {
-    if (confirm('Reset to starter subjects and study data?')) {
-      setSubjects(initialSubjects);
-      setDailyGoals(initialDailyGoals);
-      setDailyLogs(initialDailyLogs);
-      setSelectedSubjectId(initialSubjects[0].id);
-      localStorage.removeItem(SUBJECTS_KEY);
-      localStorage.removeItem(GOALS_KEY);
-      localStorage.removeItem(LOGS_KEY);
+  // Reset all progress
+  const resetAllProgress = () => {
+    if (confirm("Are you sure you want to reset all completed tasks and progress back to 0%?")) {
+      setDays(initialPlanDays);
+      localStorage.removeItem(PLAN_STORAGE_KEY);
     }
   };
 
   return (
     <LearningContext.Provider
       value={{
-        subjects,
-        activeSubject,
-        selectedSubjectId,
-        setSelectedSubjectId,
-        dailyGoals,
-        dailyLogs,
-        stats,
+        days: daysWithDates,
+        activeDay,
+        activeDayNumber,
+        setActiveDayNumber,
+        progressStats,
+        startDateStr,
+        setStartDateStr,
+        filterMode,
+        setFilterMode,
         searchQuery,
         setSearchQuery,
-        toggleTopicStatus,
-        updateTopic,
-        addSubject,
-        deleteSubject,
-        addTopic,
-        deleteTopic,
-        toggleGoal,
-        addGoal,
-        deleteGoal,
-        addDailyLog,
-        deleteDailyLog,
-        resetToDefaults
+        toggleTask,
+        updateTaskNotes,
+        toggleAllDayTasks,
+        resetAllProgress
       }}
     >
       {children}
