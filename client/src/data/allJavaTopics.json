@@ -1,0 +1,562 @@
+[
+    {
+        "Num":  1,
+        "Title":  "01.introduction to all language"
+    },
+    {
+        "Num":  2,
+        "Title":  "02. Introduction to java"
+    },
+    {
+        "Num":  3,
+        "Title":  "03. Difference between java and python"
+    },
+    {
+        "Num":  4,
+        "Title":  "04. Java software download and install"
+    },
+    {
+        "Num":  5,
+        "Title":  "05. Steps to create java first program"
+    },
+    {
+        "Num":  6,
+        "Title":  "06. java program structure and explanation"
+    },
+    {
+        "Num":  7,
+        "Title":  "07.compile and run java"
+    },
+    {
+        "Num":  8,
+        "Title":  "08. main() method explanation"
+    },
+    {
+        "Num":  9,
+        "Title":  "09. Explain of compilation and execution"
+    },
+    {
+        "Num":  10,
+        "Title":  "10. data types"
+    },
+    {
+        "Num":  11,
+        "Title":  "11.type casting"
+    },
+    {
+        "Num":  12,
+        "Title":  "12. number system"
+    },
+    {
+        "Num":  13,
+        "Title":  "13. variables"
+    },
+    {
+        "Num":  14,
+        "Title":  "14. literals and operators"
+    },
+    {
+        "Num":  15,
+        "Title":  "15.keywords and identifiers"
+    },
+    {
+        "Num":  16,
+        "Title":  "16.selection statement"
+    },
+    {
+        "Num":  17,
+        "Title":  "17.iteration and loooping - 1"
+    },
+    {
+        "Num":  18,
+        "Title":  "18. iteration or looping statement-2"
+    },
+    {
+        "Num":  19,
+        "Title":  "19. jump statement"
+    },
+    {
+        "Num":  20,
+        "Title":  "20. control statement program"
+    },
+    {
+        "Num":  21,
+        "Title":  "21. star pattern"
+    },
+    {
+        "Num":  22,
+        "Title":  "22. Number \u0026 Albhabet pattern"
+    },
+    {
+        "Num":  23,
+        "Title":  "23. Programming paradigm"
+    },
+    {
+        "Num":  24,
+        "Title":  "24. Oops concept"
+    },
+    {
+        "Num":  25,
+        "Title":  "25. Constructor"
+    },
+    {
+        "Num":  26,
+        "Title":  "26. Deep explanation of object creation"
+    },
+    {
+        "Num":  27,
+        "Title":  "27. Relationship in java classes"
+    },
+    {
+        "Num":  28,
+        "Title":  "28. Relationship in java classes - 2"
+    },
+    {
+        "Num":  29,
+        "Title":  "29. Relationship in java classes - 3"
+    },
+    {
+        "Num":  30,
+        "Title":  "30. Relationship in java classes - 4"
+    },
+    {
+        "Num":  31,
+        "Title":  "31. Polymorphism - 1"
+    },
+    {
+        "Num":  32,
+        "Title":  "32. Polymorphism - 2"
+    },
+    {
+        "Num":  33,
+        "Title":  "33. Data hiding and abstraction"
+    },
+    {
+        "Num":  34,
+        "Title":  "34. Interfaces in java"
+    },
+    {
+        "Num":  35,
+        "Title":  "35. Encapsulation in java"
+    },
+    {
+        "Num":  36,
+        "Title":  "36. this keyword"
+    },
+    {
+        "Num":  37,
+        "Title":  "37. super and final keyword"
+    },
+    {
+        "Num":  38,
+        "Title":  "38. static keyword"
+    },
+    {
+        "Num":  39,
+        "Title":  "39. nested classes in java"
+    },
+    {
+        "Num":  40,
+        "Title":  "40. static method and static nested classes"
+    },
+    {
+        "Num":  41,
+        "Title":  "41. packages -1"
+    },
+    {
+        "Num":  42,
+        "Title":  "42. packages -2"
+    },
+    {
+        "Num":  43,
+        "Title":  "43. Packages -3"
+    },
+    {
+        "Num":  44,
+        "Title":  "44. GUI in java"
+    },
+    {
+        "Num":  45,
+        "Title":  "45. Event handling in AWT"
+    },
+    {
+        "Num":  46,
+        "Title":  "46. Tic Toe - 1"
+    },
+    {
+        "Num":  47,
+        "Title":  "47. Tic Toe -2"
+    },
+    {
+        "Num":  48,
+        "Title":  "48. Tic Toe -3"
+    },
+    {
+        "Num":  49,
+        "Title":  "49. Tic Toe -4"
+    },
+    {
+        "Num":  50,
+        "Title":  "50. Error and exception"
+    },
+    {
+        "Num":  51,
+        "Title":  "51 checked and unchecked exception"
+    },
+    {
+        "Num":  52,
+        "Title":  "52. throws keyword and try-catch block"
+    },
+    {
+        "Num":  53,
+        "Title":  "53. try-catch block combination"
+    },
+    {
+        "Num":  54,
+        "Title":  "54. try-catch block combination"
+    },
+    {
+        "Num":  55,
+        "Title":  "55. String introduction"
+    },
+    {
+        "Num":  56,
+        "Title":  "56. String class constructor and methods"
+    },
+    {
+        "Num":  57,
+        "Title":  "57. StringBuffer, Stringbuilder"
+    },
+    {
+        "Num":  58,
+        "Title":  "58. String Program-1"
+    },
+    {
+        "Num":  59,
+        "Title":  "59. String Program-2"
+    },
+    {
+        "Num":  60,
+        "Title":  "60. Multithreading Introduction"
+    },
+    {
+        "Num":  61,
+        "Title":  "61.Thread creation-1"
+    },
+    {
+        "Num":  62,
+        "Title":  "62.Thread creation-2"
+    },
+    {
+        "Num":  63,
+        "Title":  "63.Thread class methods-1"
+    },
+    {
+        "Num":  64,
+        "Title":  "64.Thread class methods-2"
+    },
+    {
+        "Num":  65,
+        "Title":  "65.Thread class methods-3"
+    },
+    {
+        "Num":  66,
+        "Title":  "66.Synchronization-1"
+    },
+    {
+        "Num":  67,
+        "Title":  "67.Synchronization-2"
+    },
+    {
+        "Num":  68,
+        "Title":  "68.Synchronization-3"
+    },
+    {
+        "Num":  69,
+        "Title":  "69.Threadgroup class \u0026 Threadpool framework"
+    },
+    {
+        "Num":  70,
+        "Title":  "70.Callable and future interface"
+    },
+    {
+        "Num":  71,
+        "Title":  "71. Java IO and Byte Streams"
+    },
+    {
+        "Num":  72,
+        "Title":  "72.Character Stream and dynamic input approach"
+    },
+    {
+        "Num":  73,
+        "Title":  "73.Byte Stream Class"
+    },
+    {
+        "Num":  74,
+        "Title":  "74.Character Stream Class"
+    },
+    {
+        "Num":  75,
+        "Title":  "75.File Handling with Programs"
+    },
+    {
+        "Num":  76,
+        "Title":  "76.Serialization, Deserialaization \u0026 Externalization"
+    },
+    {
+        "Num":  77,
+        "Title":  "77.Notepad-1"
+    },
+    {
+        "Num":  78,
+        "Title":  "78.Notepad-2"
+    },
+    {
+        "Num":  79,
+        "Title":  "79.Notepad-3"
+    },
+    {
+        "Num":  80,
+        "Title":  "80.Networking Introduction"
+    },
+    {
+        "Num":  81,
+        "Title":  "81.Socket Programming"
+    },
+    {
+        "Num":  82,
+        "Title":  "82. RMI (Remote Method Invocation)"
+    },
+    {
+        "Num":  83,
+        "Title":  "83. Chat Project -1"
+    },
+    {
+        "Num":  84,
+        "Title":  "84. Chat Project -2"
+    },
+    {
+        "Num":  85,
+        "Title":  "85 DSA Introduction"
+    },
+    {
+        "Num":  86,
+        "Title":  "86 Array-1D"
+    },
+    {
+        "Num":  87,
+        "Title":  "87 Array-2D"
+    },
+    {
+        "Num":  88,
+        "Title":  "88 Array-3D"
+    },
+    {
+        "Num":  89,
+        "Title":  "89 Matrix, Jagged, Anonymous Array"
+    },
+    {
+        "Num":  90,
+        "Title":  "90 Array Programs-1"
+    },
+    {
+        "Num":  91,
+        "Title":  "91 Array Programs-2"
+    },
+    {
+        "Num":  92,
+        "Title":  "92 Array Programs-3"
+    },
+    {
+        "Num":  93,
+        "Title":  "93 Collection Framework Introduction"
+    },
+    {
+        "Num":  94,
+        "Title":  "94 Collection Interface"
+    },
+    {
+        "Num":  95,
+        "Title":  "95 List Interface \u0026 ArrayList class"
+    },
+    {
+        "Num":  96,
+        "Title":  "96 ArrayList-2"
+    },
+    {
+        "Num":  97,
+        "Title":  "97 Linked List "
+    },
+    {
+        "Num":  98,
+        "Title":  "98 Vector Legacy"
+    },
+    {
+        "Num":  99,
+        "Title":  "99 Stack Legacy"
+    },
+    {
+        "Num":  100,
+        "Title":  "100 Cursor in Collection"
+    },
+    {
+        "Num":  101,
+        "Title":  "101 Set Interface \u0026 HasSet"
+    },
+    {
+        "Num":  102,
+        "Title":  "102 LinkedHasSet, SortedSet, NavigableSet,"
+    },
+    {
+        "Num":  103,
+        "Title":  "103 TreeSet"
+    },
+    {
+        "Num":  104,
+        "Title":  "104 Copmarable \u0026 Comparator"
+    },
+    {
+        "Num":  105,
+        "Title":  "105 Queue"
+    },
+    {
+        "Num":  106,
+        "Title":  "106 Abstract Design Pattern"
+    },
+    {
+        "Num":  107,
+        "Title":  "107 Entry interface \u0026 HashMap class"
+    },
+    {
+        "Num":  108,
+        "Title":  "108 LinkedHasMap, IdentityHashMap,WeakHashMap"
+    },
+    {
+        "Num":  109,
+        "Title":  "109 SortedMap, NavigableMap"
+    },
+    {
+        "Num":  110,
+        "Title":  "110 HashTable"
+    },
+    {
+        "Num":  111,
+        "Title":  "111 Dictionary, Property, Concurrent Class"
+    },
+    {
+        "Num":  112,
+        "Title":  "112 Generics"
+    },
+    {
+        "Num":  113,
+        "Title":  "113 Default static method in interface"
+    },
+    {
+        "Num":  114,
+        "Title":  "114 Lambda Functions"
+    },
+    {
+        "Num":  115,
+        "Title":  "115 Predicate,consumer,supplier,Function"
+    },
+    {
+        "Num":  116,
+        "Title":  "116 Stream Api"
+    },
+    {
+        "Num":  117,
+        "Title":  "117 Method Refrence, Constructor Refrence"
+    },
+    {
+        "Num":  118,
+        "Title":  "118 Date Time API"
+    },
+    {
+        "Num":  119,
+        "Title":  "119 Download \u0026 Install Mysql"
+    },
+    {
+        "Num":  120,
+        "Title":  "120 SQL Queries"
+    },
+    {
+        "Num":  122,
+        "Title":  "122 JDBC insert, update, delete"
+    },
+    {
+        "Num":  123,
+        "Title":  "123 JDBC development"
+    },
+    {
+        "Num":  124,
+        "Title":  "124 Billing Software - 1"
+    },
+    {
+        "Num":  125,
+        "Title":  "125. Billing Software - 2"
+    },
+    {
+        "Num":  126,
+        "Title":  "126. Billing Software - 3"
+    },
+    {
+        "Num":  127,
+        "Title":  "127. Billing Software - 4"
+    },
+    {
+        "Num":  128,
+        "Title":  "128 Billing Software - 5"
+    },
+    {
+        "Num":  129,
+        "Title":  "129 Billing Software - 6"
+    },
+    {
+        "Num":  130,
+        "Title":  "130 Billing Software - 7"
+    },
+    {
+        "Num":  131,
+        "Title":  "131 Billing Software - 9"
+    },
+    {
+        "Num":  132,
+        "Title":  "132 Billing Software - 10"
+    },
+    {
+        "Num":  133,
+        "Title":  "133 Billing Software - 11"
+    },
+    {
+        "Num":  134,
+        "Title":  "134 Billing Software - 12"
+    },
+    {
+        "Num":  135,
+        "Title":  "135 Billing Software - 13"
+    },
+    {
+        "Num":  136,
+        "Title":  "136 Billing Software - 14"
+    },
+    {
+        "Num":  137,
+        "Title":  "137 Billing Software - 15"
+    },
+    {
+        "Num":  138,
+        "Title":  "138 Applets - 1"
+    },
+    {
+        "Num":  139,
+        "Title":  "139 Applets - 2"
+    },
+    {
+        "Num":  140,
+        "Title":  "140 Applets - 3"
+    },
+    {
+        "Num":  141,
+        "Title":  "141 Applets - 4"
+    }
+]

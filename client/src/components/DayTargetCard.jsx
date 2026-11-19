@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 
   CheckCircle2, 
   Circle, 
@@ -8,7 +8,8 @@ import {
   Brain, 
   ChevronRight, 
   ChevronLeft,
-  CheckCheck
+  CheckCheck,
+  Video
 } from 'lucide-react';
 import { useLearning } from '../context/LearningContext';
 
@@ -22,11 +23,11 @@ export default function DayTargetCard({ onOpenNotes }) {
   const isAllComplete = activeDay.isDayComplete;
 
   return (
-    <div className="bg-[#131B2E] border border-slate-700/80 rounded-2xl p-5 sm:p-6 shadow-sm space-y-6">
+    <div className="bg-[#0D1411] border border-[#16241D] rounded-2xl p-5 sm:p-6 shadow-sm space-y-6">
       {/* Day Header with Navigation arrows */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
-        <div className="flex items-center space-x-3">
-          <div className="w-12 h-12 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex flex-col items-center justify-center text-indigo-400 font-mono">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#16241D] pb-4">
+        <div className="flex items-center space-x-3.5">
+          <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex flex-col items-center justify-center text-emerald-400 font-mono shadow-[0_0_15px_-3px_rgba(16,185,129,0.2)]">
             <span className="text-[10px] uppercase font-bold text-gray-400">Day</span>
             <span className="text-lg font-extrabold text-white leading-none">{activeDay.dayNumber}</span>
           </div>
@@ -41,7 +42,7 @@ export default function DayTargetCard({ onOpenNotes }) {
               )}
             </div>
             <p className="text-xs text-gray-400 mt-0.5">
-              Scheduled Date: <strong className="text-indigo-300">{activeDay.dateDisplay}</strong> • {activeDay.completedTasks} of {activeDay.totalTasks} goals completed
+              Scheduled Date: <strong className="text-emerald-300 font-medium">{activeDay.dateDisplay}</strong> • {activeDay.completedTasks} of {activeDay.totalTasks} goals completed
             </p>
           </div>
         </div>
@@ -52,19 +53,19 @@ export default function DayTargetCard({ onOpenNotes }) {
             onClick={() => toggleAllDayTasks(activeDay.dayNumber, !isAllComplete)}
             className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
               isAllComplete
-                ? 'bg-slate-800 border-slate-700 text-gray-400 hover:text-white'
-                : 'bg-emerald-600/20 border-emerald-500/40 text-emerald-300 hover:bg-emerald-600/30'
+                ? 'bg-[#14201A] border-[#1E3127] text-gray-400 hover:text-white'
+                : 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/25'
             }`}
           >
             <CheckCheck className="w-3.5 h-3.5" />
             <span>{isAllComplete ? 'Uncheck All' : 'Mark Day Complete'}</span>
           </button>
 
-          <div className="flex items-center space-x-1 pl-2 border-l border-slate-800">
+          <div className="flex items-center space-x-1 pl-2 border-l border-[#16241D]">
             <button
               disabled={activeDayNumber <= 1}
               onClick={() => setActiveDayNumber(activeDayNumber - 1)}
-              className="p-1.5 rounded-xl border border-slate-700 bg-slate-900 text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+              className="p-1.5 rounded-xl border border-[#16241D] bg-[#080D0A] text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               title="Previous Day"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -72,7 +73,7 @@ export default function DayTargetCard({ onOpenNotes }) {
             <button
               disabled={activeDayNumber >= days.length}
               onClick={() => setActiveDayNumber(activeDayNumber + 1)}
-              className="p-1.5 rounded-xl border border-slate-700 bg-slate-900 text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+              className="p-1.5 rounded-xl border border-[#16241D] bg-[#080D0A] text-gray-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               title="Next Day"
             >
               <ChevronRight className="w-4 h-4" />
@@ -85,7 +86,7 @@ export default function DayTargetCard({ onOpenNotes }) {
       <div className="space-y-3">
         <div className="flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-amber-300">
           <Code2 className="w-4 h-4 text-amber-400" />
-          <span>Target 1: 2 Core Java Topics (From Course Folder)</span>
+          <span>Target 1: 2 Core Java Topics (From Video Course)</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -96,7 +97,7 @@ export default function DayTargetCard({ onOpenNotes }) {
               className={`group flex items-start justify-between p-3.5 rounded-xl border cursor-pointer transition-all ${
                 task.completed
                   ? 'bg-emerald-950/20 border-emerald-500/30 text-gray-400'
-                  : 'bg-slate-900/90 border-slate-700/80 hover:border-amber-400/50 text-gray-100'
+                  : 'bg-[#080D0A] border-[#16241D] hover:border-amber-400/50 text-gray-100'
               }`}
             >
               <div className="flex items-start space-x-3 flex-1 min-w-0 mr-2">
@@ -117,8 +118,9 @@ export default function DayTargetCard({ onOpenNotes }) {
                   }`}>
                     {task.title}
                   </span>
-                  <span className="text-[11px] text-gray-500 mt-0.5 block font-mono">
-                    Video & Notes Topic
+                  <span className="text-[11px] text-gray-500 mt-0.5 flex items-center space-x-1 font-mono">
+                    <Video className="w-3 h-3 text-amber-400/80" />
+                    <span>Core Java Course Video</span>
                   </span>
                 </div>
               </div>
@@ -133,7 +135,7 @@ export default function DayTargetCard({ onOpenNotes }) {
                 className={`p-1.5 rounded-lg border text-xs flex items-center space-x-1 flex-shrink-0 transition-colors ${
                   task.notes
                     ? 'bg-amber-500/15 border-amber-500/30 text-amber-300'
-                    : 'bg-slate-800 border-slate-700 text-gray-400 hover:text-white'
+                    : 'bg-[#14201A] border-[#1E3127] text-gray-400 hover:text-white'
                 }`}
                 title="Personal notes for this topic"
               >
@@ -145,7 +147,7 @@ export default function DayTargetCard({ onOpenNotes }) {
         </div>
       </div>
 
-      {/* 2. Target: 1 Daily DSA Question */}
+      {/* 2. Target: 1 Daily DSA Question (Rising Brain Pattern-Wise Sheet Design) */}
       <div className="space-y-3 pt-2">
         <div className="flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-emerald-300">
           <Brain className="w-4 h-4 text-emerald-400" />
@@ -159,10 +161,10 @@ export default function DayTargetCard({ onOpenNotes }) {
             className={`group flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${
               task.completed
                 ? 'bg-emerald-950/20 border-emerald-500/30 text-gray-400'
-                : 'bg-slate-900/90 border-slate-700/80 hover:border-emerald-500/50 text-gray-100'
+                : 'bg-[#080D0A] border-[#16241D] hover:border-emerald-500/50 text-gray-100'
             }`}
           >
-            <div className="flex items-center space-x-3 flex-1 min-w-0 mr-3">
+            <div className="flex items-center space-x-3.5 flex-1 min-w-0 mr-3">
               <button
                 type="button"
                 className="text-emerald-400 flex-shrink-0"
@@ -177,7 +179,7 @@ export default function DayTargetCard({ onOpenNotes }) {
               <div className="flex flex-col min-w-0">
                 <div className="flex items-center space-x-2">
                   <span className={`text-sm font-semibold truncate ${
-                    task.completed ? 'line-through text-gray-500' : 'text-gray-100'
+                    task.completed ? 'line-through text-gray-500' : 'text-gray-100 group-hover:text-emerald-300'
                   }`}>
                     {task.title}
                   </span>
@@ -192,9 +194,15 @@ export default function DayTargetCard({ onOpenNotes }) {
                   </span>
                 </div>
 
-                <span className="text-[11px] text-gray-400 mt-0.5 font-mono">
-                  Pattern: <strong className="text-gray-300">{task.pattern}</strong>
-                </span>
+                <div className="flex items-center space-x-2 mt-1 text-[11px] text-gray-400 font-mono">
+                  <span>Pattern: <strong className="text-gray-300">{task.pattern}</strong></span>
+                  {task.category && (
+                    <>
+                      <span>•</span>
+                      <span>Category: <strong className="text-gray-300">{task.category}</strong></span>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -206,7 +214,7 @@ export default function DayTargetCard({ onOpenNotes }) {
                 className={`p-1.5 rounded-lg border text-xs flex items-center space-x-1 transition-colors ${
                   task.notes
                     ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'
-                    : 'bg-slate-800 border-slate-700 text-gray-400 hover:text-white'
+                    : 'bg-[#14201A] border-[#1E3127] text-gray-400 hover:text-white'
                 }`}
                 title="Notes / approach"
               >
@@ -219,7 +227,7 @@ export default function DayTargetCard({ onOpenNotes }) {
                   href={task.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-emerald-600/20 border border-emerald-500/40 text-emerald-300 hover:bg-emerald-600/30 text-xs font-semibold transition-colors"
+                  className="flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/25 text-xs font-semibold transition-colors shadow-sm"
                 >
                   <span>Solve</span>
                   <ExternalLink className="w-3.5 h-3.5" />

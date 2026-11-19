@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import confetti from 'canvas-confetti';
-import { initialPlanDays } from '../data/planData';
+import { initialPlanDays, DEFAULT_START_DATE } from '../data/planData';
 
 const LearningContext = createContext(null);
-const PLAN_STORAGE_KEY = 'study_daywise_plan_v3';
-const START_DATE_KEY = 'study_plan_start_date_v3';
+const PLAN_STORAGE_KEY = 'study_daywise_plan_v4';
+const START_DATE_KEY = 'study_plan_start_date_v4';
 
 export function LearningProvider({ children }) {
   // Plan days
@@ -16,16 +16,16 @@ export function LearningProvider({ children }) {
     return initialPlanDays;
   });
 
-  // Start date (default: today's date)
+  // Start date (starts 21 Nov 2026 as explicitly requested!)
   const [startDateStr, setStartDateStr] = useState(() => {
     try {
       const saved = localStorage.getItem(START_DATE_KEY);
       if (saved) return saved;
     } catch (e) {}
-    return new Date().toISOString().slice(0, 10);
+    return DEFAULT_START_DATE || "2026-11-21";
   });
 
-  // Selected Day number (1 to 24)
+  // Selected Day number (1 to 70)
   const [activeDayNumber, setActiveDayNumber] = useState(1);
 
   // Filter: 'all', 'pending', 'completed'
@@ -56,6 +56,11 @@ export function LearningProvider({ children }) {
       const dateDisplay = dayDate.toLocaleDateString('en-US', {
         weekday: 'short',
         month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+      const dateShort = dayDate.toLocaleDateString('en-US', {
+        month: 'short',
         day: 'numeric'
       });
       const dateIso = dayDate.toISOString().slice(0, 10);
@@ -69,6 +74,7 @@ export function LearningProvider({ children }) {
       return {
         ...day,
         dateDisplay,
+        dateShort,
         dateIso,
         totalTasks,
         completedTasks,
@@ -78,7 +84,7 @@ export function LearningProvider({ children }) {
     });
   }, [days, startDateStr]);
 
-  // Overall Statistics & Progress Bar metrics
+  // Overall Statistics & Progress Bar metrics (Matching Rising Brain Card)
   const progressStats = useMemo(() => {
     let totalTasks = 0;
     let completedTasks = 0;
@@ -88,6 +94,13 @@ export function LearningProvider({ children }) {
 
     let dsaTotal = 0;
     let dsaCompleted = 0;
+
+    let easyTotal = 0;
+    let easySolved = 0;
+    let medTotal = 0;
+    let medSolved = 0;
+    let hardTotal = 0;
+    let hardSolved = 0;
 
     let daysCompleted = 0;
 
@@ -103,7 +116,20 @@ export function LearningProvider({ children }) {
           if (task.completed) javaCompleted++;
         } else if (task.type === 'dsa') {
           dsaTotal++;
-          if (task.completed) dsaCompleted++;
+          const isDone = Boolean(task.completed);
+          if (isDone) dsaCompleted++;
+
+          const diff = (task.difficulty || 'Medium').toLowerCase();
+          if (diff === 'easy') {
+            easyTotal++;
+            if (isDone) easySolved++;
+          } else if (diff === 'hard') {
+            hardTotal++;
+            if (isDone) hardSolved++;
+          } else {
+            medTotal++;
+            if (isDone) medSolved++;
+          }
         }
       });
       if (allDayDone && day.tasks.length > 0) daysCompleted++;
@@ -113,6 +139,10 @@ export function LearningProvider({ children }) {
     const javaPercent = javaTotal === 0 ? 0 : Math.round((javaCompleted / javaTotal) * 100);
     const dsaPercent = dsaTotal === 0 ? 0 : Math.round((dsaCompleted / dsaTotal) * 100);
     const daysPercent = days.length === 0 ? 0 : Math.round((daysCompleted / days.length) * 100);
+
+    const easyPercent = easyTotal === 0 ? 0 : Math.round((easySolved / easyTotal) * 100);
+    const medPercent = medTotal === 0 ? 0 : Math.round((medSolved / medTotal) * 100);
+    const hardPercent = hardTotal === 0 ? 0 : Math.round((hardSolved / hardTotal) * 100);
 
     return {
       totalTasks,
@@ -129,6 +159,16 @@ export function LearningProvider({ children }) {
       dsaCompleted,
       dsaRemaining: dsaTotal - dsaCompleted,
       dsaPercent,
+      // Difficulty breakdown (from Rising Brain)
+      easyTotal,
+      easySolved,
+      easyPercent,
+      medTotal,
+      medSolved,
+      medPercent,
+      hardTotal,
+      hardSolved,
+      hardPercent,
       // Days completed
       totalDays: days.length,
       daysCompleted,
@@ -154,10 +194,10 @@ export function LearningProvider({ children }) {
           if (nextCompleted) {
             try {
               confetti({
-                particleCount: 35,
-                spread: 50,
+                particleCount: 40,
+                spread: 60,
                 origin: { y: 0.8 },
-                colors: ['#3B82F6', '#10B981', '#6366F1', '#F59E0B']
+                colors: ['#10B981', '#34D399', '#6EE7B7', '#F59E0B']
               });
             } catch (e) {}
           }
@@ -203,9 +243,11 @@ export function LearningProvider({ children }) {
 
   // Reset all progress
   const resetAllProgress = () => {
-    if (confirm("Are you sure you want to reset all completed tasks and progress back to 0%?")) {
+    if (confirm("Reset all targets back to uncompleted (0%)?")) {
       setDays(initialPlanDays);
+      setStartDateStr(DEFAULT_START_DATE);
       localStorage.removeItem(PLAN_STORAGE_KEY);
+      localStorage.removeItem(START_DATE_KEY);
     }
   };
 

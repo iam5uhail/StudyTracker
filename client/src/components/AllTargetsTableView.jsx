@@ -44,12 +44,12 @@ export default function AllTargetsTableView({ onOpenNotes }) {
   });
 
   return (
-    <div className="bg-[#131B2E] border border-slate-700/80 rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
+    <div className="bg-[#0D1411] border border-[#16241D] rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
       {/* Search & Filters */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#16241D] pb-4">
         <div>
-          <h2 className="text-base font-bold text-white">Full 24-Day Target Plan</h2>
-          <p className="text-xs text-gray-400">All 48 Java Topics + 24 DSA Pattern Questions at a glance</p>
+          <h2 className="text-base font-bold text-white">Full 70-Day Target Plan (All 140 Java Topics + 70 DSA Questions)</h2>
+          <p className="text-xs text-gray-400">Search or filter any topic across the complete roadmap</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -61,19 +61,19 @@ export default function AllTargetsTableView({ onOpenNotes }) {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search topic or pattern..."
-              className="pl-8 pr-3 py-1.5 bg-slate-900 border border-slate-700 focus:border-indigo-500 rounded-xl text-xs text-gray-200 placeholder-gray-500 focus:outline-none w-44"
+              className="pl-8 pr-3 py-1.5 bg-[#080D0A] border border-[#16241D] focus:border-emerald-500/60 rounded-xl text-xs text-gray-200 placeholder-gray-500 focus:outline-none w-48"
             />
           </div>
 
           {/* Filter Pills */}
-          <div className="flex items-center space-x-1 bg-slate-900 border border-slate-700 p-1 rounded-xl text-xs">
+          <div className="flex items-center space-x-1 bg-[#080D0A] border border-[#16241D] p-1 rounded-xl text-xs">
             {['all', 'pending', 'completed', 'java', 'dsa'].map(f => (
               <button
                 key={f}
                 onClick={() => setFilterType(f)}
                 className={`px-2.5 py-1 rounded-lg font-medium capitalize transition-colors ${
                   filterType === f
-                    ? 'bg-indigo-600 text-white'
+                    ? 'bg-emerald-600 text-black font-bold'
                     : 'text-gray-400 hover:text-gray-200'
                 }`}
               >
@@ -85,7 +85,7 @@ export default function AllTargetsTableView({ onOpenNotes }) {
       </div>
 
       {/* Table list */}
-      <div className="space-y-2 max-h-[550px] overflow-y-auto pr-1">
+      <div className="space-y-2 max-h-[550px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-[#16241D]">
         {filteredTasks.length === 0 ? (
           <div className="py-8 text-center text-xs text-gray-500">
             No targets match the current filter.
@@ -97,8 +97,8 @@ export default function AllTargetsTableView({ onOpenNotes }) {
               onClick={() => toggleTask(task.dayNumber, task.id)}
               className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all ${
                 task.completed
-                  ? 'bg-slate-950/40 border-slate-800/80 text-gray-500'
-                  : 'bg-slate-900/80 border-slate-700/80 hover:border-slate-600 text-gray-200'
+                  ? 'bg-emerald-950/20 border-emerald-500/20 text-gray-500'
+                  : 'bg-[#080D0A] border-[#16241D] hover:border-[#1E3127] text-gray-200'
               }`}
             >
               <div className="flex items-center space-x-3 flex-1 min-w-0 mr-3">
@@ -109,7 +109,7 @@ export default function AllTargetsTableView({ onOpenNotes }) {
                   {task.completed ? (
                     <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                   ) : (
-                    <Circle className="w-4 h-4 text-gray-500 hover:text-indigo-400" />
+                    <Circle className="w-4 h-4 text-gray-500 hover:text-emerald-400" />
                   )}
                 </button>
 
@@ -120,7 +120,7 @@ export default function AllTargetsTableView({ onOpenNotes }) {
                     e.stopPropagation();
                     setActiveDayNumber(task.dayNumber);
                   }}
-                  className="px-2 py-0.5 rounded bg-slate-800 text-[11px] font-mono font-bold text-indigo-300 border border-slate-700 hover:bg-indigo-600 hover:text-white transition-colors"
+                  className="px-2 py-0.5 rounded bg-[#14201A] text-[11px] font-mono font-bold text-emerald-400 border border-[#1E3127] hover:bg-emerald-500 hover:text-black transition-colors"
                   title="Go to this day"
                 >
                   Day {task.dayNumber}
