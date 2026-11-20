@@ -218,7 +218,7 @@ export default function App() {
               {/* Theme Dropdown Menu */}
               {themeDropdownOpen && (
                 <div 
-                  className="absolute right-0 mt-2 w-60 sm:w-64 rounded-2xl border border-theme-border shadow-2xl p-2 z-[9999] space-y-1"
+                  className="absolute right-0 mt-2 w-64 sm:w-72 rounded-2xl border border-theme-border shadow-2xl p-2 z-[9999] space-y-1 max-h-80 sm:max-h-96 overflow-y-auto"
                   style={{
                     backgroundColor: activeTheme.vars['--bg-card'],
                     color: activeTheme.vars['--text-primary'],

@@ -1014,6 +1014,702 @@ public class OperatorTrap {
 
 ## 💡 Key Takeaway
 Tokens are the atomic units of Java syntax. Understanding operator precedence and evaluation order prevents subtle logic bugs.`
+,
+  // ==========================================
+  // DAY 1 - DSA: TWO SUM II - INPUT ARRAY IS SORTED
+  // ==========================================
+  "d1-dsa": `# Array Data Structure & Two-Pointer Pattern: Two Sum II
+
+## 1. Deep Dive: Array Data Structure Fundamentals
+An **Array** is a linear data structure containing contiguous memory locations that store elements of the same data type.
+
+\`\`\`
+ARRAY IN MEMORY (Index 0 to 4):
+Address:  1000   1004   1008   1012   1016
+Element: [  2  |   7  |  11  |  15  |  19  ]
+Index:      0      1      2      3      4
+\`\`\`
+
+* **Memory Address Calculation**:
+  * Address(i) = Base Address + i * (Size of Data Type)
+* **Why Arrays are Ultra-Fast**:
+  * **O(1) Random Access**: Calculating the exact memory address is a single CPU arithmetic step.
+  * **Hardware Cache Locality**: Elements are contiguously stored in physical RAM, allowing CPU hardware prefetchers to cache adjacent elements directly into high-speed L1/L2 cache.
+* **Limitations**:
+  * Fixed capacity once allocated.
+  * Insertions and deletions at the front or middle require shifting trailing elements (O(N)).
+
+---
+
+## 2. The Two-Pointers Pattern Explained
+Instead of checking every pair with nested loops (O(N^2) brute force), the **Two-Pointer technique** uses two indices moving strategically across the array to solve the problem in **linear O(N) time** and **O(1) extra space**.
+
+\`\`\`
+CONVERGING TWO-POINTERS:
+  Left (0) ───────────────────>   <─────────────────── Right (n - 1)
+  (Starts at smallest element)                        (Starts at largest element)
+\`\`\`
+
+* **When to use Two-Pointers?**
+  1. The array is **sorted** (or can be sorted).
+  2. We are searching for pairs, triplets, palindromes, or subsegments.
+  3. Monotonic decision: Moving left increases the sum; moving right decreases the sum.
+
+---
+
+## 3. What is the Question Asking? (LeetCode 167: Two Sum II)
+* **Problem**: You are given a **1-indexed sorted array** of integers \`numbers\` and a target value \`target\`.
+* **Goal**: Find two numbers whose sum equals \`target\`. Return their 1-based indices \`[index1, index2]\`.
+* **Rules & Constraints**:
+  * Exactly **one unique solution** exists.
+  * You cannot reuse the same element twice.
+  * You must use **O(1) auxiliary space** (cannot allocate a HashMap!).
+* **Example**:
+  * Input: \`numbers = [2, 7, 11, 15], target = 9\`
+  * Pair: \`2 + 7 = 9\`
+  * 1-based indices: \`[1, 2]\`
+
+---
+
+## 4. Visual Dry Run / Pointer Movement
+
+\`\`\`
+numbers = [2, 7, 11, 15], target = 9
+
+Step 1:
+  [ 2 ,  7 , 11 , 15 ]
+    ▲              ▲
+   Left          Right
+  Current Sum = 2 + 15 = 17
+  17 > 9 (Too large!). 15 is too big to pair with anything.
+  Action: Move Right inward (right--).
+
+Step 2:
+  [ 2 ,  7 , 11 , 15 ]
+    ▲         ▲
+   Left     Right
+  Current Sum = 2 + 11 = 13
+  13 > 9 (Still too large!).
+  Action: Move Right inward (right--).
+
+Step 3:
+  [ 2 ,  7 , 11 , 15 ]
+    ▲    ▲
+   Left Right
+  Current Sum = 2 + 7 = 9
+  9 == target! MATCH FOUND!
+  Output: [left + 1, right + 1] -> [1, 2]
+\`\`\`
+
+---
+
+## 5. Optimal Java Solution
+
+\`\`\`java
+class Solution {
+    public int[] twoSum(int[] numbers, int target) {
+        int left = 0;
+        int right = numbers.length - 1;
+
+        while (left < right) {
+            int currentSum = numbers[left] + numbers[right];
+
+            if (currentSum == target) {
+                // Return 1-based indices
+                return new int[] { left + 1, right + 1 };
+            } else if (currentSum < target) {
+                // Sum too small -> move left pointer right to increase value
+                left++;
+            } else {
+                // Sum too big -> move right pointer left to decrease value
+                right--;
+            }
+        }
+
+        return new int[] { -1, -1 };
+    }
+}
+\`\`\`
+
+---
+
+## 6. Complexity Analysis
+* **Time Complexity**: **O(N)** — At each step, either left advances or right retreats. The array is traversed at most once.
+* **Space Complexity**: **O(1)** — Zero extra data structures allocated.
+
+---
+
+## 💡 Key Takeaway
+Sorted order enables **monotonicity**. Because the array is ordered, if the sum is too small, the only way to increase it is \`left++\`; if the sum is too large, the only way to decrease it is \`right--\`.`,
+
+  // ==========================================
+  // DAY 2 - DSA: 3SUM
+  // ==========================================
+  "d2-dsa": `# Two-Pointer Pattern: 3Sum (Triplet Sum to Zero)
+
+## 1. What is the Question Asking? (LeetCode 15)
+* **Problem**: Given an integer array \`nums\`, return all unique triplets \`[nums[i], nums[j], nums[k]]\` such that:
+  1. \`i != j != k\` (all 3 indices are distinct).
+  2. \`nums[i] + nums[j] + nums[k] == 0\`.
+* **The Critical Trap**: The solution set **must not contain duplicate triplets**!
+* **Example**:
+  * Input: \`nums = [-1, 0, 1, 2, -1, -4]\`
+  * Valid unique triplets: \`[[-1, -1, 2], [-1, 0, 1]]\`
+  * Notice: Even though \`-1\` appears twice, we only output \`[-1, 0, 1]\` once!
+
+---
+
+## 2. Intuition: Reducing 3Sum to 2Sum
+* Brute force checks all triplets with 3 nested loops: **O(N^3)** (Time Limit Exceeded).
+* **Two-Pointer Reduction**:
+  1. **Sort the array first**: Sorting takes O(N log N) time and lets us control duplicates and apply Two-Pointers.
+  2. **Fix the first element \`nums[i]\`**: Loop \`i\` from \`0\` to \`n - 3\`.
+  3. Now we need to find two numbers from \`i + 1\` to \`n - 1\` whose sum is \`-nums[i]\`!
+     nums[j] + nums[k] = -nums[i]
+  4. Use converging Two-Pointers (\`left = i + 1\`, \`right = n - 1\`).
+
+\`\`\`
+SORTED ARRAY:
+[ -4 , -1 , -1 ,  0 ,  1 ,  2 ]
+   ▲    ▲                   ▲
+   i   left               right
+Fix i  ───> Two-Pointer search for target: -nums[i]
+\`\`\`
+
+---
+
+## 3. How to Eliminate Duplicates (The Crucial Step!)
+1. **For the fixed \`i\`**:
+   * If \`i > 0 && nums[i] == nums[i - 1]\`, skip with \`continue\`.
+2. **For \`left\` and \`right\` when a triplet is found**:
+   * Skip identical adjacent elements:
+     \`\`\`java
+     while (left < right && nums[left] == nums[left + 1]) left++;
+     while (left < right && nums[right] == nums[right - 1]) right--;
+     left++;
+     right--;
+     \`\`\`
+
+---
+
+## 4. Optimal Java Solution
+
+\`\`\`java
+import java.util.*;
+
+class Solution {
+    public List<List<Integer>> threeSum(int[] nums) {
+        List<List<Integer>> result = new ArrayList<>();
+        if (nums == null || nums.length < 3) return result;
+
+        // Step 1: Sort the array
+        Arrays.sort(nums);
+
+        for (int i = 0; i < nums.length - 2; i++) {
+            // Optimization: If smallest element > 0, sum can never be 0
+            if (nums[i] > 0) break;
+
+            // Skip duplicate fixed elements
+            if (i > 0 && nums[i] == nums[i - 1]) continue;
+
+            int left = i + 1;
+            int right = nums.length - 1;
+            int target = -nums[i];
+
+            while (left < right) {
+                int sum = nums[left] + nums[right];
+
+                if (sum == target) {
+                    result.add(Arrays.asList(nums[i], nums[left], nums[right]));
+
+                    // Skip duplicate left values
+                    while (left < right && nums[left] == nums[left + 1]) left++;
+                    // Skip duplicate right values
+                    while (left < right && nums[right] == nums[right - 1]) right--;
+
+                    left++;
+                    right--;
+                } else if (sum < target) {
+                    left++;
+                } else {
+                    right--;
+                }
+            }
+        }
+
+        return result;
+    }
+}
+\`\`\`
+
+---
+
+## 5. Complexity Analysis
+* **Time Complexity**: **O(N^2)** — Sorting is O(N log N). The outer loop runs N times, and the inner two-pointer loop runs O(N). Total = O(N^2).
+* **Space Complexity**: **O(1)** auxiliary space.
+
+---
+
+## 💡 Key Takeaway
+3Sum = Fix 1 element + Run Two-Pointer 2Sum on the remaining sorted suffix. Skip duplicates at every pointer to prevent duplicate results.`,
+
+  // ==========================================
+  // DAY 3 - DSA: SORT COLORS
+  // ==========================================
+  "d3-dsa": `# Two-Pointer Pattern: Sort Colors (Dutch National Flag)
+
+## 1. What is the Question Asking? (LeetCode 75)
+* **Problem**: Given an array \`nums\` containing \`n\` objects colored red (0), white (1), and blue (2), sort them **in-place** so that objects of the same color are adjacent, with the colors in the order 0, 1, and 2.
+* **Strict Constraints**:
+  * You cannot use the library's \`Arrays.sort()\`.
+  * Must solve in **one single pass** using **O(1) constant extra space**.
+* **Example**:
+  * Input: \`nums = [2, 0, 2, 1, 1, 0]\`
+  * Output: \`[0, 0, 1, 1, 2, 2]\`
+
+---
+
+## 2. Intuition: Dutch National Flag Algorithm
+Designed by computer scientist **Edsger W. Dijkstra**, this algorithm partitions an array into 3 sections using 3 pointers:
+
+\`\`\`
+DUTCH NATIONAL FLAG PARTITIONS:
+[   0s Region   |   1s Region   |   Unsorted ?   |   2s Region   ]
+0            low-1             mid-1            high           n-1
+\`\`\`
+
+* **The 3 Pointers**:
+  * \`low\`: Boundary for \`0\`s (Everything before \`low\` is \`0\`). Starts at \`0\`.
+  * \`mid\`: Current element being inspected. Starts at \`0\`.
+  * \`high\`: Boundary for \`2\`s (Everything after \`high\` is \`2\`). Starts at \`n - 1\`.
+
+---
+
+## 3. The 3 Transition Rules
+As we iterate while \`mid <= high\`:
+1. **If \`nums[mid] == 0\`**:
+   * Belongs in the 0s region! Swap \`nums[low]\` and \`nums[mid]\`.
+   * Increment both: \`low++\`, \`mid++\`.
+2. **If \`nums[mid] == 1\`**:
+   * Belongs in the 1s region! Already in the middle, so leave it.
+   * Increment: \`mid++\`.
+3. **If \`nums[mid] == 2\`**:
+   * Belongs in the 2s region! Swap \`nums[mid]\` and \`nums[high]\`.
+   * Decrement: \`high--\`.
+   * ⚠️ **CRUCIAL**: Do **NOT** increment \`mid\` here! The value swapped from \`high\` has not been inspected yet and must be checked on the next iteration!
+
+---
+
+## 4. Visual Dry Run
+
+\`\`\`
+nums = [2, 0, 2, 1, 1, 0]
+Initial: low = 0, mid = 0, high = 5
+
+1. nums[mid] is 2 -> swap(nums[0], nums[5]), high becomes 4
+   [0, 0, 2, 1, 1, 2]  (mid still 0)
+
+2. nums[mid] is 0 -> swap(nums[0], nums[0]), low=1, mid=1
+   [0, 0, 2, 1, 1, 2]
+
+3. nums[mid] is 0 -> swap(nums[1], nums[1]), low=2, mid=2
+   [0, 0, 2, 1, 1, 2]
+
+4. nums[mid] is 2 -> swap(nums[2], nums[4]), high=3
+   [0, 0, 1, 1, 2, 2]  (mid still 2)
+
+5. nums[mid] is 1 -> mid=3
+6. nums[mid] is 1 -> mid=4. Now mid > high -> TERMINATE!
+Final: [0, 0, 1, 1, 2, 2] ✅
+\`\`\`
+
+---
+
+## 5. Optimal Java Solution
+
+\`\`\`java
+class Solution {
+    public void sortColors(int[] nums) {
+        int low = 0;
+        int mid = 0;
+        int high = nums.length - 1;
+
+        while (mid <= high) {
+            if (nums[mid] == 0) {
+                swap(nums, low, mid);
+                low++;
+                mid++;
+            } else if (nums[mid] == 1) {
+                mid++;
+            } else {
+                // nums[mid] == 2
+                swap(nums, mid, high);
+                high--;
+                // Note: Do NOT advance mid here!
+            }
+        }
+    }
+
+    private void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+}
+\`\`\`
+
+---
+
+## 6. Complexity Analysis
+* **Time Complexity**: **O(N)** — Single pass over the array with 3 pointers.
+* **Space Complexity**: **O(1)** — In-place element swaps.
+
+---
+
+## 💡 Key Takeaway
+Whenever you need to partition an array into 3 categories (low, mid, high), use Dijkstra's Dutch National Flag 3-pointer technique!`,
+
+  // ==========================================
+  // DAY 4 - DSA: MOVE ZEROES
+  // ==========================================
+  "d4-dsa": `# Two-Pointer Pattern: Move Zeroes (Fast & Slow Reader/Writer)
+
+## 1. What is the Question Asking? (LeetCode 283)
+* **Problem**: Given an integer array \`nums\`, move all \`0\`s to the end of it while maintaining the relative order of the non-zero elements.
+* **Constraints**:
+  * You must do this **in-place** without making a copy of the array.
+  * Minimize the total number of operations.
+* **Example**:
+  * Input: \`nums = [0, 1, 0, 3, 12]\`
+  * Output: \`[1, 3, 12, 0, 0]\`
+
+---
+
+## 2. Intuition: Reader & Writer Pointers
+Instead of shifting elements on every zero (which is O(N^2)), we use **two pointers moving in the same direction**:
+* **Writer Pointer (\`slow\`)**: Marks the destination index where the next non-zero element should be placed.
+* **Reader Pointer (\`fast\`)**: Scans through every element of the array.
+
+\`\`\`
+FAST & SLOW POINTER TRAVERSAL:
+[ 0 , 1 , 0 , 3 , 12 ]
+  ▲   ▲
+slow fast (scans forward looking for non-zero)
+\`\`\`
+
+---
+
+## 3. The Swap Technique
+Whenever \`nums[fast] != 0\`:
+1. Swap \`nums[slow]\` with \`nums[fast]\`.
+2. Advance \`slow++\`.
+* If \`slow == fast\` (no zeros encountered yet), swapping an element with itself is a no-op.
+* Once a zero is encountered, \`slow\` stays at the zero while \`fast\` moves forward to find the next non-zero number to swap into \`slow\`'s position!
+
+---
+
+## 4. Visual Dry Run
+
+\`\`\`
+nums = [0, 1, 0, 3, 12]
+
+Init: slow = 0, fast = 0
+fast = 0: nums[0] is 0 -> do nothing, fast advances
+
+fast = 1: nums[1] is 1 (!= 0)
+  swap(nums[slow=0], nums[fast=1])
+  Array becomes: [1, 0, 0, 3, 12]
+  slow becomes 1
+
+fast = 2: nums[2] is 0 -> do nothing
+
+fast = 3: nums[3] is 3 (!= 0)
+  swap(nums[slow=1], nums[fast=3])
+  Array becomes: [1, 3, 0, 0, 12]
+  slow becomes 2
+
+fast = 4: nums[4] is 12 (!= 0)
+  swap(nums[slow=2], nums[fast=4])
+  Array becomes: [1, 3, 12, 0, 0]
+  slow becomes 3
+
+Result: [1, 3, 12, 0, 0] ✅
+\`\`\`
+
+---
+
+## 5. Optimal Java Solution
+
+\`\`\`java
+class Solution {
+    public void moveZeroes(int[] nums) {
+        int slow = 0;
+
+        for (int fast = 0; fast < nums.length; fast++) {
+            if (nums[fast] != 0) {
+                // Swap non-zero element forward to slow pointer
+                int temp = nums[slow];
+                nums[slow] = nums[fast];
+                nums[fast] = temp;
+
+                slow++;
+            }
+        }
+    }
+}
+\`\`\`
+
+---
+
+## 6. Complexity Analysis
+* **Time Complexity**: **O(N)** — Fast pointer touches each element exactly once.
+* **Space Complexity**: **O(1)** — In-place array modification.
+
+---
+
+## 💡 Key Takeaway
+The Reader/Writer pattern is the standard way to partition arrays in-place while preserving relative order (used in removing duplicates, moving zeroes, and compacting streams).`,
+
+  // ==========================================
+  // DAY 5 - DSA: CONTAINER WITH MOST WATER
+  // ==========================================
+  "d5-dsa": `# Two-Pointer Pattern: Container With Most Water
+
+## 1. What is the Question Asking? (LeetCode 11)
+* **Problem**: You are given an integer array \`height\` of length \`n\`. There are \`n\` vertical lines drawn such that the two endpoints of the \`i\`-th line are \`(i, 0)\` and \`(i, height[i])\`.
+* **Goal**: Find two lines that together with the x-axis form a container, such that the container contains the **most water**.
+* **Formula for Water Volume (Area)**:
+  Area = min(height[left], height[right]) * (right - left)
+* **Example**:
+  * Input: \`height = [1, 8, 6, 2, 5, 4, 8, 3, 7]\`
+  * Optimal pair: Index 1 (height 8) and Index 8 (height 7)
+  * Area: \`min(8, 7) * (8 - 1) = 7 * 7 = 49\`
+  * Output: \`49\`
+
+---
+
+## 2. Why Brute Force Fails
+* Brute force evaluates all pairs: **O(N^2)**. For N = 100,000, N^2 = 10^10 operations (Time Limit Exceeded).
+
+---
+
+## 3. Two-Pointer Greedy Shrinking Intuition
+1. **Start with maximum width**:
+   * \`left = 0\`, \`right = n - 1\`.
+2. **How to move pointers?**
+   * The height of the water is **strictly constrained by the shorter line**:
+     Height = min(height[left], height[right])
+   * As we move pointers inward, the width (right - left) ALWAYS decreases by 1!
+   * If we move the **taller line**, the bottleneck remains the shorter line, and the width is smaller, so area **CAN NEVER INCREASE**!
+   * The **ONLY CHANCE** to find a larger area is to move the **shorter line**, hoping to find a much taller line that compensates for the lost width!
+
+\`\`\`
+GREEDY CONVERGENCE:
+  h[left] = 1, h[right] = 7
+  Width = 8, Area = 1 * 8 = 8
+  Since h[left] is shorter, moving right inward CANNOT improve area.
+  Must advance: left++
+\`\`\`
+
+---
+
+## 4. Optimal Java Solution
+
+\`\`\`java
+class Solution {
+    public int maxArea(int[] height) {
+        int left = 0;
+        int right = height.length - 1;
+        int maxWater = 0;
+
+        while (left < right) {
+            int width = right - left;
+            int h = Math.min(height[left], height[right]);
+            int currentArea = width * h;
+
+            maxWater = Math.max(maxWater, currentArea);
+
+            // Move the pointer pointing to the shorter bar
+            if (height[left] < height[right]) {
+                left++;
+            } else {
+                right--;
+            }
+        }
+
+        return maxWater;
+    }
+}
+\`\`\`
+
+---
+
+## 5. Complexity Analysis
+* **Time Complexity**: **O(N)** — Left and right pointers start at ends and meet in the middle; each element visited at most once.
+* **Space Complexity**: **O(1)** — Only integer variables for width, height, and max.
+
+---
+
+## 💡 Key Takeaway
+Always eliminate the bottleneck! When width is shrinking, the only hope for a bigger area is finding a taller height, so you must abandon the shorter line.`,
+
+  // ==========================================
+  // DAY 6 - DSA: TRAPPING RAIN WATER
+  // ==========================================
+  "d6-dsa": `# Two-Pointer Pattern: Trapping Rain Water
+
+## 1. What is the Question Asking? (LeetCode 42)
+* **Problem**: Given \`n\` non-negative integers representing an elevation map where the width of each bar is \`1\`, compute how much water it can trap after raining.
+* **Core Insight**: How much water can sit directly on top of bar \`i\`?
+  Water at i = max(0, min(leftMax, rightMax) - height[i])
+  Water above any bar is determined by the minimum of the highest wall to its left and the highest wall to its right, minus its own height!
+
+\`\`\`
+ELEVATION MAP & TRAPPED WATER:
+        █
+    █~~~█~█
+  █~█~█~███
+[ 0,1,0,2,1,0,1,3,2,1,2,1 ]
+Water trapped (represented by ~) = 6 units
+\`\`\`
+
+---
+
+## 2. Why Two-Pointers is Optimal (O(1) Space)
+* Traditional Prefix Max approach uses two auxiliary arrays (\`leftMax[]\` and \`rightMax[]\`) taking **O(N) space**.
+* **Two-Pointer Breakthrough**:
+  * Maintain \`left = 0\`, \`right = n - 1\`, \`leftMax = 0\`, \`rightMax = 0\`.
+  * If \`height[left] < height[right]\`:
+    * We know for certain that \`leftMax < height[right] <= rightMax\`.
+    * Therefore, the bottleneck is guaranteed to be \`leftMax\`! We don't even need to know the exact \`rightMax\`!
+    * Water at \`left\` = \`leftMax - height[left]\`. Advance \`left++\`.
+  * Else (\`height[right] <= height[left]\`):
+    * The bottleneck is guaranteed to be \`rightMax\`!
+    * Water at \`right\` = \`rightMax - height[right]\`. Retreat \`right--\`.
+
+---
+
+## 3. Optimal Java Solution
+
+\`\`\`java
+class Solution {
+    public int trap(int[] height) {
+        if (height == null || height.length < 3) return 0;
+
+        int left = 0;
+        int right = height.length - 1;
+        int leftMax = 0;
+        int rightMax = 0;
+        int totalWater = 0;
+
+        while (left < right) {
+            if (height[left] < height[right]) {
+                if (height[left] >= leftMax) {
+                    leftMax = height[left];
+                } else {
+                    totalWater += leftMax - height[left];
+                }
+                left++;
+            } else {
+                if (height[right] >= rightMax) {
+                    rightMax = height[right];
+                } else {
+                    totalWater += rightMax - height[right];
+                }
+                right--;
+            }
+        }
+
+        return totalWater;
+    }
+}
+\`\`\`
+
+---
+
+## 4. Complexity Analysis
+* **Time Complexity**: **O(N)** — Single pass from both ends.
+* **Space Complexity**: **O(1)** — Replaces two O(N) arrays with four integer pointers.
+
+---
+
+## 💡 Key Takeaway
+You don't need both maxes to calculate trapped water—you only need to know which side has the smaller max, because the smaller max is the true bottleneck!`,
+
+  // ==========================================
+  // DAY 7 - DSA: MAXIMUM SUM SUBARRAY OF SIZE K
+  // ==========================================
+  "d7-dsa": `# Sliding Window Pattern: Maximum Sum Subarray of Size K
+
+## 1. What is the Question Asking? (LeetCode 643 / Classic Pattern)
+* **Problem**: Given an array of integers \`nums\` and an integer \`k\`, find the contiguous subarray of fixed length \`k\` that has the maximum sum (or average).
+* **Example**:
+  * Input: \`nums = [1, 12, -5, -6, 50, 3], k = 4\`
+  * Subarrays of size 4:
+    * \`[1, 12, -5, -6]\` -> Sum = 2
+    * \`[12, -5, -6, 50]\` -> Sum = 51
+    * \`[-5, -6, 50, 3]\` -> Sum = 42
+  * Maximum sum is \`51\` (Subarray: \`[12, -5, -6, 50]\`).
+
+---
+
+## 2. Sliding Window Technique Explained
+Instead of recalculating the sum of all \`k\` elements from scratch every time (which takes O(N * K)), we use a **Sliding Window**:
+
+\`\`\`
+SLIDING WINDOW (Size k = 4):
+[ 1 , 12 , -5 , -6 , 50 , 3 ]
+  └───────┬──────┘
+       Window 1: sum = 2
+
+Slide window 1 step to the right:
+[ 1 , 12 , -5 , -6 , 50 , 3 ]
+      └───────┬──────┘
+  Subtract outgoing (1) + Add incoming (50):
+  new_sum = 2 - 1 + 50 = 51! (Takes O(1) time!)
+\`\`\`
+
+* **The O(1) Window Transition Formula**:
+  Current Sum = Previous Sum - nums[i - k] + nums[i]
+
+---
+
+## 3. Optimal Java Solution
+
+\`\`\`java
+class Solution {
+    public double findMaxAverage(int[] nums, int k) {
+        // Step 1: Calculate sum of first window of size k
+        double windowSum = 0;
+        for (int i = 0; i < k; i++) {
+            windowSum += nums[i];
+        }
+
+        double maxSum = windowSum;
+
+        // Step 2: Slide the window across the remaining elements
+        for (int i = k; i < nums.length; i++) {
+            // Add incoming element at i, subtract outgoing element at i - k
+            windowSum += nums[i] - nums[i - k];
+            maxSum = Math.max(maxSum, windowSum);
+        }
+
+        return maxSum / k;
+    }
+}
+\`\`\`
+
+---
+
+## 4. Complexity Analysis
+* **Time Complexity**: **O(N)** — Every element is added once and subtracted once.
+* **Space Complexity**: **O(1)** — Only a few primitive scalar variables.
+
+---
+
+## 💡 Key Takeaway
+Whenever you see "contiguous subarray of fixed size K", use a Fixed-Size Sliding Window to achieve O(N) time with O(1) math transitions!`
+
 };
 
 export function getLectureNote(taskId) {

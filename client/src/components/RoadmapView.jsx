@@ -92,16 +92,37 @@ export default function RoadmapView({ onOpenNotes }) {
     }
   ];
 
-  // Helper to check if a java topic is completed in the plan
-  const isJavaTopicDone = (topicNum) => {
+  // Helper to find corresponding java task in plan
+  const findJavaTask = (topicNum) => {
+    if (topicNum === undefined || topicNum === null) return null;
     for (const day of days) {
       for (const t of day.tasks) {
-        if (t.type === 'java' && t.videoNum === topicNum) {
-          return Boolean(t.completed);
+        if (t.type === 'java' && (t.num === topicNum || t.videoNum === topicNum)) {
+          return { dayNumber: day.dayNumber, task: t };
         }
       }
     }
-    return false;
+    return null;
+  };
+
+  // Helper to check if a java topic is completed in the plan
+  const isJavaTopicDone = (topicNum) => {
+    if (topicNum === undefined || topicNum === null) return false;
+    const match = findJavaTask(topicNum);
+    return match ? Boolean(match.task.completed) : false;
+  };
+
+  // Helper to find matching DSA task in plan
+  const findDsaTask = (probName) => {
+    if (!probName) return null;
+    for (const day of days) {
+      for (const t of day.tasks) {
+        if (t.type === 'dsa' && t.title.toLowerCase().trim() === probName.toLowerCase().trim()) {
+          return { dayNumber: day.dayNumber, task: t };
+        }
+      }
+    }
+    return null;
   };
 
   // Rising Brain DSA Pattern curriculum structure
@@ -369,27 +390,51 @@ export default function RoadmapView({ onOpenNotes }) {
                   {/* Grid of topic badges */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
                     {filteredModTopics.map((topic) => {
-                      const done = isJavaTopicDone(topic.Video);
+                      const topicNumber = topic.Num ?? topic.Video;
+                      const taskMatch = findJavaTask(topicNumber);
+                      const done = taskMatch ? Boolean(taskMatch.task.completed) : false;
 
                       return (
                         <div
-                          key={topic.Video}
-                          className={`flex items-start space-x-2.5 p-3 rounded-2xl border text-xs transition-colors ${
+                          key={topicNumber || topic.Title}
+                          onClick={() => {
+                            if (taskMatch && onOpenNotes) {
+                              onOpenNotes(taskMatch.dayNumber, taskMatch.task);
+                            }
+                          }}
+                          className={`flex items-start justify-between p-3 rounded-2xl border text-xs transition-all cursor-pointer group ${
                             done 
                               ? 'bg-theme-accentSub border-theme-accentBorder text-theme-accentText' 
-                              : 'bg-theme-cardSub border-theme-border text-theme-secondary hover:border-theme-borderSub'
+                              : 'bg-theme-cardSub border-theme-border text-theme-secondary hover:border-theme-borderSub hover:bg-theme-card'
                           }`}
                         >
-                          <span className="flex-shrink-0 mt-0.5">
-                            {done ? (
-                              <CheckCircle2 className="w-4 h-4 text-theme-accent" />
-                            ) : (
-                              <Circle className="w-4 h-4 text-theme-muted" />
-                            )}
-                          </span>
-                          <span className={`font-medium ${done ? 'line-through text-theme-muted' : 'text-theme-text'}`}>
-                            {topic.Title}
-                          </span>
+                          <div className="flex items-start space-x-2.5 min-w-0 pr-1">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (taskMatch) {
+                                  toggleTask(taskMatch.dayNumber, taskMatch.task.id);
+                                }
+                              }}
+                              className="flex-shrink-0 mt-0.5 hover:scale-110 transition-transform"
+                              title={done ? "Mark Incomplete" : "Mark Complete"}
+                            >
+                              {done ? (
+                                <CheckCircle2 className="w-4 h-4 text-theme-accent" />
+                              ) : (
+                                <Circle className="w-4 h-4 text-theme-muted group-hover:text-theme-text" />
+                              )}
+                            </button>
+                            <span className="font-medium text-theme-text leading-snug">
+                              {topic.Title}
+                            </span>
+                          </div>
+                          {taskMatch && taskMatch.task.notes && (
+                            <span className="flex-shrink-0 ml-1.5 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-theme-accentSub text-theme-accentText border border-theme-accentBorder">
+                              Notes
+                            </span>
+                          )}
                         </div>
                       );
                     })}
@@ -436,35 +481,75 @@ export default function RoadmapView({ onOpenNotes }) {
 
                     {/* Problem list */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-                      {pat.problems.map((prob, prIdx) => (
-                        <div
-                          key={prIdx}
-                          className="flex items-center justify-between p-3 rounded-xl bg-theme-card border border-theme-border text-xs hover:border-theme-borderSub transition-colors shadow-sm"
-                        >
-                          <div className="space-y-1 flex-1 pr-2">
-                            <span className="font-semibold text-theme-text block truncate">
-                              {prob.name}
-                            </span>
-                            <div className="flex flex-wrap items-center gap-1">
-                              {prob.companies.slice(0, 2).map((comp, compIdx) => (
-                                <span key={compIdx} className="text-[9px] px-1.5 py-0.5 rounded bg-theme-cardSub text-theme-muted border border-theme-border">
-                                  {comp}
+                      {pat.problems.map((prob, prIdx) => {
+                        const dsaMatch = findDsaTask(prob.name);
+                        const isDone = dsaMatch ? Boolean(dsaMatch.task.completed) : false;
+
+                        return (
+                          <div
+                            key={prIdx}
+                            onClick={() => {
+                              if (dsaMatch && onOpenNotes) {
+                                onOpenNotes(dsaMatch.dayNumber, dsaMatch.task);
+                              }
+                            }}
+                            className={`flex items-center justify-between p-3 rounded-xl border text-xs transition-all cursor-pointer ${
+                              isDone
+                                ? 'bg-theme-accentSub border-theme-accentBorder text-theme-accentText'
+                                : 'bg-theme-card border-theme-border hover:border-theme-borderSub hover:bg-theme-cardSub'
+                            }`}
+                          >
+                            <div className="space-y-1 flex-1 pr-2 min-w-0">
+                              <div className="flex items-center space-x-2">
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (dsaMatch) {
+                                      toggleTask(dsaMatch.dayNumber, dsaMatch.task.id);
+                                    }
+                                  }}
+                                  className="flex-shrink-0 hover:scale-110 transition-transform"
+                                  title={isDone ? "Mark Incomplete" : "Mark Complete"}
+                                >
+                                  {isDone ? (
+                                    <CheckCircle2 className="w-3.5 h-3.5 text-theme-accent" />
+                                  ) : (
+                                    <Circle className="w-3.5 h-3.5 text-theme-muted" />
+                                  )}
+                                </button>
+                                <span className="font-semibold text-theme-text block truncate">
+                                  {prob.name}
                                 </span>
-                              ))}
+                              </div>
+                              <div className="flex flex-wrap items-center gap-1 pl-5">
+                                {prob.companies.slice(0, 2).map((comp, compIdx) => (
+                                  <span key={compIdx} className="text-[9px] px-1.5 py-0.5 rounded bg-theme-cardSub text-theme-muted border border-theme-border">
+                                    {comp}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+
+                            <div className="flex items-center space-x-2 flex-shrink-0">
+                              {dsaMatch && dsaMatch.task.notes && (
+                                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-theme-accentSub text-theme-accentText border border-theme-accentBorder">
+                                  Notes
+                                </span>
+                              )}
+                              <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${
+                                prob.diff.toLowerCase() === 'easy'
+                                  ? 'bg-emerald-500/15 text-emerald-500 border border-emerald-500/30'
+                                  : prob.diff.toLowerCase() === 'hard'
+                                  ? 'bg-rose-500/15 text-rose-500 border border-rose-500/30'
+                                  : 'bg-amber-500/15 text-amber-500 border border-amber-500/30'
+                              }`}>
+                                {prob.diff}
+                              </span>
                             </div>
                           </div>
-
-                          <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md flex-shrink-0 ${
-                            prob.diff.toLowerCase() === 'easy'
-                              ? 'bg-emerald-500/15 text-emerald-500 border border-emerald-500/30'
-                              : prob.diff.toLowerCase() === 'hard'
-                              ? 'bg-rose-500/15 text-rose-500 border border-rose-500/30'
-                              : 'bg-amber-500/15 text-amber-500 border border-amber-500/30'
-                          }`}>
-                            {prob.diff}
-                          </span>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 ))}
