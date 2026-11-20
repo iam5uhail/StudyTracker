@@ -8,28 +8,35 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'icon.svg'],
+      includeAssets: ['favicon.svg', 'icon.svg', 'pwa-192x192.png', 'pwa-512x512.png', 'apple-touch-icon.png'],
       manifest: {
-        name: 'StudyTracker — Daily Learning & Progress',
+        name: 'StudyTracker — Daily Learning & Progress Tracker',
         short_name: 'StudyTracker',
-        description: '70-Day Target Plan: 140 Core Java Topics + Rising Brain DSA',
+        description: '70-Day Target Plan: 140 Core Java Topics + Rising Brain DSA Problem Solving',
         theme_color: '#060A08',
         background_color: '#060A08',
         display: 'standalone',
         orientation: 'portrait-primary',
         scope: '/',
         start_url: '/',
+        id: '/',
         icons: [
           {
-            src: 'icon.svg',
-            sizes: '192x192 512x512',
-            type: 'image/svg+xml',
+            src: '/pwa-192x192.png',
+            sizes: '192x192',
+            type: 'image/png',
             purpose: 'any'
           },
           {
-            src: 'icon.svg',
-            sizes: '192x192 512x512',
-            type: 'image/svg+xml',
+            src: '/pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: '/maskable-icon-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
             purpose: 'maskable'
           }
         ]

@@ -1,0 +1,32 @@
+﻿{
+  "name": "StudyTracker — Daily Learning & Progress Tracker",
+  "short_name": "StudyTracker",
+  "description": "70-Day Target Plan: 140 Core Java Topics + Rising Brain DSA Problem Solving",
+  "start_url": "/",
+  "id": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#060A08",
+  "theme_color": "#060A08",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/maskable-icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
