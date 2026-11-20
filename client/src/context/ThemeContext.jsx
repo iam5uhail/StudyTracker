@@ -2,38 +2,64 @@
 
 const THEMES = [
   {
-    id: 'black',
-    name: 'OLED Black',
-    label: 'Black',
+    id: 'linear',
+    name: 'Linear Dark',
+    label: 'Linear',
     mode: 'dark',
-    dotColor: '#000000',
-    description: 'Pure pitch black background with deep graphite cards and neon emerald accents',
+    dotColor: '#5E6AD2',
+    description: 'Sophisticated dark graphite with refined purple-indigo accents (Linear & Raycast style)',
     vars: {
-      '--bg-app': '#000000',
-      '--bg-header': '#0C0C0F',
-      '--bg-card': '#121217',
-      '--bg-card-sub': '#1A1A22',
-      '--bg-card-hover': '#242430',
-      '--border-main': '#282836',
-      '--border-sub': '#38384C',
-      '--text-primary': '#FFFFFF',
-      '--text-secondary': '#E4E4E7',
-      '--text-muted': '#A1A1AA',
-      '--accent': '#10B981',
-      '--accent-sub': 'rgba(16, 185, 129, 0.16)',
-      '--accent-border': 'rgba(16, 185, 129, 0.35)',
-      '--accent-text': '#34D399',
-      '--accent-btn-text': '#000000',
-      '--accent-glow': '0 0 16px -2px rgba(16, 185, 129, 0.45)'
+      '--bg-app': '#0C0D11',
+      '--bg-header': '#111218',
+      '--bg-card': '#161720',
+      '--bg-card-sub': '#1D1F2A',
+      '--bg-card-hover': '#252735',
+      '--border-main': '#272A38',
+      '--border-sub': '#34384A',
+      '--text-primary': '#F1F3F9',
+      '--text-secondary': '#C2C6D6',
+      '--text-muted': '#7E849B',
+      '--accent': '#5E6AD2',
+      '--accent-sub': 'rgba(94, 106, 210, 0.12)',
+      '--accent-border': 'rgba(94, 106, 210, 0.28)',
+      '--accent-text': '#828DF8',
+      '--accent-btn-text': '#FFFFFF',
+      '--accent-glow': '0 2px 10px rgba(94, 106, 210, 0.25)'
+    }
+  },
+  {
+    id: 'cream',
+    name: 'Notion Cream',
+    label: 'Cream',
+    mode: 'light',
+    dotColor: '#9A5B32',
+    description: 'Warm organic linen paper with pure white cards, espresso text and terracotta bronze',
+    vars: {
+      '--bg-app': '#FBF9F5',
+      '--bg-header': '#FFFFFF',
+      '--bg-card': '#FFFFFF',
+      '--bg-card-sub': '#F5F1E8',
+      '--bg-card-hover': '#ECE5DA',
+      '--border-main': '#E8E2D6',
+      '--border-sub': '#D8D0C2',
+      '--text-primary': '#23211E',
+      '--text-secondary': '#4D4741',
+      '--text-muted': '#7C746B',
+      '--accent': '#9A5B32',
+      '--accent-sub': 'rgba(154, 91, 50, 0.10)',
+      '--accent-border': 'rgba(154, 91, 50, 0.26)',
+      '--accent-text': '#844C27',
+      '--accent-btn-text': '#FFFFFF',
+      '--accent-glow': '0 2px 10px rgba(154, 91, 50, 0.18)'
     }
   },
   {
     id: 'white',
-    name: 'Pure White',
+    name: 'Studio White',
     label: 'White',
     mode: 'light',
-    dotColor: '#FFFFFF',
-    description: 'Crisp clean studio white background with pure white cards and high-contrast dark text',
+    dotColor: '#2563EB',
+    description: 'Crisp minimal slate white with pure white cards and high-contrast dark slate text (Stripe style)',
     vars: {
       '--bg-app': '#F8FAFC',
       '--bg-header': '#FFFFFF',
@@ -46,120 +72,94 @@ const THEMES = [
       '--text-secondary': '#334155',
       '--text-muted': '#64748B',
       '--accent': '#2563EB',
-      '--accent-sub': 'rgba(37, 99, 235, 0.10)',
-      '--accent-border': 'rgba(37, 99, 235, 0.30)',
+      '--accent-sub': 'rgba(37, 99, 235, 0.08)',
+      '--accent-border': 'rgba(37, 99, 235, 0.24)',
       '--accent-text': '#1D4ED8',
       '--accent-btn-text': '#FFFFFF',
-      '--accent-glow': '0 4px 14px 0 rgba(37, 99, 235, 0.25)'
+      '--accent-glow': '0 2px 10px rgba(37, 99, 235, 0.2)'
     }
   },
   {
-    id: 'cream',
-    name: 'Warm Cream',
-    label: 'Cream',
-    mode: 'light',
-    dotColor: '#F5EFEB',
-    description: 'Warm luxury cream linen with warm ivory cards, espresso text and amber terracotta accents',
+    id: 'github',
+    name: 'GitHub Dark',
+    label: 'GitHub',
+    mode: 'dark',
+    dotColor: '#238636',
+    description: 'Classic developer dark canvas with subtle borders and solid green accents',
     vars: {
-      '--bg-app': '#FBF8F3',
-      '--bg-header': '#FFFDF9',
-      '--bg-card': '#FFFFFF',
-      '--bg-card-sub': '#F4ECE1',
-      '--bg-card-hover': '#EAE0D2',
-      '--border-main': '#E5DCCE',
-      '--border-sub': '#D5C7B3',
-      '--text-primary': '#261C14',
-      '--text-secondary': '#4F3E30',
-      '--text-muted': '#7D6855',
-      '--accent': '#D97706',
-      '--accent-sub': 'rgba(217, 119, 6, 0.12)',
-      '--accent-border': 'rgba(217, 119, 6, 0.32)',
-      '--accent-text': '#B45309',
+      '--bg-app': '#0D1117',
+      '--bg-header': '#161B22',
+      '--bg-card': '#161B22',
+      '--bg-card-sub': '#21262D',
+      '--bg-card-hover': '#292E36',
+      '--border-main': '#30363D',
+      '--border-sub': '#424A53',
+      '--text-primary': '#E6EDF3',
+      '--text-secondary': '#C9D1D9',
+      '--text-muted': '#8B949E',
+      '--accent': '#238636',
+      '--accent-sub': 'rgba(35, 134, 54, 0.14)',
+      '--accent-border': 'rgba(35, 134, 54, 0.32)',
+      '--accent-text': '#3FB950',
       '--accent-btn-text': '#FFFFFF',
-      '--accent-glow': '0 4px 14px 0 rgba(217, 119, 6, 0.25)'
+      '--accent-glow': '0 2px 10px rgba(35, 134, 54, 0.22)'
     }
   },
   {
-    id: 'navy',
-    name: 'Ocean Navy',
-    label: 'Navy',
+    id: 'sage',
+    name: 'Nordic Sage',
+    label: 'Sage',
     mode: 'dark',
-    dotColor: '#1E3A8A',
-    description: 'Distinct deep ocean navy blue background with rich blue cards and sky cyan accents',
+    dotColor: '#2D9C75',
+    description: 'Calm Scandinavian dark pine with subtle sage green accents',
     vars: {
-      '--bg-app': '#0B132B',
-      '--bg-header': '#101B3D',
-      '--bg-card': '#15224F',
-      '--bg-card-sub': '#1C2D66',
-      '--bg-card-hover': '#24387E',
-      '--border-main': '#283F8A',
-      '--border-sub': '#3653B3',
-      '--text-primary': '#FFFFFF',
-      '--text-secondary': '#CBD5E1',
-      '--text-muted': '#94A3B8',
-      '--accent': '#38BDF8',
-      '--accent-sub': 'rgba(56, 189, 248, 0.16)',
-      '--accent-border': 'rgba(56, 189, 248, 0.35)',
-      '--accent-text': '#38BDF8',
-      '--accent-btn-text': '#0B132B',
-      '--accent-glow': '0 0 16px -2px rgba(56, 189, 248, 0.45)'
+      '--bg-app': '#0E1412',
+      '--bg-header': '#131C19',
+      '--bg-card': '#182420',
+      '--bg-card-sub': '#1E2E29',
+      '--bg-card-hover': '#263933',
+      '--border-main': '#2B3E37',
+      '--border-sub': '#385047',
+      '--text-primary': '#EDF3F0',
+      '--text-secondary': '#CBD8D2',
+      '--text-muted': '#7E978E',
+      '--accent': '#2D9C75',
+      '--accent-sub': 'rgba(45, 156, 117, 0.12)',
+      '--accent-border': 'rgba(45, 156, 117, 0.28)',
+      '--accent-text': '#3DB88D',
+      '--accent-btn-text': '#FFFFFF',
+      '--accent-glow': '0 2px 10px rgba(45, 156, 117, 0.2)'
     }
   },
   {
-    id: 'forest',
-    name: 'Forest Emerald',
-    label: 'Forest',
+    id: 'oled',
+    name: 'OLED Minimal',
+    label: 'Black',
     mode: 'dark',
-    dotColor: '#059669',
-    description: 'Deep evergreen pine background with dark forest cards and bright mint accents',
+    dotColor: '#18181B',
+    description: 'Clean monochromatic pure black with graphite cards and neutral zinc accents',
     vars: {
-      '--bg-app': '#071A12',
-      '--bg-header': '#0C241B',
-      '--bg-card': '#103024',
-      '--bg-card-sub': '#163F30',
-      '--bg-card-hover': '#1E503E',
-      '--border-main': '#225C47',
-      '--border-sub': '#2D775D',
-      '--text-primary': '#FFFFFF',
-      '--text-secondary': '#D1FAE5',
-      '--text-muted': '#86EFAC',
-      '--accent': '#10B981',
-      '--accent-sub': 'rgba(16, 185, 129, 0.16)',
-      '--accent-border': 'rgba(16, 185, 129, 0.35)',
-      '--accent-text': '#34D399',
-      '--accent-btn-text': '#051C12',
-      '--accent-glow': '0 0 16px -2px rgba(16, 185, 129, 0.45)'
-    }
-  },
-  {
-    id: 'amber',
-    name: 'Sunset Charcoal',
-    label: 'Amber',
-    mode: 'dark',
-    dotColor: '#D97706',
-    description: 'Rich dark charcoal warmth with glowing golden amber accents',
-    vars: {
-      '--bg-app': '#17120C',
-      '--bg-header': '#211A11',
-      '--bg-card': '#2A2117',
-      '--bg-card-sub': '#382C1F',
-      '--bg-card-hover': '#473828',
-      '--border-main': '#554331',
-      '--border-sub': '#6B553E',
-      '--text-primary': '#FFFFFF',
-      '--text-secondary': '#FED7AA',
-      '--text-muted': '#D6D3D1',
-      '--accent': '#F59E0B',
-      '--accent-sub': 'rgba(245, 158, 11, 0.16)',
-      '--accent-border': 'rgba(245, 158, 11, 0.35)',
-      '--accent-text': '#FBBF24',
-      '--accent-btn-text': '#17120C',
-      '--accent-glow': '0 0 16px -2px rgba(245, 158, 11, 0.45)'
+      '--bg-app': '#000000',
+      '--bg-header': '#09090B',
+      '--bg-card': '#121215',
+      '--bg-card-sub': '#18181D',
+      '--bg-card-hover': '#212128',
+      '--border-main': '#27272E',
+      '--border-sub': '#373740',
+      '--text-primary': '#FAFAFA',
+      '--text-secondary': '#D4D4D8',
+      '--text-muted': '#71717A',
+      '--accent': '#E4E4E7',
+      '--accent-sub': 'rgba(255, 255, 255, 0.10)',
+      '--accent-border': 'rgba(255, 255, 255, 0.24)',
+      '--accent-text': '#FFFFFF',
+      '--accent-btn-text': '#09090B',
+      '--accent-glow': '0 2px 10px rgba(255, 255, 255, 0.15)'
     }
   }
 ];
 
-const THEME_STORAGE_KEY = 'study_tracker_theme_v3';
+const THEME_STORAGE_KEY = 'study_tracker_theme_v4';
 
 const ThemeContext = createContext(null);
 
@@ -171,12 +171,11 @@ export function ThemeProvider({ children }) {
         return saved;
       }
     } catch (e) {}
-    return 'black';
+    return 'linear';
   });
 
   const activeTheme = THEMES.find(t => t.id === currentThemeId) || THEMES[0];
 
-  // Apply CSS custom properties and attributes to document root AND body directly
   useEffect(() => {
     try {
       localStorage.setItem(THEME_STORAGE_KEY, currentThemeId);
@@ -187,13 +186,11 @@ export function ThemeProvider({ children }) {
     root.classList.toggle('dark', activeTheme.mode === 'dark');
     root.classList.toggle('light', activeTheme.mode === 'light');
 
-    // Set all CSS variables on both root and body
     Object.entries(activeTheme.vars).forEach(([key, val]) => {
       root.style.setProperty(key, val);
       document.body.style.setProperty(key, val);
     });
 
-    // Directly set document body background and text color to ensure zero bleed or lag
     document.body.style.backgroundColor = activeTheme.vars['--bg-app'];
     document.body.style.color = activeTheme.vars['--text-primary'];
   }, [currentThemeId, activeTheme]);
