@@ -29,7 +29,7 @@ A simple, distraction-free, day-by-day learning tracker for students. Track **an
 ## 🏃 Running Locally
 
 ```powershell
-cd C:\Users\suhai\Desktop\learning-tracker
+cd C:\Users\suhai\Desktop\StudyTracker
 npm run dev
 ```
 
