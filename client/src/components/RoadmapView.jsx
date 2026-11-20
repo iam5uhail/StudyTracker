@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { 
   Map, 
   BookOpen, 
@@ -126,35 +126,31 @@ export default function RoadmapView({ onOpenNotes }) {
           desc: "Fixed size or dynamic expanding/shrinking window",
           problems: [
             { name: "Maximum Sum Subarray of Size K", diff: "Easy", companies: ["Amazon", "Microsoft"] },
-            { name: "Max Consecutive Ones", diff: "Easy", companies: ["Amazon", "Google"] },
-            { name: "Max Consecutive Ones III", diff: "Medium", companies: ["Google", "Microsoft"] },
-            { name: "Subarray Product Less Than K", diff: "Medium", companies: ["Amazon", "Google"] },
-            { name: "Sliding Window Maximum", diff: "Hard", companies: ["Google", "Uber", "Amazon"] },
-            { name: "Subarray with k distinct Integers", diff: "Hard", companies: ["Google", "Amazon"] },
-            { name: "Fruits Into Baskets", diff: "Medium", companies: ["Amazon", "Google"] },
-            { name: "Minimum Size Subarray Sum", diff: "Medium", companies: ["Amazon", "Adobe"] }
+            { name: "Smallest Subarray with a given sum", diff: "Medium", companies: ["Google"] },
+            { name: "Longest Substring Without Repeating Characters", diff: "Medium", companies: ["Amazon", "Microsoft", "Bloomberg"] },
+            { name: "Minimum Window Substring", diff: "Hard", companies: ["Facebook", "Uber", "Amazon"] },
+            { name: "Subarray Product Less Than K", diff: "Medium", companies: ["Apple"] },
+            { name: "Permutation in String", diff: "Medium", companies: ["Microsoft"] }
           ]
         },
         {
-          name: "Prefix Sum (6 Problems)",
-          desc: "Range sum, subarray sum, cumulative sum queries",
+          name: "Prefix Sum & Kadane's (5 Problems)",
+          desc: "Cumulative sums, contiguous subarray maximums",
           problems: [
-            { name: "Subarray Sum Equals K", diff: "Medium", companies: ["Facebook", "Amazon"] },
-            { name: "Matrix Block Sum (Running Sum of 2D Array)", diff: "Medium", companies: ["Google", "Adobe"] },
+            { name: "Maximum Subarray (Kadane's)", diff: "Medium", companies: ["Amazon", "Apple", "Microsoft"] },
+            { name: "Subarray Sum Equals K", diff: "Medium", companies: ["Facebook", "Google"] },
             { name: "Product of Array Except Self", diff: "Medium", companies: ["Amazon", "Apple", "Facebook"] },
-            { name: "Continuous Subarray Sum", diff: "Medium", companies: ["Facebook", "Amazon"] },
-            { name: "Subarray Sum Divisible by K", diff: "Medium", companies: ["Microsoft", "Amazon"] },
-            { name: "Find Pivot Index", diff: "Easy", companies: ["Amazon", "Apple"] }
+            { name: "Find Pivot Index", diff: "Easy", companies: ["Amazon"] }
           ]
         },
         {
-          name: "Kadane's Algorithm (4 Problems)",
-          desc: "Maximum/minimum sum or product of contiguous subarray",
+          name: "Matrix & Simulation (5 Problems)",
+          desc: "2D Grid manipulations, spiral traversals, rotations",
           problems: [
-            { name: "Maximum Subarray", diff: "Medium", companies: ["Amazon", "Apple", "Google"] },
-            { name: "Maximum Sum Circular Subarray", diff: "Medium", companies: ["Amazon", "Google"] },
-            { name: "Maximum Product Subarray", diff: "Medium", companies: ["Amazon", "Google"] },
-            { name: "Best Time to Buy and Sell Stock", diff: "Easy", companies: ["Amazon", "Apple", "Google"] }
+            { name: "Spiral Matrix", diff: "Medium", companies: ["Microsoft", "Amazon", "Apple"] },
+            { name: "Rotate Image 90 Degrees", diff: "Medium", companies: ["Amazon", "Bloomberg"] },
+            { name: "Set Matrix Zeroes", diff: "Medium", companies: ["Facebook", "Microsoft"] },
+            { name: "Valid Sudoku", diff: "Medium", companies: ["Apple", "Uber"] }
           ]
         }
       ]
@@ -163,20 +159,30 @@ export default function RoadmapView({ onOpenNotes }) {
       category: "Strings (11 Problems)",
       patterns: [
         {
-          name: "String Manipulation & Frequency",
-          desc: "Palindromes, anagrams, substring patterns",
+          name: "Palindrome & Two-Pointer (4 Problems)",
+          desc: "Verification and longest palindromic substring",
           problems: [
-            { name: "Valid Anagram", diff: "Easy", companies: ["Amazon", "Google", "Facebook"] },
-            { name: "Group Anagrams", diff: "Medium", companies: ["Amazon", "Apple", "Microsoft"] },
-            { name: "Longest Substring Without Repeating Characters", diff: "Medium", companies: ["Amazon", "Google"] },
             { name: "Valid Palindrome", diff: "Easy", companies: ["Facebook", "Microsoft"] },
-            { name: "Longest Palindromic Substring", diff: "Medium", companies: ["Amazon", "Microsoft"] },
-            { name: "Palindromic Substrings", diff: "Medium", companies: ["Google", "Facebook"] },
-            { name: "Encode and Decode Strings", diff: "Medium", companies: ["Google", "Facebook"] },
-            { name: "Minimum Window Substring", diff: "Hard", companies: ["Facebook", "Amazon"] },
-            { name: "Longest Repeating Character Replacement", diff: "Medium", companies: ["Amazon", "Google"] },
-            { name: "String to Integer (atoi)", diff: "Medium", companies: ["Amazon", "Microsoft"] },
-            { name: "Find All Anagrams in a String", diff: "Medium", companies: ["Amazon", "Microsoft"] }
+            { name: "Longest Palindromic Substring", diff: "Medium", companies: ["Amazon", "Google", "Adobe"] },
+            { name: "Palindromic Substrings", diff: "Medium", companies: ["Facebook"] }
+          ]
+        },
+        {
+          name: "Anagrams & Frequency (4 Problems)",
+          desc: "Hash map character counting, sorting, grouped anagrams",
+          problems: [
+            { name: "Valid Anagram", diff: "Easy", companies: ["Amazon", "Facebook"] },
+            { name: "Group Anagrams", diff: "Medium", companies: ["Amazon", "Apple", "Uber"] },
+            { name: "Find All Anagrams in a String", diff: "Medium", companies: ["Microsoft"] }
+          ]
+        },
+        {
+          name: "String Parsing & Matching (3 Problems)",
+          desc: "Roman numerals, string matching, longest common prefix",
+          problems: [
+            { name: "Longest Common Prefix", diff: "Easy", companies: ["Amazon", "Google"] },
+            { name: "String to Integer (atoi)", diff: "Medium", companies: ["Microsoft", "Amazon"] },
+            { name: "Roman to Integer", diff: "Easy", companies: ["Apple"] }
           ]
         }
       ]
@@ -185,44 +191,70 @@ export default function RoadmapView({ onOpenNotes }) {
       category: "Binary Search (23 Problems)",
       patterns: [
         {
-          name: "Sorted Array Search & Bounds",
-          desc: "Search space reduction, lower/upper bounds, rotated arrays",
+          name: "Standard Binary Search (5 Problems)",
+          desc: "Search in sorted arrays, bounds, insert positions",
           problems: [
-            { name: "Binary Search", diff: "Easy", companies: ["Amazon", "Apple", "Google"] },
-            { name: "Search in Rotated Sorted Array", diff: "Medium", companies: ["Amazon", "Google", "Facebook"] },
+            { name: "Binary Search", diff: "Easy", companies: ["Google", "Amazon"] },
+            { name: "Search Insert Position", diff: "Easy", companies: ["Apple"] },
+            { name: "First and Last Position of Element in Sorted Array", diff: "Medium", companies: ["Facebook", "Microsoft"] },
             { name: "Find Minimum in Rotated Sorted Array", diff: "Medium", companies: ["Amazon", "Microsoft"] },
-            { name: "Search a 2D Matrix", diff: "Medium", companies: ["Amazon", "Microsoft"] },
-            { name: "Search a 2D Matrix II", diff: "Medium", companies: ["Amazon", "Google"] },
-            { name: "First and Last Position of Element in Sorted Array", diff: "Medium", companies: ["Facebook", "Amazon"] },
-            { name: "Peak Index in a Mountain Array", diff: "Medium", companies: ["Google", "Amazon"] },
-            { name: "Find Peak Element", diff: "Medium", companies: ["Google", "Facebook"] },
-            { name: "Koko Eating Bananas", diff: "Medium", companies: ["Google", "Amazon"] },
-            { name: "Capacity to Ship Packages Within D Days", diff: "Medium", companies: ["Google", "Amazon"] },
+            { name: "Search in Rotated Sorted Array", diff: "Medium", companies: ["Google", "Bloomberg"] }
+          ]
+        },
+        {
+          name: "Binary Search on Answer Space (10 Problems)",
+          desc: "Monotonic predicates, allocation, capacity, eating bananas",
+          problems: [
+            { name: "Koko Eating Bananas", diff: "Medium", companies: ["Airbnb", "Google"] },
+            { name: "Capacity To Ship Packages Within D Days", diff: "Medium", companies: ["Amazon"] },
             { name: "Split Array Largest Sum", diff: "Hard", companies: ["Google", "Amazon"] },
-            { name: "Median of Two Sorted Arrays", diff: "Hard", companies: ["Google", "Amazon", "Apple"] }
+            { name: "Aggressive Cows / Magnetic Force", diff: "Medium", companies: ["Facebook"] },
+            { name: "Book Allocation Problem", diff: "Hard", companies: ["Flipkart", "Google"] }
+          ]
+        },
+        {
+          name: "2D Matrix Binary Search (4 Problems)",
+          desc: "Row-sorted and column-sorted matrices",
+          problems: [
+            { name: "Search a 2D Matrix", diff: "Medium", companies: ["Microsoft", "Amazon"] },
+            { name: "Search a 2D Matrix II", diff: "Medium", companies: ["Google", "Amazon"] },
+            { name: "Find Peak Element II", diff: "Medium", companies: ["Google"] }
+          ]
+        },
+        {
+          name: "Peak & Specialized Binary Search (4 Problems)",
+          desc: "Local maxima, mountain arrays, single non-duplicate",
+          problems: [
+            { name: "Find Peak Element", diff: "Medium", companies: ["Facebook", "Google"] },
+            { name: "Peak Index in a Mountain Array", diff: "Medium", companies: ["Bloomberg"] },
+            { name: "Single Element in a Sorted Array", diff: "Medium", companies: ["Amazon"] }
           ]
         }
       ]
     },
     {
-      category: "Stacks & Queues (12 Problems)",
+      category: "Stack & Queue (12 Problems)",
       patterns: [
         {
-          name: "Monotonic Stack & Expression Evaluation",
-          desc: "Parentheses, next greater element, histogram, stack evaluation",
+          name: "Parentheses & Monotonic Stack (6 Problems)",
+          desc: "Bracket validation, next greater element, temperatures",
           problems: [
-            { name: "Valid Parentheses", diff: "Easy", companies: ["Amazon", "Google", "Facebook"] },
-            { name: "Min Stack", diff: "Medium", companies: ["Amazon", "Microsoft", "Bloomberg"] },
-            { name: "Evaluate Reverse Polish Notation", diff: "Medium", companies: ["Amazon", "LinkedIn"] },
-            { name: "Daily Temperatures", diff: "Medium", companies: ["Amazon", "Google"] },
-            { name: "Next Greater Element I", diff: "Easy", companies: ["Amazon", "Google"] },
-            { name: "Next Greater Element II", diff: "Medium", companies: ["Amazon", "Google"] },
-            { name: "Largest Rectangle in Histogram", diff: "Hard", companies: ["Amazon", "Google"] },
-            { name: "Asteroid Collision", diff: "Medium", companies: ["Google", "Amazon"] },
-            { name: "Implement Queue using Stacks", diff: "Easy", companies: ["Amazon", "Microsoft"] },
-            { name: "Trapping Rain Water (Stack Approach)", diff: "Hard", companies: ["Google", "Goldman Sachs"] },
-            { name: "Online Stock Span", diff: "Medium", companies: ["Amazon", "Adobe"] },
-            { name: "Remove K Digits", diff: "Medium", companies: ["Google", "Amazon"] }
+            { name: "Valid Parentheses", diff: "Easy", companies: ["Amazon", "Microsoft", "Bloomberg"] },
+            { name: "Next Greater Element I", diff: "Easy", companies: ["Amazon"] },
+            { name: "Next Greater Element II", diff: "Medium", companies: ["Google"] },
+            { name: "Daily Temperatures", diff: "Medium", companies: ["Amazon", "Facebook"] },
+            { name: "Largest Rectangle in Histogram", diff: "Hard", companies: ["Google", "Amazon", "Uber"] },
+            { name: "Maximal Rectangle", diff: "Hard", companies: ["Apple"] }
+          ]
+        },
+        {
+          name: "Expression Evaluation & Min Stack (6 Problems)",
+          desc: "RPN, infix/postfix, basic calculator, O(1) min stack",
+          problems: [
+            { name: "Min Stack", diff: "Medium", companies: ["Amazon", "Bloomberg"] },
+            { name: "Evaluate Reverse Polish Notation", diff: "Medium", companies: ["Google", "Apple"] },
+            { name: "Basic Calculator II", diff: "Medium", companies: ["Facebook", "Amazon"] },
+            { name: "Sliding Window Maximum (Monotonic Queue)", diff: "Hard", companies: ["Amazon", "Google"] }
           ]
         }
       ]
@@ -232,139 +264,130 @@ export default function RoadmapView({ onOpenNotes }) {
   return (
     <div className="space-y-6">
       {/* 1. Header Banner */}
-      <div className="rounded-3xl border border-[#16241D] bg-gradient-to-r from-[#080E0A] via-[#0B150F] to-[#080D0A] p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="rounded-3xl border border-theme-border bg-theme-card p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
         <div>
-          <div className="flex items-center space-x-2 text-emerald-400 mb-2">
-            <Map className="w-5 h-5" />
-            <span className="text-xs font-bold uppercase tracking-wider">Curriculum & Syllabus</span>
+          <div className="flex items-center space-x-2 text-theme-accentText mb-2">
+            <BookOpen className="w-5 h-5 text-theme-accent" />
+            <span className="text-xs font-bold uppercase tracking-wider">Complete Curriculum & Syllabus</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            Full Learning Roadmap
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-theme-text tracking-tight">
+            Master Learning Roadmap
           </h1>
-          <p className="text-sm text-gray-400 mt-1 max-w-2xl">
-            Browse the complete <strong className="text-emerald-300">140 Core Java Topics</strong> curriculum and <strong className="text-emerald-300">Rising Brain Pattern-Wise DSA</strong> syllabus.
+          <p className="text-sm text-theme-muted mt-1 max-w-2xl">
+            Explore the complete syllabus: <strong>140 Core Java Topics</strong> (9 modules) and <strong>Rising Brain DSA Patterns</strong> (Array, Strings, Binary Search, Stack) spanning 70 dedicated days.
           </p>
         </div>
 
-        {/* Sub-view switcher */}
-        <div className="flex flex-wrap items-center gap-1.5 bg-[#060A08] border border-[#16241D] p-1.5 rounded-2xl text-xs flex-shrink-0">
+        {/* 3 View Tabs Switcher */}
+        <div className="flex items-center space-x-1 bg-theme-cardSub border border-theme-border p-1 rounded-2xl text-xs flex-shrink-0 shadow-sm">
           <button
             onClick={() => setCurriculumTab('70days')}
-            className={`flex items-center space-x-1.5 px-3.5 py-2 rounded-xl font-bold transition-all ${
+            className={`px-3 sm:px-4 py-2 rounded-xl font-bold transition-all ${
               curriculumTab === '70days'
-                ? 'bg-emerald-500 text-black shadow-[0_0_12px_#10B981]'
-                : 'text-gray-400 hover:text-white'
+                ? 'bg-theme-accent text-theme-accentBtnText shadow-theme-glow'
+                : 'text-theme-muted hover:text-theme-text hover:bg-theme-cardHover'
             }`}
           >
-            <Calendar className="w-3.5 h-3.5" />
-            <span>70-Day Schedule</span>
+            70-Day Schedule
           </button>
 
           <button
             onClick={() => setCurriculumTab('java140')}
-            className={`flex items-center space-x-1.5 px-3.5 py-2 rounded-xl font-bold transition-all ${
+            className={`px-3 sm:px-4 py-2 rounded-xl font-bold transition-all ${
               curriculumTab === 'java140'
-                ? 'bg-amber-400 text-black shadow-[0_0_12px_#FBBF24]'
-                : 'text-gray-400 hover:text-white'
+                ? 'bg-theme-accent text-theme-accentBtnText shadow-theme-glow'
+                : 'text-theme-muted hover:text-theme-text hover:bg-theme-cardHover'
             }`}
           >
-            <Code2 className="w-3.5 h-3.5" />
-            <span>Core Java (140 Topics)</span>
+            140 Java Topics
           </button>
 
           <button
             onClick={() => setCurriculumTab('dsaPatterns')}
-            className={`flex items-center space-x-1.5 px-3.5 py-2 rounded-xl font-bold transition-all ${
+            className={`px-3 sm:px-4 py-2 rounded-xl font-bold transition-all ${
               curriculumTab === 'dsaPatterns'
-                ? 'bg-emerald-400 text-black shadow-[0_0_12px_#34D399]'
-                : 'text-gray-400 hover:text-white'
+                ? 'bg-theme-accent text-theme-accentBtnText shadow-theme-glow'
+                : 'text-theme-muted hover:text-theme-text hover:bg-theme-cardHover'
             }`}
           >
-            <Brain className="w-3.5 h-3.5" />
-            <span>DSA Patterns (70 Problems)</span>
+            DSA Patterns
           </button>
         </div>
       </div>
 
-      {/* 2. Switchable Tab Content */}
+      {/* 2. Content based on tab */}
       {curriculumTab === '70days' && (
         <AllTargetsTableView onOpenNotes={onOpenNotes} />
       )}
 
       {curriculumTab === 'java140' && (
-        <div className="space-y-5">
+        <div className="space-y-6">
           {/* Search bar for Java topics */}
-          <div className="bg-[#0A100D] border border-[#16241D] rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
-                <Code2 className="w-4 h-4" />
-              </div>
-              <div>
-                <h3 className="text-sm font-bold text-white">140 Core Java Video Topics Curriculum</h3>
-                <p className="text-xs text-gray-400">From Introduction to JDBC, Multithreading, and Billing Software Projects</p>
-              </div>
+          <div className="flex items-center justify-between gap-3 bg-theme-card border border-theme-border rounded-2xl p-4 shadow-sm">
+            <div className="flex items-center space-x-2 text-xs text-theme-muted">
+              <Code2 className="w-4 h-4 text-amber-500" />
+              <span>Browsing all <strong>140 Core Java Video Topics</strong> divided across 9 comprehensive modules</span>
             </div>
 
             <div className="relative">
-              <Search className="w-3.5 h-3.5 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-3.5 h-3.5 text-theme-muted absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="Search topics (e.g. static, thread)..."
                 value={javaSearch}
                 onChange={(e) => setJavaSearch(e.target.value)}
-                className="pl-8 pr-3 py-1.5 rounded-xl bg-[#060A08] border border-[#192A20] text-xs text-white placeholder-gray-500 focus:outline-none focus:border-amber-400 w-full sm:w-64"
+                placeholder="Search topics (e.g. OOP, Stream, Thread)..."
+                className="pl-8 pr-3 py-1.5 bg-theme-cardSub border border-theme-border focus:border-theme-accent rounded-xl text-xs text-theme-text placeholder-theme-muted focus:outline-none w-64 shadow-inner"
               />
             </div>
           </div>
 
-          {/* 9 Modules Accordion / Cards */}
-          <div className="grid grid-cols-1 gap-4">
-            {javaModules.map(module => {
-              const matchingTopics = module.topics.filter(t => 
+          {/* 9 Modules list */}
+          <div className="space-y-5">
+            {javaModules.map((mod) => {
+              const filteredModTopics = mod.topics.filter(t => 
                 !javaSearch.trim() || t.Title.toLowerCase().includes(javaSearch.toLowerCase())
               );
 
-              if (javaSearch.trim() && matchingTopics.length === 0) return null;
+              if (javaSearch.trim() && filteredModTopics.length === 0) return null;
 
               return (
-                <div key={module.id} className="bg-[#0A100D] border border-[#16241D] rounded-2xl p-5 space-y-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#16241D] pb-3">
+                <div key={mod.id} className="bg-theme-card border border-theme-border rounded-3xl p-6 space-y-4 shadow-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-theme-border pb-3">
                     <div>
-                      <div className="flex items-center space-x-2">
-                        <span className="text-xs font-bold uppercase tracking-wider text-amber-400 font-mono">
-                          {module.range}
-                        </span>
-                        <span className="text-gray-600">•</span>
-                        <h4 className="text-base font-bold text-white">{module.title}</h4>
-                      </div>
-                      <p className="text-xs text-gray-400 mt-0.5">{module.description}</p>
+                      <h3 className="text-base font-bold text-theme-text flex items-center space-x-2">
+                        <span className="w-2 h-2 rounded-full bg-amber-500" />
+                        <span>{mod.title}</span>
+                      </h3>
+                      <p className="text-xs text-theme-muted mt-0.5">{mod.description}</p>
                     </div>
-                    <span className="text-xs text-gray-500 font-mono self-start sm:self-auto">
-                      {matchingTopics.length} topics
+
+                    <span className="text-xs font-mono font-semibold text-amber-500 bg-amber-500/10 px-2.5 py-1 rounded-xl border border-amber-500/20 self-start sm:self-auto">
+                      {mod.range}
                     </span>
                   </div>
 
-                  {/* Topics Grid */}
+                  {/* Grid of topic badges */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
-                    {matchingTopics.map(topic => {
-                      const done = isJavaTopicDone(topic.Num);
+                    {filteredModTopics.map((topic) => {
+                      const done = isJavaTopicDone(topic.Video);
+
                       return (
                         <div
-                          key={topic.Num}
-                          className={`flex items-start space-x-2.5 p-3 rounded-xl border text-xs transition-colors ${
+                          key={topic.Video}
+                          className={`flex items-start space-x-2.5 p-3 rounded-2xl border text-xs transition-colors ${
                             done 
-                              ? 'bg-[#0B1510] border-emerald-500/30 text-gray-300' 
-                              : 'bg-[#0D1411] border-[#18261F] text-gray-400'
+                              ? 'bg-theme-accentSub border-theme-accentBorder text-theme-accentText' 
+                              : 'bg-theme-cardSub border-theme-border text-theme-secondary hover:border-theme-borderSub'
                           }`}
                         >
                           <span className="flex-shrink-0 mt-0.5">
                             {done ? (
-                              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                              <CheckCircle2 className="w-4 h-4 text-theme-accent" />
                             ) : (
-                              <Circle className="w-4 h-4 text-gray-600" />
+                              <Circle className="w-4 h-4 text-theme-muted" />
                             )}
                           </span>
-                          <span className={`font-medium ${done ? 'line-through text-gray-500' : 'text-gray-200'}`}>
+                          <span className={`font-medium ${done ? 'line-through text-theme-muted' : 'text-theme-text'}`}>
                             {topic.Title}
                           </span>
                         </div>
@@ -381,15 +404,15 @@ export default function RoadmapView({ onOpenNotes }) {
       {curriculumTab === 'dsaPatterns' && (
         <div className="space-y-6">
           {dsaPatterns.map((cat, cIdx) => (
-            <div key={cIdx} className="bg-[#0A100D] border border-[#16241D] rounded-3xl p-6 space-y-5">
-              <div className="flex items-center justify-between border-b border-[#16241D] pb-4">
+            <div key={cIdx} className="bg-theme-card border border-theme-border rounded-3xl p-6 space-y-5 shadow-sm">
+              <div className="flex items-center justify-between border-b border-theme-border pb-4">
                 <div className="flex items-center space-x-3">
-                  <div className="w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-                    <Brain className="w-5 h-5" />
+                  <div className="w-9 h-9 rounded-xl bg-theme-accentSub border border-theme-accentBorder flex items-center justify-center text-theme-accentText">
+                    <Brain className="w-5 h-5 text-theme-accent" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-white">{cat.category}</h3>
-                    <p className="text-xs text-gray-400">Pattern-wise questions curated from Rising Brain sheet</p>
+                    <h3 className="text-lg font-bold text-theme-text">{cat.category}</h3>
+                    <p className="text-xs text-theme-muted">Pattern-wise questions curated from Rising Brain sheet</p>
                   </div>
                 </div>
               </div>
@@ -397,16 +420,16 @@ export default function RoadmapView({ onOpenNotes }) {
               {/* Patterns inside this Category */}
               <div className="space-y-4">
                 {cat.patterns.map((pat, pIdx) => (
-                  <div key={pIdx} className="bg-[#0D1411] border border-[#18261F] rounded-2xl p-4 sm:p-5 space-y-3">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-[#18261F] pb-2.5">
+                  <div key={pIdx} className="bg-theme-cardSub border border-theme-border rounded-2xl p-4 sm:p-5 space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-theme-border pb-2.5">
                       <div>
-                        <h4 className="text-sm font-bold text-emerald-300 flex items-center space-x-1.5">
-                          <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                        <h4 className="text-sm font-bold text-theme-accentText flex items-center space-x-1.5">
+                          <Sparkles className="w-3.5 h-3.5 text-theme-accent" />
                           <span>{pat.name}</span>
                         </h4>
-                        <p className="text-xs text-gray-400 mt-0.5">{pat.desc}</p>
+                        <p className="text-xs text-theme-muted mt-0.5">{pat.desc}</p>
                       </div>
-                      <span className="text-[11px] text-gray-500 font-mono">
+                      <span className="text-[11px] text-theme-muted font-mono">
                         {pat.problems.length} Problems
                       </span>
                     </div>
@@ -416,15 +439,15 @@ export default function RoadmapView({ onOpenNotes }) {
                       {pat.problems.map((prob, prIdx) => (
                         <div
                           key={prIdx}
-                          className="flex items-center justify-between p-3 rounded-xl bg-[#09100C] border border-[#14231B] text-xs hover:border-[#1E3327] transition-colors"
+                          className="flex items-center justify-between p-3 rounded-xl bg-theme-card border border-theme-border text-xs hover:border-theme-borderSub transition-colors shadow-sm"
                         >
                           <div className="space-y-1 flex-1 pr-2">
-                            <span className="font-semibold text-gray-200 block truncate">
+                            <span className="font-semibold text-theme-text block truncate">
                               {prob.name}
                             </span>
                             <div className="flex flex-wrap items-center gap-1">
                               {prob.companies.slice(0, 2).map((comp, compIdx) => (
-                                <span key={compIdx} className="text-[9px] px-1.5 py-0.5 rounded bg-[#121B16] text-gray-400">
+                                <span key={compIdx} className="text-[9px] px-1.5 py-0.5 rounded bg-theme-cardSub text-theme-muted border border-theme-border">
                                   {comp}
                                 </span>
                               ))}
@@ -433,10 +456,10 @@ export default function RoadmapView({ onOpenNotes }) {
 
                           <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md flex-shrink-0 ${
                             prob.diff.toLowerCase() === 'easy'
-                              ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                              ? 'bg-emerald-500/15 text-emerald-500 border border-emerald-500/30'
                               : prob.diff.toLowerCase() === 'hard'
-                              ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30'
-                              : 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
+                              ? 'bg-rose-500/15 text-rose-500 border border-rose-500/30'
+                              : 'bg-amber-500/15 text-amber-500 border border-amber-500/30'
                           }`}>
                             {prob.diff}
                           </span>

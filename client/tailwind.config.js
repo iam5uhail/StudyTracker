@@ -1,4 +1,4 @@
-/** @type {import('tailwindcss').Config} */
+﻿/** @type {import('tailwindcss').Config} */
 export default {
   content: [
     "./index.html",
@@ -8,31 +8,31 @@ export default {
   theme: {
     extend: {
       colors: {
-        dark: {
-          950: '#060A08',
-          900: '#080D0A',
-          850: '#0B120E',
-          800: '#101B15',
-          700: '#16241D',
-          600: '#1E3127',
-          500: '#2A4336',
-        },
-        brand: {
-          DEFAULT: '#10B981',
-          50: '#ECFDF5',
-          100: '#D1FAE5',
-          200: '#A7F3D0',
-          300: '#6EE7B7',
-          400: '#34D399',
-          500: '#10B981',
-          600: '#059669',
-          700: '#047857',
+        theme: {
+          bg: 'var(--bg-app)',
+          header: 'var(--bg-header)',
+          card: 'var(--bg-card)',
+          cardSub: 'var(--bg-card-sub)',
+          cardHover: 'var(--bg-card-hover)',
+          border: 'var(--border-main)',
+          borderSub: 'var(--border-sub)',
+          text: 'var(--text-primary)',
+          secondary: 'var(--text-secondary)',
+          muted: 'var(--text-muted)',
+          accent: 'var(--accent)',
+          accentSub: 'var(--accent-sub)',
+          accentBorder: 'var(--accent-border)',
+          accentText: 'var(--accent-text)',
+          accentBtnText: 'var(--accent-btn-text)',
         },
         diff: {
           easy: '#10B981',
           medium: '#F59E0B',
           hard: '#EF4444',
         }
+      },
+      boxShadow: {
+        'theme-glow': 'var(--accent-glow)',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
