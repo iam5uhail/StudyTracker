@@ -3,31 +3,82 @@
 @tailwind utilities;
 
 :root {
-  --bg-app: #060A08;
-  --bg-header: #080D0A;
-  --bg-card: #0A100D;
-  --bg-card-sub: #0D1411;
-  --bg-card-hover: #131F19;
-  --border-main: #16241D;
-  --border-sub: #1E3127;
+  --bg-app: #000000;
+  --bg-header: #0C0C0F;
+  --bg-card: #121217;
+  --bg-card-sub: #1A1A22;
+  --bg-card-hover: #242430;
+  --border-main: #282836;
+  --border-sub: #38384C;
   --text-primary: #FFFFFF;
-  --text-secondary: #D1D5DB;
-  --text-muted: #9CA3AF;
+  --text-secondary: #E4E4E7;
+  --text-muted: #A1A1AA;
   --accent: #10B981;
-  --accent-sub: rgba(16, 185, 129, 0.15);
+  --accent-sub: rgba(16, 185, 129, 0.16);
   --accent-border: rgba(16, 185, 129, 0.35);
   --accent-text: #34D399;
-  --accent-btn-text: #05140C;
-  --accent-glow: 0 0 16px -2px rgba(16, 185, 129, 0.4);
+  --accent-btn-text: #000000;
+  --accent-glow: 0 0 16px -2px rgba(16, 185, 129, 0.45);
 }
 
 @layer base {
-  body {
+  html, body {
     background-color: var(--bg-app);
     color: var(--text-primary);
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
+}
+
+/* Solid Opaque Background Utilities (prevents any transparent text bleeding) */
+.bg-theme-bg {
+  background-color: var(--bg-app) !important;
+}
+
+.bg-theme-header {
+  background-color: var(--bg-header) !important;
+}
+
+.bg-theme-card {
+  background-color: var(--bg-card) !important;
+  opacity: 1 !important;
+}
+
+.bg-theme-cardSub {
+  background-color: var(--bg-card-sub) !important;
+  opacity: 1 !important;
+}
+
+.border-theme-border {
+  border-color: var(--border-main) !important;
+}
+
+.border-theme-borderSub {
+  border-color: var(--border-sub) !important;
+}
+
+.text-theme-text {
+  color: var(--text-primary) !important;
+}
+
+.text-theme-secondary {
+  color: var(--text-secondary) !important;
+}
+
+.text-theme-muted {
+  color: var(--text-muted) !important;
+}
+
+.text-theme-accentText {
+  color: var(--accent-text) !important;
+}
+
+.bg-theme-accent {
+  background-color: var(--accent) !important;
+}
+
+.text-theme-accentBtnText {
+  color: var(--accent-btn-text) !important;
 }
 
 /* Dynamic scrollbar matching theme */
@@ -49,7 +100,7 @@
   background: var(--accent);
 }
 
-/* Hide scrollbar utility for smooth timeline scrolling */
+/* Hide scrollbar utility */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }

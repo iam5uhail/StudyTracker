@@ -46,9 +46,20 @@ export default function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-theme-bg text-theme-text flex flex-col font-sans antialiased transition-colors duration-200">
+    <div 
+      className="min-h-screen bg-theme-bg text-theme-text flex flex-col font-sans antialiased transition-colors duration-200"
+      style={{
+        backgroundColor: activeTheme.vars['--bg-app'],
+        color: activeTheme.vars['--text-primary']
+      }}
+    >
       {/* Top Navbar Header */}
-      <header className="border-b border-theme-border bg-theme-header/95 backdrop-blur-md sticky top-0 z-40">
+      <header 
+        className="border-b border-theme-border sticky top-0 z-40 transition-colors duration-200 shadow-sm"
+        style={{
+          backgroundColor: activeTheme.vars['--bg-header']
+        }}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
           {/* Brand Logo & Title */}
           <div className="flex items-center space-x-3 flex-shrink-0">
@@ -144,9 +155,18 @@ export default function App() {
                 <ChevronDown className="w-3.5 h-3.5 text-theme-muted" />
               </button>
 
-              {/* Theme Dropdown Menu */}
+              {/* Theme Dropdown Menu - 100% Solid Opaque Background */}
               {themeDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-theme-card border border-theme-border shadow-2xl p-2 z-50 space-y-1">
+                <div 
+                  className="absolute right-0 mt-2 w-64 rounded-2xl border border-theme-border shadow-2xl p-2 z-[9999] space-y-1"
+                  style={{
+                    backgroundColor: activeTheme.vars['--bg-card'],
+                    color: activeTheme.vars['--text-primary'],
+                    boxShadow: isDark 
+                      ? '0 20px 40px -10px rgba(0, 0, 0, 0.8), 0 0 0 1px var(--border-main)' 
+                      : '0 20px 40px -10px rgba(0, 0, 0, 0.15), 0 0 0 1px var(--border-main)'
+                  }}
+                >
                   <div className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-theme-muted border-b border-theme-border flex items-center justify-between">
                     <span>Select Color Theme</span>
                     <Palette className="w-3.5 h-3.5" />
@@ -169,7 +189,7 @@ export default function App() {
                       >
                         <div className="flex items-center space-x-2.5">
                           <span
-                            className="w-3.5 h-3.5 rounded-full border border-black/20 flex-shrink-0 shadow-sm"
+                            className="w-4 h-4 rounded-full border border-black/20 flex-shrink-0 shadow-sm"
                             style={{ backgroundColor: t.dotColor }}
                           />
                           <div className="text-left">
@@ -207,7 +227,10 @@ export default function App() {
       </main>
 
       {/* Modern Footer */}
-      <footer className="border-t border-theme-border py-5 text-center text-xs text-theme-muted bg-theme-header">
+      <footer 
+        className="border-t border-theme-border py-5 text-center text-xs text-theme-muted"
+        style={{ backgroundColor: activeTheme.vars['--bg-header'] }}
+      >
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <span>StudyTracker â€¢ 70-Day Target Plan Starting 21 Nov 2026</span>
           <span className="text-theme-accentText font-medium">Daily Goal: 2 Core Java Topics + 1 Rising Brain DSA Problem</span>
