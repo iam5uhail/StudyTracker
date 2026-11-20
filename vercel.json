@@ -1,5 +1,6 @@
 ﻿{
-  "framework": "vite",
-  "buildCommand": "npm --prefix client run build",
-  "outputDirectory": "client/dist"
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/.*", "dest": "/index.html" }
+  ]
 }
