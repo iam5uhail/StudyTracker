@@ -22,7 +22,7 @@ export default function Navbar({ onOpenLogModal, onOpenAddSubject }) {
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <h1 className="text-base font-bold text-white tracking-tight">StudyTrack</h1>
+              <h1 className="text-base font-bold text-white tracking-tight">StudyTracker</h1>
               <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
                 Daily Learning
               </span>

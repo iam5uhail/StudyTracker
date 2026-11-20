@@ -1,4 +1,4 @@
-# 🎓 StudyTrack — Daily Learning & Progress Companion
+# 🎓 StudyTracker — Daily Learning & Progress Companion
 
 A simple, distraction-free, day-by-day learning tracker for students. Track **any subject, course, or exam prep** (Java, Math, Science, Humanities, DSA, Languages) with syllabus progress, daily goals, and a study journal. Ready for 1-click deployment on **Vercel**.
 
