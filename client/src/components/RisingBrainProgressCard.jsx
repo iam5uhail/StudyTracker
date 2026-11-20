@@ -23,7 +23,7 @@ export default function RisingBrainProgressCard() {
         <div>
           <h4 className="text-sm font-semibold text-theme-text">Keep pushing!</h4>
           <p className="text-xs text-theme-muted leading-snug mt-0.5">
-            Building mastery one problem at a time â€” keep the momentum going!
+            Building mastery one problem at a time — keep the momentum going!
           </p>
         </div>
       </div>

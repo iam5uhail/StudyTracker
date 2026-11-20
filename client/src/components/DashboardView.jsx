@@ -150,7 +150,7 @@ export default function DashboardView({ onOpenNotes }) {
             </div>
             <div>
               <h3 className="text-base font-bold text-theme-text">Daily Tasks & Checklist</h3>
-              <p className="text-xs text-theme-muted">Day {activeDay.dayNumber} Targets â€¢ Check off to record your daily progress</p>
+              <p className="text-xs text-theme-muted">Day {activeDay.dayNumber} Targets • Check off to record your daily progress</p>
             </div>
           </div>
 
@@ -215,14 +215,14 @@ export default function DashboardView({ onOpenNotes }) {
                         {isJava && (
                           <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-amber-500/15 text-amber-500 border border-amber-500/30">
                             <Code2 className="w-3 h-3" />
-                            <span>Core Java â€¢ Video #{task.videoNumber || 1}</span>
+                            <span>Core Java • Video #{task.videoNumber || 1}</span>
                           </span>
                         )}
 
                         {isDsa && (
                           <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-theme-accentSub text-theme-accentText border border-theme-accentBorder">
                             <Brain className="w-3 h-3" />
-                            <span>Rising Brain DSA â€¢ {task.topic}</span>
+                            <span>Rising Brain DSA • {task.topic}</span>
                           </span>
                         )}
 
@@ -296,7 +296,7 @@ export default function DashboardView({ onOpenNotes }) {
               <div className="flex items-center space-x-2">
                 <Sparkles className="w-4 h-4 text-theme-accent" />
                 <span className="text-xs font-bold uppercase tracking-wider text-theme-secondary">
-                  Upcoming Tomorrow â€¢ Day {tomorrowDay.dayNumber}
+                  Upcoming Tomorrow • Day {tomorrowDay.dayNumber}
                 </span>
               </div>
               <span className="text-xs text-theme-muted font-mono">{tomorrowDay.dateDisplay}</span>

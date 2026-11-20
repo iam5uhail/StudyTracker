@@ -137,7 +137,7 @@ export default function ProgressOverviewBars() {
             <Layers className="w-3.5 h-3.5 text-theme-accent" />
             <span>DSA Topic Progress Breakdown</span>
           </span>
-          <span className="text-theme-muted">Array (24) â€¢ Strings (11) â€¢ Binary Search (23) â€¢ Stack (12)</span>
+          <span className="text-theme-muted">Array (24) • Strings (11) • Binary Search (23) • Stack (12)</span>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

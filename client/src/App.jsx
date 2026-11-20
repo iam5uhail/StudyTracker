@@ -122,7 +122,7 @@ export default function App() {
                 </span>
               </div>
               <p className="text-[11px] text-theme-muted hidden lg:block truncate">
-                140 Java Topics + DSA â€¢ Starts 21 Nov 2026
+                140 Java Topics + DSA • Starts 21 Nov 2026
               </p>
             </div>
           </div>
@@ -308,7 +308,7 @@ export default function App() {
         style={{ backgroundColor: activeTheme.vars['--bg-header'] }}
       >
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>StudyTracker â€¢ 70-Day Target Plan Starting 21 Nov 2026</span>
+          <span>StudyTracker • 70-Day Target Plan Starting 21 Nov 2026</span>
           <span className="text-theme-accentText font-medium">Daily Goal: 2 Core Java Topics + 1 Rising Brain DSA Problem</span>
         </div>
       </footer>

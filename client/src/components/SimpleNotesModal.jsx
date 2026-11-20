@@ -25,7 +25,7 @@ export default function SimpleNotesModal({ taskData, onClose }) {
             </div>
             <div>
               <span className="text-[10px] font-bold uppercase tracking-wider text-theme-accentText">
-                Day {dayNumber} â€¢ {task.type === 'java' ? 'Java Topic' : 'DSA Problem'}
+                Day {dayNumber} • {task.type === 'java' ? 'Java Topic' : 'DSA Problem'}
               </span>
               <h3 className="text-sm sm:text-base font-bold text-theme-text truncate max-w-xs sm:max-w-md">
                 {task.title}

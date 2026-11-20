@@ -39,7 +39,7 @@ export default function DayNavigatorTimeline() {
             70-Day Schedule Timeline
           </span>
           <span className="hidden sm:inline text-xs text-theme-muted">
-            â€¢ Starts 21 Nov 2026
+            • Starts 21 Nov 2026
           </span>
         </div>
 
