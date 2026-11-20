@@ -20,8 +20,7 @@ import {
   Download,
   Smartphone,
   Share2,
-  X,
-  Sparkles
+  X
 } from 'lucide-react';
 import { useLearning } from './context/LearningContext';
 import { useTheme } from './context/ThemeContext';
@@ -33,7 +32,6 @@ export default function App() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [isStandalone, setIsStandalone] = useState(false);
   const [showInstallGuide, setShowInstallGuide] = useState(false);
-  const [showBottomBanner, setShowBottomBanner] = useState(false);
   const dropdownRef = useRef(null);
 
   const { activeDayNumber, progressStats } = useLearning();
@@ -68,18 +66,12 @@ export default function App() {
     const handler = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      // Show bottom banner on mobile / desktop if not dismissed before
-      const dismissed = sessionStorage.getItem('pwa_prompt_dismissed');
-      if (!dismissed) {
-        setShowBottomBanner(true);
-      }
     };
 
     window.addEventListener('beforeinstallprompt', handler);
 
     window.addEventListener('appinstalled', () => {
       setIsStandalone(true);
-      setShowBottomBanner(false);
       setDeferredPrompt(null);
     });
 
@@ -92,19 +84,11 @@ export default function App() {
       const choice = await deferredPrompt.userChoice;
       if (choice.outcome === 'accepted') {
         setIsStandalone(true);
-        setShowBottomBanner(false);
       }
       setDeferredPrompt(null);
     } else {
       setShowInstallGuide(true);
     }
-  };
-
-  const handleDismissBanner = () => {
-    setShowBottomBanner(false);
-    try {
-      sessionStorage.setItem('pwa_prompt_dismissed', 'true');
-    } catch (e) {}
   };
 
   return (
@@ -122,30 +106,32 @@ export default function App() {
           backgroundColor: activeTheme.vars['--bg-header']
         }}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
-          {/* Brand Logo & Title */}
-          <div className="flex items-center space-x-3 flex-shrink-0">
-            <div className="w-9 h-9 rounded-xl bg-theme-accentSub border border-theme-accentBorder flex items-center justify-center text-theme-accentText shadow-theme-glow transition-all flex-shrink-0">
-              <Brain className="w-5 h-5 text-theme-accent" />
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-2 sm:gap-4">
+          {/* Left: Brand Logo & Title */}
+          <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-shrink-0">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-theme-accentSub border border-theme-accentBorder flex items-center justify-center text-theme-accentText shadow-theme-glow transition-all flex-shrink-0">
+              <Brain className="w-4 h-4 sm:w-5 sm:h-5 text-theme-accent" />
             </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <h1 className="text-base font-bold text-theme-text tracking-tight whitespace-nowrap">StudyTracker</h1>
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-theme-accentSub text-theme-accentText border border-theme-accentBorder hidden xs:inline-block">
+            <div className="min-w-0">
+              <div className="flex items-center space-x-1.5">
+                <h1 className="text-sm sm:text-base font-bold text-theme-text tracking-tight truncate">
+                  StudyTracker
+                </h1>
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-theme-accentSub text-theme-accentText border border-theme-accentBorder hidden md:inline-block">
                   Daily Goal
                 </span>
               </div>
-              <p className="text-xs text-theme-muted hidden sm:block truncate max-w-xs md:max-w-none">
-                140 Core Java Topics + Rising Brain DSA â€¢ Starts 21 Nov 2026
+              <p className="text-[11px] text-theme-muted hidden lg:block truncate">
+                140 Java Topics + DSA â€¢ Starts 21 Nov 2026
               </p>
             </div>
           </div>
 
-          {/* 3 Main Navigation Tabs: Dashboard, Progress, Roadmap */}
-          <nav className="flex items-center space-x-1 bg-theme-card border border-theme-border p-1 rounded-2xl text-xs sm:text-sm shadow-sm flex-shrink-0">
+          {/* Desktop Center Navigation Tabs (Hidden on mobile, uses bottom dock instead) */}
+          <nav className="hidden md:flex items-center space-x-1 bg-theme-card border border-theme-border p-1 rounded-2xl text-xs sm:text-sm shadow-sm flex-shrink-0">
             <button
               onClick={() => setActiveNav('dashboard')}
-              className={`flex items-center space-x-1.5 px-3 sm:px-4 py-2 rounded-xl font-bold transition-all whitespace-nowrap ${
+              className={`flex items-center space-x-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl font-bold transition-all whitespace-nowrap ${
                 activeNav === 'dashboard'
                   ? 'bg-theme-accent text-theme-accentBtnText shadow-theme-glow'
                   : 'text-theme-muted hover:text-theme-text hover:bg-theme-cardSub'
@@ -157,7 +143,7 @@ export default function App() {
 
             <button
               onClick={() => setActiveNav('progress')}
-              className={`flex items-center space-x-1.5 px-3 sm:px-4 py-2 rounded-xl font-bold transition-all whitespace-nowrap ${
+              className={`flex items-center space-x-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl font-bold transition-all whitespace-nowrap ${
                 activeNav === 'progress'
                   ? 'bg-theme-accent text-theme-accentBtnText shadow-theme-glow'
                   : 'text-theme-muted hover:text-theme-text hover:bg-theme-cardSub'
@@ -169,7 +155,7 @@ export default function App() {
 
             <button
               onClick={() => setActiveNav('roadmap')}
-              className={`flex items-center space-x-1.5 px-3 sm:px-4 py-2 rounded-xl font-bold transition-all whitespace-nowrap ${
+              className={`flex items-center space-x-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl font-bold transition-all whitespace-nowrap ${
                 activeNav === 'roadmap'
                   ? 'bg-theme-accent text-theme-accentBtnText shadow-theme-glow'
                   : 'text-theme-muted hover:text-theme-text hover:bg-theme-cardSub'
@@ -180,30 +166,30 @@ export default function App() {
             </button>
           </nav>
 
-          {/* Right Header Controls: Active Day Pill, Streak, Install Icon & Theme Switcher */}
-          <div className="flex items-center space-x-2 text-xs flex-shrink-0">
-            {/* Active Day Pill (Single clean line with whitespace-nowrap, no ugly line break) */}
-            <div className="hidden md:flex items-center space-x-1.5 bg-theme-card border border-theme-border px-3 py-1.5 rounded-xl text-xs whitespace-nowrap shadow-sm flex-shrink-0">
-              <span className="w-2 h-2 rounded-full bg-theme-accent animate-pulse" />
-              <span className="text-theme-muted font-medium">Day</span>
-              <strong className="text-theme-text font-mono font-bold">{activeDayNumber}</strong>
+          {/* Right Header Controls: Day Pill, Streak, Install & Theme Selector */}
+          <div className="flex items-center space-x-1.5 sm:space-x-2 text-xs flex-shrink-0">
+            {/* Active Day Pill (Visible on both mobile & desktop) */}
+            <div className="flex items-center space-x-1 sm:space-x-1.5 bg-theme-card border border-theme-border px-2 sm:px-2.5 py-1 rounded-xl text-xs whitespace-nowrap shadow-sm">
+              <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-theme-accent animate-pulse" />
+              <span className="text-theme-muted font-medium text-[11px] sm:text-xs">Day</span>
+              <strong className="text-theme-text font-mono font-bold text-[11px] sm:text-xs">{activeDayNumber}</strong>
             </div>
 
             {/* Streak Pill */}
-            <div className="hidden lg:flex items-center space-x-1.5 bg-theme-card border border-theme-border px-2.5 py-1.5 rounded-xl text-xs text-theme-accentText whitespace-nowrap shadow-sm flex-shrink-0">
+            <div className="flex items-center space-x-1 bg-theme-card border border-theme-border px-2 sm:px-2.5 py-1 rounded-xl text-xs text-theme-accentText whitespace-nowrap shadow-sm">
               <Flame className="w-3.5 h-3.5 text-theme-accent" />
-              <span className="font-mono font-bold">{progressStats.streak}d Streak</span>
+              <span className="font-mono font-bold text-[11px] sm:text-xs">{progressStats.streak}d</span>
             </div>
 
-            {/* Install App Quick Button */}
+            {/* Install App Button (Desktop only, mobile has install banner or menu) */}
             {!isStandalone && (
               <button
                 onClick={handleInstallApp}
-                className="flex items-center space-x-1.5 px-2.5 py-1.5 rounded-xl border border-theme-border bg-theme-card hover:bg-theme-cardSub text-theme-secondary hover:text-theme-text transition-all whitespace-nowrap text-xs shadow-sm flex-shrink-0"
-                title="Install StudyTracker App on Android, iOS, or PC"
+                className="hidden lg:flex items-center space-x-1 px-2.5 py-1 rounded-xl border border-theme-border bg-theme-card hover:bg-theme-cardSub text-theme-secondary hover:text-theme-text transition-all whitespace-nowrap text-xs shadow-sm"
+                title="Install App"
               >
                 <Download className="w-3.5 h-3.5 text-theme-accent" />
-                <span className="hidden xl:inline font-semibold">Install</span>
+                <span className="font-semibold text-[11px]">Install</span>
               </button>
             )}
 
@@ -211,28 +197,28 @@ export default function App() {
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setThemeDropdownOpen(!themeDropdownOpen)}
-                className="flex items-center space-x-2 bg-theme-card hover:bg-theme-cardSub border border-theme-border px-2.5 sm:px-3 py-1.5 rounded-xl text-theme-text shadow-sm transition-all focus:outline-none whitespace-nowrap flex-shrink-0"
+                className="flex items-center space-x-1 sm:space-x-1.5 bg-theme-card hover:bg-theme-cardSub border border-theme-border px-2 sm:px-2.5 py-1 rounded-xl text-theme-text shadow-sm transition-all focus:outline-none whitespace-nowrap"
                 title="Select Theme"
               >
                 <span
-                  className="w-3.5 h-3.5 rounded-full border border-black/20 flex-shrink-0 shadow-sm"
+                  className="w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full border border-black/20 flex-shrink-0 shadow-sm"
                   style={{ backgroundColor: activeTheme.dotColor }}
                 />
-                <span className="font-semibold text-xs hidden sm:inline">
+                <span className="font-semibold text-[11px] sm:text-xs hidden sm:inline">
                   {activeTheme.label}
                 </span>
                 {isDark ? (
-                  <Moon className="w-3.5 h-3.5 text-theme-muted" />
+                  <Moon className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-theme-muted" />
                 ) : (
-                  <Sun className="w-3.5 h-3.5 text-amber-500" />
+                  <Sun className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-500" />
                 )}
-                <ChevronDown className="w-3.5 h-3.5 text-theme-muted" />
+                <ChevronDown className="w-3 h-3 text-theme-muted" />
               </button>
 
               {/* Theme Dropdown Menu */}
               {themeDropdownOpen && (
                 <div 
-                  className="absolute right-0 mt-2 w-64 rounded-2xl border border-theme-border shadow-2xl p-2 z-[9999] space-y-1"
+                  className="absolute right-0 mt-2 w-60 sm:w-64 rounded-2xl border border-theme-border shadow-2xl p-2 z-[9999] space-y-1"
                   style={{
                     backgroundColor: activeTheme.vars['--bg-card'],
                     color: activeTheme.vars['--text-primary'],
@@ -241,7 +227,7 @@ export default function App() {
                       : '0 20px 40px -10px rgba(0, 0, 0, 0.15), 0 0 0 1px var(--border-main)'
                   }}
                 >
-                  <div className="px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-theme-muted border-b border-theme-border flex items-center justify-between">
+                  <div className="px-3 py-1.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-theme-muted border-b border-theme-border flex items-center justify-between">
                     <span>Select Color Theme</span>
                     <Palette className="w-3.5 h-3.5" />
                   </div>
@@ -255,15 +241,15 @@ export default function App() {
                           setTheme(t.id);
                           setThemeDropdownOpen(false);
                         }}
-                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all ${
+                        className={`w-full flex items-center justify-between px-2.5 sm:px-3 py-2 rounded-xl text-xs font-medium transition-all ${
                           isSelected
                             ? 'bg-theme-accentSub text-theme-accentText border border-theme-accentBorder font-bold'
                             : 'text-theme-secondary hover:text-theme-text hover:bg-theme-cardSub'
                         }`}
                       >
-                        <div className="flex items-center space-x-2.5">
+                        <div className="flex items-center space-x-2 sm:space-x-2.5">
                           <span
-                            className="w-4 h-4 rounded-full border border-black/20 flex-shrink-0 shadow-sm"
+                            className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border border-black/20 flex-shrink-0 shadow-sm"
                             style={{ backgroundColor: t.dotColor }}
                           />
                           <div className="text-left">
@@ -279,7 +265,7 @@ export default function App() {
                     );
                   })}
 
-                  {/* Quick Install Option inside menu */}
+                  {/* Install App option inside menu */}
                   {!isStandalone && (
                     <div className="pt-1.5 border-t border-theme-border mt-1">
                       <button
@@ -290,7 +276,7 @@ export default function App() {
                         className="w-full flex items-center space-x-2 px-3 py-2 rounded-xl text-xs font-semibold text-theme-accentText hover:bg-theme-accentSub transition-all"
                       >
                         <Download className="w-3.5 h-3.5" />
-                        <span>Install StudyTracker App</span>
+                        <span>Install App on Device</span>
                       </button>
                     </div>
                   )}
@@ -301,8 +287,8 @@ export default function App() {
         </div>
       </header>
 
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
+      {/* Main Content Area - pb-24 on mobile ensures bottom nav dock never overlaps content */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-8 pb-24 md:pb-8">
         {activeNav === 'dashboard' && (
           <DashboardView onOpenNotes={handleOpenNotes} />
         )}
@@ -316,9 +302,9 @@ export default function App() {
         )}
       </main>
 
-      {/* Modern Footer */}
+      {/* Modern Footer (Desktop only) */}
       <footer 
-        className="border-t border-theme-border py-5 text-center text-xs text-theme-muted"
+        className="hidden md:block border-t border-theme-border py-5 text-center text-xs text-theme-muted"
         style={{ backgroundColor: activeTheme.vars['--bg-header'] }}
       >
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
@@ -327,50 +313,72 @@ export default function App() {
         </div>
       </footer>
 
+      {/* Mobile Bottom Navigation Dock (Like a Native Mobile App) */}
+      <nav 
+        aria-label="Mobile Navigation"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-theme-border shadow-2xl backdrop-blur-md px-3 py-2 transition-colors duration-200"
+        style={{ backgroundColor: activeTheme.vars['--bg-header'] }}
+      >
+        <div className="flex items-center justify-around max-w-md mx-auto">
+          <button
+            onClick={() => {
+              setActiveNav('dashboard');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className={`flex flex-col items-center justify-center py-1 px-4 rounded-2xl transition-all ${
+              activeNav === 'dashboard'
+                ? 'text-theme-accent font-bold scale-105'
+                : 'text-theme-muted hover:text-theme-text'
+            }`}
+          >
+            <div className={`p-1 rounded-xl ${activeNav === 'dashboard' ? 'bg-theme-accentSub text-theme-accent' : ''}`}>
+              <Target className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] mt-0.5 tracking-tight font-medium">Dashboard</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setActiveNav('progress');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className={`flex flex-col items-center justify-center py-1 px-4 rounded-2xl transition-all ${
+              activeNav === 'progress'
+                ? 'text-theme-accent font-bold scale-105'
+                : 'text-theme-muted hover:text-theme-text'
+            }`}
+          >
+            <div className={`p-1 rounded-xl ${activeNav === 'progress' ? 'bg-theme-accentSub text-theme-accent' : ''}`}>
+              <TrendingUp className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] mt-0.5 tracking-tight font-medium">Progress</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setActiveNav('roadmap');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className={`flex flex-col items-center justify-center py-1 px-4 rounded-2xl transition-all ${
+              activeNav === 'roadmap'
+                ? 'text-theme-accent font-bold scale-105'
+                : 'text-theme-muted hover:text-theme-text'
+            }`}
+          >
+            <div className={`p-1 rounded-xl ${activeNav === 'roadmap' ? 'bg-theme-accentSub text-theme-accent' : ''}`}>
+              <Map className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] mt-0.5 tracking-tight font-medium">Roadmap</span>
+          </button>
+        </div>
+      </nav>
+
       {/* Simple Notes Modal */}
       {activeNotesData && (
         <SimpleNotesModal
           taskData={activeNotesData}
           onClose={() => setActiveNotesData(null)}
         />
-      )}
-
-      {/* Floating Bottom Install Banner (For mobile & web visitors) */}
-      {showBottomBanner && !isStandalone && (
-        <aside 
-          aria-label="Install App"
-          className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:w-96 z-50 p-4 rounded-3xl border border-theme-border shadow-2xl flex items-center justify-between gap-3 animate-fade-in"
-          style={{
-            backgroundColor: activeTheme.vars['--bg-card'],
-            boxShadow: '0 20px 40px -10px rgba(0,0,0,0.6)'
-          }}
-        >
-          <div className="flex items-center space-x-3 min-w-0">
-            <div className="w-10 h-10 rounded-2xl bg-theme-accentSub border border-theme-accentBorder flex items-center justify-center text-theme-accentText flex-shrink-0">
-              <Smartphone className="w-5 h-5 text-theme-accent" />
-            </div>
-            <div className="min-w-0">
-              <h4 className="text-xs font-bold text-theme-text truncate">Install StudyTracker App</h4>
-              <p className="text-[11px] text-theme-muted truncate">Fast, offline-ready & standalone</p>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-1.5 flex-shrink-0">
-            <button
-              onClick={handleInstallApp}
-              className="px-3 py-1.5 rounded-xl text-xs font-bold bg-theme-accent text-theme-accentBtnText shadow-theme-glow hover:opacity-90 transition-all"
-            >
-              Install
-            </button>
-            <button
-              onClick={handleDismissBanner}
-              className="p-1 text-theme-muted hover:text-theme-text rounded-lg"
-              title="Dismiss"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </aside>
       )}
 
       {/* Install App Guide Modal */}
