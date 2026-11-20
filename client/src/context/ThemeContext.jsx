@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+﻿import React, { createContext, useContext, useState, useEffect } from 'react';
 
 // Professional, eye-pleasing website color schemes (Inspired by Visme Design Guidelines & Awwwards)
 // Focus on low eye strain, high readability, official aesthetic, and elegant contrast.
