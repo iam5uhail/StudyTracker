@@ -1,6 +1,12 @@
 # 🎓 StudyTracker — Daily Learning & Progress Companion
 
-A simple, distraction-free, day-by-day learning tracker for students. Track **any subject, course, or exam prep** (Java, Math, Science, Humanities, DSA, Languages) with syllabus progress, daily goals, and a study journal. Ready for 1-click deployment on **Vercel**.
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel-success?style=for-the-badge&logo=vercel)](https://study-tracker-two-gold.vercel.app)
+
+🔗 **Live Website:** [https://study-tracker-two-gold.vercel.app](https://study-tracker-two-gold.vercel.app)
+
+---
+
+A simple, distraction-free, day-by-day learning tracker for students. Tracks **140 Core Java Topics** (2 topics/day) + **Rising Brain Pattern-Wise DSA Questions** (1 problem/day) over a **70-Day Target Plan** starting **November 21, 2026** with live circular progress and multi-bar trackers.
 
 ---
 
