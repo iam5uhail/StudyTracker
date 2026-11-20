@@ -2,29 +2,29 @@
 
 const THEMES = [
   {
-    id: 'linear',
-    name: 'Linear Dark',
-    label: 'Linear',
+    id: 'black',
+    name: 'Obsidian Black',
+    label: 'Black',
     mode: 'dark',
-    dotColor: '#5E6AD2',
-    description: 'Sophisticated dark graphite with refined purple-indigo accents (Linear & Raycast style)',
+    dotColor: '#10B981',
+    description: 'The signature dark obsidian black background with sleek dark surfaces and emerald accents',
     vars: {
-      '--bg-app': '#0C0D11',
-      '--bg-header': '#111218',
-      '--bg-card': '#161720',
-      '--bg-card-sub': '#1D1F2A',
-      '--bg-card-hover': '#252735',
-      '--border-main': '#272A38',
-      '--border-sub': '#34384A',
-      '--text-primary': '#F1F3F9',
-      '--text-secondary': '#C2C6D6',
-      '--text-muted': '#7E849B',
-      '--accent': '#5E6AD2',
-      '--accent-sub': 'rgba(94, 106, 210, 0.12)',
-      '--accent-border': 'rgba(94, 106, 210, 0.28)',
-      '--accent-text': '#828DF8',
-      '--accent-btn-text': '#FFFFFF',
-      '--accent-glow': '0 2px 10px rgba(94, 106, 210, 0.25)'
+      '--bg-app': '#060A08',
+      '--bg-header': '#080D0A',
+      '--bg-card': '#0A100D',
+      '--bg-card-sub': '#0D1411',
+      '--bg-card-hover': '#131F19',
+      '--border-main': '#16241D',
+      '--border-sub': '#1E3127',
+      '--text-primary': '#FFFFFF',
+      '--text-secondary': '#D1D5DB',
+      '--text-muted': '#9CA3AF',
+      '--accent': '#10B981',
+      '--accent-sub': 'rgba(16, 185, 129, 0.15)',
+      '--accent-border': 'rgba(16, 185, 129, 0.35)',
+      '--accent-text': '#34D399',
+      '--accent-btn-text': '#05140C',
+      '--accent-glow': '0 0 16px -2px rgba(16, 185, 129, 0.35)'
     }
   },
   {
@@ -80,6 +80,32 @@ const THEMES = [
     }
   },
   {
+    id: 'linear',
+    name: 'Linear Dark',
+    label: 'Slate',
+    mode: 'dark',
+    dotColor: '#5E6AD2',
+    description: 'Sophisticated dark graphite with refined purple-indigo accents (Linear style)',
+    vars: {
+      '--bg-app': '#0C0D11',
+      '--bg-header': '#111218',
+      '--bg-card': '#161720',
+      '--bg-card-sub': '#1D1F2A',
+      '--bg-card-hover': '#252735',
+      '--border-main': '#272A38',
+      '--border-sub': '#34384A',
+      '--text-primary': '#F1F3F9',
+      '--text-secondary': '#C2C6D6',
+      '--text-muted': '#7E849B',
+      '--accent': '#5E6AD2',
+      '--accent-sub': 'rgba(94, 106, 210, 0.12)',
+      '--accent-border': 'rgba(94, 106, 210, 0.28)',
+      '--accent-text': '#828DF8',
+      '--accent-btn-text': '#FFFFFF',
+      '--accent-glow': '0 2px 10px rgba(94, 106, 210, 0.25)'
+    }
+  },
+  {
     id: 'github',
     name: 'GitHub Dark',
     label: 'GitHub',
@@ -104,62 +130,10 @@ const THEMES = [
       '--accent-btn-text': '#FFFFFF',
       '--accent-glow': '0 2px 10px rgba(35, 134, 54, 0.22)'
     }
-  },
-  {
-    id: 'sage',
-    name: 'Nordic Sage',
-    label: 'Sage',
-    mode: 'dark',
-    dotColor: '#2D9C75',
-    description: 'Calm Scandinavian dark pine with subtle sage green accents',
-    vars: {
-      '--bg-app': '#0E1412',
-      '--bg-header': '#131C19',
-      '--bg-card': '#182420',
-      '--bg-card-sub': '#1E2E29',
-      '--bg-card-hover': '#263933',
-      '--border-main': '#2B3E37',
-      '--border-sub': '#385047',
-      '--text-primary': '#EDF3F0',
-      '--text-secondary': '#CBD8D2',
-      '--text-muted': '#7E978E',
-      '--accent': '#2D9C75',
-      '--accent-sub': 'rgba(45, 156, 117, 0.12)',
-      '--accent-border': 'rgba(45, 156, 117, 0.28)',
-      '--accent-text': '#3DB88D',
-      '--accent-btn-text': '#FFFFFF',
-      '--accent-glow': '0 2px 10px rgba(45, 156, 117, 0.2)'
-    }
-  },
-  {
-    id: 'oled',
-    name: 'OLED Minimal',
-    label: 'Black',
-    mode: 'dark',
-    dotColor: '#18181B',
-    description: 'Clean monochromatic pure black with graphite cards and neutral zinc accents',
-    vars: {
-      '--bg-app': '#000000',
-      '--bg-header': '#09090B',
-      '--bg-card': '#121215',
-      '--bg-card-sub': '#18181D',
-      '--bg-card-hover': '#212128',
-      '--border-main': '#27272E',
-      '--border-sub': '#373740',
-      '--text-primary': '#FAFAFA',
-      '--text-secondary': '#D4D4D8',
-      '--text-muted': '#71717A',
-      '--accent': '#E4E4E7',
-      '--accent-sub': 'rgba(255, 255, 255, 0.10)',
-      '--accent-border': 'rgba(255, 255, 255, 0.24)',
-      '--accent-text': '#FFFFFF',
-      '--accent-btn-text': '#09090B',
-      '--accent-glow': '0 2px 10px rgba(255, 255, 255, 0.15)'
-    }
   }
 ];
 
-const THEME_STORAGE_KEY = 'study_tracker_theme_v4';
+const THEME_STORAGE_KEY = 'study_tracker_theme_v5';
 
 const ThemeContext = createContext(null);
 
@@ -171,7 +145,7 @@ export function ThemeProvider({ children }) {
         return saved;
       }
     } catch (e) {}
-    return 'linear';
+    return 'black'; // Earlier Black is the default
   });
 
   const activeTheme = THEMES.find(t => t.id === currentThemeId) || THEMES[0];
