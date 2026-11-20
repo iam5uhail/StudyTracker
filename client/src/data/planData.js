@@ -1,7 +1,9 @@
+import { lectureNotesData } from './lectureNotesData';
+
 // Complete 70-Day Target Plan: All 140 Java Core Topics + Exactly 70 Rising Brain DSA Questions
 // Array (24) -> Strings (11) -> Binary Search (23) -> Stack (12)
 export const DEFAULT_START_DATE = "2026-11-21";
-export const initialPlanDays = [
+const rawPlanDays = [
   {
     "dayNumber": 1,
     "title": "01.introduction to all language & 02. Introduction to java",
@@ -2313,3 +2315,11 @@ export const initialPlanDays = [
     ]
   }
 ];
+
+export const initialPlanDays = rawPlanDays.map(day => ({
+  ...day,
+  tasks: day.tasks.map(t => ({
+    ...t,
+    notes: lectureNotesData[t.id] || t.notes || ""
+  }))
+}));

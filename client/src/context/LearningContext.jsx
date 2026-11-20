@@ -11,7 +11,24 @@ export function LearningProvider({ children }) {
   const [days, setDays] = useState(() => {
     try {
       const saved = localStorage.getItem(PLAN_STORAGE_KEY);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Automatically inject lecture notes for tasks where default notes exist and current note is empty
+        return parsed.map(day => {
+          const initDay = initialPlanDays.find(d => d.dayNumber === day.dayNumber);
+          if (!initDay) return day;
+          return {
+            ...day,
+            tasks: day.tasks.map(t => {
+              const initTask = initDay.tasks.find(it => it.id === t.id);
+              if (initTask && initTask.notes && (!t.notes || t.notes.trim() === '')) {
+                return { ...t, notes: initTask.notes };
+              }
+              return t;
+            })
+          };
+        });
+      }
     } catch (e) {}
     return initialPlanDays;
   });
