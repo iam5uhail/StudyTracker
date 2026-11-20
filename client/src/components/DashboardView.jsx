@@ -26,14 +26,16 @@ export default function DashboardView({ onOpenNotes }) {
     setActiveDayNumber, 
     toggleTask, 
     toggleDayComplete, 
+    days,
     daysWithDates,
     progressStats
   } = useLearning();
 
   if (!activeDay) return null;
 
-  const currentIdx = activeDayNumber - 1;
-  const tomorrowDay = daysWithDates[currentIdx + 1] || null;
+  const allDaysList = daysWithDates || days || [];
+  const currentIdx = (activeDayNumber || 1) - 1;
+  const tomorrowDay = allDaysList[currentIdx + 1] || null;
 
   const totalTasks = activeDay.tasks.length;
   const completedTasks = activeDay.tasks.filter(t => t.completed).length;

@@ -204,7 +204,8 @@ export function LearningProvider({ children }) {
       totalDays: days.length,
       daysCompleted,
       daysRemaining: days.length - daysCompleted,
-      daysPercent
+      daysPercent,
+      streak: daysCompleted > 0 ? daysCompleted : 1
     };
   }, [days]);
 
@@ -286,6 +287,7 @@ export function LearningProvider({ children }) {
     <LearningContext.Provider
       value={{
         days: daysWithDates,
+        daysWithDates,
         activeDay,
         activeDayNumber,
         setActiveDayNumber,
@@ -297,6 +299,11 @@ export function LearningProvider({ children }) {
         toggleTask,
         updateTaskNotes,
         toggleAllDayTasks,
+        toggleDayComplete: (dayNum) => {
+          const targetDay = daysWithDates.find(d => d.dayNumber === dayNum);
+          const isAllDone = targetDay ? targetDay.completedTasks === targetDay.totalTasks : false;
+          toggleAllDayTasks(dayNum, !isAllDone);
+        },
         resetAllProgress
       }}
     >
