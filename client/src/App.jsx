@@ -16,7 +16,11 @@ import {
   Check,
   Sun,
   Moon,
-  ChevronDown
+  ChevronDown,
+  Download,
+  Smartphone,
+  Share2,
+  X
 } from 'lucide-react';
 import { useLearning } from './context/LearningContext';
 import { useTheme } from './context/ThemeContext';
@@ -25,6 +29,9 @@ export default function App() {
   const [activeNav, setActiveNav] = useState('dashboard'); // 'dashboard', 'progress', 'roadmap'
   const [activeNotesData, setActiveNotesData] = useState(null); // { dayNumber, task }
   const [themeDropdownOpen, setThemeDropdownOpen] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [isStandalone, setIsStandalone] = useState(false);
+  const [showInstallGuide, setShowInstallGuide] = useState(false);
   const dropdownRef = useRef(null);
 
   const { activeDayNumber, progressStats } = useLearning();
@@ -44,6 +51,39 @@ export default function App() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // PWA Install prompt listener
+  useEffect(() => {
+    const handler = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+
+    window.addEventListener('appinstalled', () => {
+      setIsStandalone(true);
+      setDeferredPrompt(null);
+    });
+
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+      setIsStandalone(true);
+    }
+
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstallApp = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const choice = await deferredPrompt.userChoice;
+      if (choice.outcome === 'accepted') {
+        setIsStandalone(true);
+      }
+      setDeferredPrompt(null);
+    } else {
+      setShowInstallGuide(true);
+    }
+  };
 
   return (
     <div 
@@ -118,8 +158,20 @@ export default function App() {
             </button>
           </nav>
 
-          {/* Right Header Controls: Status Badges & Theme Switcher */}
+          {/* Right Header Controls: Status Badges, Install App & Theme Switcher */}
           <div className="flex items-center space-x-2 text-xs">
+            {/* Install PWA App Button (Shows when not running as standalone app) */}
+            {!isStandalone && (
+              <button
+                onClick={handleInstallApp}
+                className="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl border border-theme-accentBorder bg-theme-accentSub text-theme-accentText hover:bg-theme-accent hover:text-theme-accentBtnText font-bold shadow-sm transition-all"
+                title="Install as App on Phone or PC"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span className="text-xs">Install App</span>
+              </button>
+            )}
+
             {/* Active Day Pill (Hidden on mobile) */}
             <div className="hidden lg:flex items-center space-x-2 bg-theme-card border border-theme-border px-3 py-1.5 rounded-xl shadow-sm">
               <span className="w-2 h-2 rounded-full bg-theme-accent animate-pulse" />
@@ -155,7 +207,7 @@ export default function App() {
                 <ChevronDown className="w-3.5 h-3.5 text-theme-muted" />
               </button>
 
-              {/* Theme Dropdown Menu - 100% Solid Opaque Background */}
+              {/* Theme Dropdown Menu */}
               {themeDropdownOpen && (
                 <div 
                   className="absolute right-0 mt-2 w-64 rounded-2xl border border-theme-border shadow-2xl p-2 z-[9999] space-y-1"
@@ -243,6 +295,55 @@ export default function App() {
           taskData={activeNotesData}
           onClose={() => setActiveNotesData(null)}
         />
+      )}
+
+      {/* Install App Guide Modal */}
+      {showInstallGuide && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div 
+            className="rounded-3xl border border-theme-border p-6 max-w-md w-full shadow-2xl space-y-4"
+            style={{ backgroundColor: activeTheme.vars['--bg-card'] }}
+          >
+            <div className="flex items-center justify-between border-b border-theme-border pb-3">
+              <div className="flex items-center space-x-2.5">
+                <div className="w-8 h-8 rounded-xl bg-theme-accentSub border border-theme-accentBorder flex items-center justify-center text-theme-accentText">
+                  <Smartphone className="w-4 h-4 text-theme-accent" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-theme-text">Install StudyTracker App</h3>
+                  <p className="text-xs text-theme-muted">Use as a standalone app on your device</p>
+                </div>
+              </div>
+              <button onClick={() => setShowInstallGuide(false)} className="text-theme-muted hover:text-theme-text p-1">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs text-theme-secondary leading-relaxed">
+              <div className="bg-theme-cardSub border border-theme-border rounded-2xl p-3.5 space-y-1.5">
+                <strong className="text-theme-text block text-xs">📱 On Android (Chrome / Edge):</strong>
+                <span>Tap the top browser menu <strong className="text-theme-text">(⋮)</strong> and select <strong className="text-theme-accentText">"Install App"</strong> or <strong className="text-theme-accentText">"Add to Home Screen"</strong>.</span>
+              </div>
+
+              <div className="bg-theme-cardSub border border-theme-border rounded-2xl p-3.5 space-y-1.5">
+                <strong className="text-theme-text block text-xs">🍎 On iPhone / iPad (Safari):</strong>
+                <span>Tap the bottom <strong className="text-theme-text">Share</strong> button (box with arrow <Share2 className="w-3 h-3 inline text-theme-accent" />) and choose <strong className="text-theme-accentText">"Add to Home Screen"</strong>.</span>
+              </div>
+
+              <div className="bg-theme-cardSub border border-theme-border rounded-2xl p-3.5 space-y-1.5">
+                <strong className="text-theme-text block text-xs">💻 On PC / Mac (Chrome / Edge / Brave):</strong>
+                <span>Click the install icon in the URL address bar or select <strong className="text-theme-accentText">"Install StudyTracker"</strong> from the browser menu.</span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowInstallGuide(false)}
+              className="w-full py-2.5 rounded-xl font-bold text-xs bg-theme-accent text-theme-accentBtnText shadow-theme-glow hover:opacity-90"
+            >
+              Got It!
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
