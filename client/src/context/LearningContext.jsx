@@ -3,8 +3,8 @@ import confetti from 'canvas-confetti';
 import { initialPlanDays, DEFAULT_START_DATE } from '../data/planData';
 
 const LearningContext = createContext(null);
-const PLAN_STORAGE_KEY = 'study_daywise_plan_v5_exact';
-const START_DATE_KEY = 'study_plan_start_date_v5_exact';
+const PLAN_STORAGE_KEY = 'study_daywise_plan_v13_namaste_black';
+const START_DATE_KEY = 'study_plan_start_date_v13_namaste_black';
 
 export function LearningProvider({ children }) {
   // Plan days
@@ -20,6 +20,9 @@ export function LearningProvider({ children }) {
           return {
             ...day,
             tasks: day.tasks.map(t => {
+              if (t.type === 'dsa') {
+                return { ...t, notes: "", codeSolution: t.codeSolution || "" };
+              }
               const initTask = initDay.tasks.find(it => it.id === t.id);
               if (initTask && initTask.notes && (!t.notes || t.notes.trim() === '')) {
                 return { ...t, notes: initTask.notes };
@@ -270,6 +273,20 @@ export function LearningProvider({ children }) {
     }));
   };
 
+  // Update Task Code Solution (strictly separated from lecture notes)
+  const updateTaskCodeSolution = (dayNumber, taskId, codeSolution) => {
+    setDays(prev => prev.map(d => {
+      if (d.dayNumber !== dayNumber) return d;
+      return {
+        ...d,
+        tasks: d.tasks.map(t => {
+          if (t.id !== taskId) return t;
+          return { ...t, codeSolution };
+        })
+      };
+    }));
+  };
+
   // Mark entire day complete or reset
   const toggleAllDayTasks = (dayNumber, markCompleted) => {
     setDays(prev => prev.map(d => {
@@ -315,6 +332,7 @@ export function LearningProvider({ children }) {
         setSearchQuery,
         toggleTask,
         updateTaskNotes,
+        updateTaskCodeSolution,
         toggleAllDayTasks,
         toggleDayComplete: (dayNum) => {
           const targetDay = daysWithDates.find(d => d.dayNumber === dayNum);

@@ -7,11 +7,13 @@ import {
   Code2, 
   Brain, 
   ChevronRight, 
-  ChevronLeft,
-  CheckCheck,
-  Video
+  ChevronLeft, 
+  CheckCheck, 
+  Video 
 } from 'lucide-react';
 import { useLearning } from '../context/LearningContext';
+import DSAPracticeCard from './DSAPracticeCard';
+import JavaPracticeCard from './JavaPracticeCard';
 
 export default function DayTargetCard({ onOpenNotes }) {
   const { activeDay, activeDayNumber, setActiveDayNumber, toggleTask, toggleAllDayTasks, days } = useLearning();
@@ -147,96 +149,11 @@ export default function DayTargetCard({ onOpenNotes }) {
         </div>
       </div>
 
-      {/* 2. Target: 1 Daily DSA Question (Rising Brain Pattern-Wise Sheet Design) */}
-      <div className="space-y-3 pt-2">
-        <div className="flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-emerald-300">
-          <Brain className="w-4 h-4 text-emerald-400" />
-          <span>Target 2: 1 Daily Problem (Rising Brain Pattern-Wise Sheet)</span>
-        </div>
+      {/* Target 2: Java Syntax Practice & Objective Questions */}
+      <JavaPracticeCard />
 
-        {dsaTasks.map((task) => (
-          <div
-            key={task.id}
-            onClick={() => toggleTask(activeDay.dayNumber, task.id)}
-            className={`group flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${
-              task.completed
-                ? 'bg-emerald-950/20 border-emerald-500/30 text-gray-400'
-                : 'bg-[#080D0A] border-[#16241D] hover:border-emerald-500/50 text-gray-100'
-            }`}
-          >
-            <div className="flex items-center space-x-3.5 flex-1 min-w-0 mr-3">
-              <button
-                type="button"
-                className="text-emerald-400 flex-shrink-0"
-              >
-                {task.completed ? (
-                  <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                ) : (
-                  <Circle className="w-5 h-5 text-gray-500 group-hover:text-emerald-400" />
-                )}
-              </button>
-
-              <div className="flex flex-col min-w-0">
-                <div className="flex items-center space-x-2">
-                  <span className={`text-sm font-semibold truncate ${
-                    task.completed ? 'line-through text-gray-500' : 'text-gray-100 group-hover:text-emerald-300'
-                  }`}>
-                    {task.title}
-                  </span>
-                  <span className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${
-                    task.difficulty === 'Easy'
-                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-                      : task.difficulty === 'Hard'
-                      ? 'bg-rose-500/10 border-rose-500/30 text-rose-400'
-                      : 'bg-amber-500/10 border-amber-500/30 text-amber-300'
-                  }`}>
-                    {task.difficulty}
-                  </span>
-                </div>
-
-                <div className="flex items-center space-x-2 mt-1 text-[11px] text-gray-400 font-mono">
-                  <span>Pattern: <strong className="text-gray-300">{task.pattern}</strong></span>
-                  {task.category && (
-                    <>
-                      <span>•</span>
-                      <span>Category: <strong className="text-gray-300">{task.category}</strong></span>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Right side: External LeetCode link + Notes button */}
-            <div className="flex items-center space-x-2 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
-              <button
-                type="button"
-                onClick={() => onOpenNotes(activeDay.dayNumber, task)}
-                className={`p-1.5 rounded-lg border text-xs flex items-center space-x-1 transition-colors ${
-                  task.notes
-                    ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'
-                    : 'bg-[#14201A] border-[#1E3127] text-gray-400 hover:text-white'
-                }`}
-                title="Notes / approach"
-              >
-                <FileText className="w-3.5 h-3.5" />
-                {task.notes && <span className="text-[10px] font-bold">Notes</span>}
-              </button>
-
-              {task.link && (
-                <a
-                  href={task.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/25 text-xs font-semibold transition-colors shadow-sm"
-                >
-                  <span>Solve</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
+      {/* Target 3: DSA Practice in JS (Short explanation, example, hints & solution space) */}
+      <DSAPracticeCard />
     </div>
   );
 }

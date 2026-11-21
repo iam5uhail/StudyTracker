@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { 
   Target, 
   Calendar, 
@@ -18,6 +18,8 @@ import {
 } from 'lucide-react';
 import { useLearning } from '../context/LearningContext';
 import DayNavigatorTimeline from './DayNavigatorTimeline';
+import JavaPracticeCard from './JavaPracticeCard';
+import DSAPracticeCard from './DSAPracticeCard';
 
 export default function DashboardView({ onOpenNotes }) {
   const { 
@@ -180,111 +182,80 @@ export default function DashboardView({ onOpenNotes }) {
           </div>
         </div>
 
-        {/* Task Cards List */}
+        {/* Target 1: Core Java Lecture Videos */}
         <div className="space-y-3">
-          {activeDay.tasks.map((task) => {
-            const isDone = Boolean(task.completed);
-            const isJava = task.type === 'java';
-            const isDsa = task.type === 'dsa';
+          <div className="flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-amber-400">
+            <Code2 className="w-4 h-4 text-amber-400" />
+            <span>Target 1: Two Core Java Chapters</span>
+          </div>
 
-            return (
-              <div
-                key={task.id}
-                className={`p-4 sm:p-5 rounded-2xl border transition-all select-none ${
-                  isDone
-                    ? 'bg-theme-cardSub/60 border-theme-border opacity-90'
-                    : 'bg-theme-card border-theme-border hover:border-theme-borderSub shadow-sm'
-                }`}
-              >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  {/* Left: Checkbox + Badges + Title */}
-                  <div className="flex items-start space-x-3.5 flex-1 cursor-pointer" onClick={() => toggleTask(activeDay.dayNumber, task.id)}>
-                    <button
-                      type="button"
-                      className="mt-0.5 flex-shrink-0 transition-transform active:scale-95"
-                    >
-                      {isDone ? (
-                        <CheckCircle2 className="w-5 h-5 text-theme-accent" />
-                      ) : (
-                        <Circle className="w-5 h-5 text-theme-muted hover:text-theme-text" />
-                      )}
-                    </button>
+          <div className="space-y-3">
+            {activeDay.tasks.filter(t => t.type === 'java').map((task) => {
+              const isDone = Boolean(task.completed);
 
-                    <div className="space-y-1.5 flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        {isJava && (
+              return (
+                <div
+                  key={task.id}
+                  className={`p-4 sm:p-5 rounded-2xl border transition-all select-none ${
+                    isDone
+                      ? 'bg-theme-cardSub/60 border-theme-border opacity-90'
+                      : 'bg-theme-card border-theme-border hover:border-theme-borderSub shadow-sm'
+                  }`}
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-start space-x-3.5 flex-1 cursor-pointer" onClick={() => toggleTask(activeDay.dayNumber, task.id)}>
+                      <button
+                        type="button"
+                        className="mt-0.5 flex-shrink-0 transition-transform active:scale-95"
+                      >
+                        {isDone ? (
+                          <CheckCircle2 className="w-5 h-5 text-theme-accent" />
+                        ) : (
+                          <Circle className="w-5 h-5 text-theme-muted hover:text-theme-text" />
+                        )}
+                      </button>
+
+                      <div className="space-y-1.5 flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
                           <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-amber-500/15 text-amber-500 border border-amber-500/30">
                             <Code2 className="w-3 h-3" />
-                            <span>Core Java • Video #{task.videoNumber || 1}</span>
+                            <span>Core Java Video #{task.num || 1}</span>
                           </span>
-                        )}
+                        </div>
 
-                        {isDsa && (
-                          <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-theme-accentSub text-theme-accentText border border-theme-accentBorder">
-                            <Brain className="w-3 h-3" />
-                            <span>Rising Brain DSA • {task.topic}</span>
-                          </span>
-                        )}
-
-                        {isDsa && task.difficulty && (
-                          <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${
-                            task.difficulty.toLowerCase() === 'easy'
-                              ? 'bg-emerald-500/15 text-emerald-500 border border-emerald-500/30'
-                              : task.difficulty.toLowerCase() === 'hard'
-                              ? 'bg-rose-500/15 text-rose-500 border border-rose-500/30'
-                              : 'bg-amber-500/15 text-amber-500 border border-amber-500/30'
-                          }`}>
-                            {task.difficulty}
-                          </span>
-                        )}
-
-                        {isJava && task.duration && (
-                          <span className="text-[11px] text-theme-muted font-mono flex items-center space-x-1">
-                            <Clock className="w-3 h-3" />
-                            <span>~{task.duration} mins</span>
-                          </span>
-                        )}
+                        <h4 className={`text-sm sm:text-base font-semibold leading-snug ${
+                          isDone ? 'line-through text-theme-muted' : 'text-theme-text'
+                        }`}>
+                          {task.title}
+                        </h4>
                       </div>
+                    </div>
 
-                      <h4 className={`text-sm sm:text-base font-semibold leading-snug ${
-                        isDone ? 'line-through text-theme-muted' : 'text-theme-text'
-                      }`}>
-                        {task.title}
-                      </h4>
+                    <div className="flex items-center space-x-2 pt-2 sm:pt-0 pl-8 sm:pl-0 border-t sm:border-t-0 border-theme-border">
+                      <button
+                        onClick={() => onOpenNotes(activeDay.dayNumber, task)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-semibold border flex items-center space-x-1.5 transition-colors ${
+                          task.notes
+                            ? 'bg-theme-accentSub text-theme-accentText border-theme-accentBorder'
+                            : 'bg-theme-cardSub hover:bg-theme-cardHover text-theme-secondary hover:text-theme-text border-theme-border'
+                        }`}
+                      >
+                        <FileText className="w-3.5 h-3.5 text-theme-accent" />
+                        <span>{task.notes ? 'View Notes' : 'Notes'}</span>
+                      </button>
                     </div>
                   </div>
-
-                  {/* Right: Actions (Solve link & Notes Modal) */}
-                  <div className="flex items-center space-x-2 pt-2 sm:pt-0 pl-8 sm:pl-0 border-t sm:border-t-0 border-theme-border">
-                    {isDsa && task.url && (
-                      <a
-                        href={task.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-theme-cardSub hover:bg-theme-cardHover text-theme-secondary hover:text-theme-text border border-theme-border flex items-center space-x-1.5 transition-colors"
-                      >
-                        <ExternalLink className="w-3.5 h-3.5 text-theme-accent" />
-                        <span>Solve</span>
-                      </a>
-                    )}
-
-                    <button
-                      onClick={() => onOpenNotes(activeDay.dayNumber, task)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold border flex items-center space-x-1.5 transition-colors ${
-                        task.notes
-                          ? 'bg-theme-accentSub text-theme-accentText border-theme-accentBorder'
-                          : 'bg-theme-cardSub hover:bg-theme-cardHover text-theme-secondary hover:text-theme-text border-theme-border'
-                      }`}
-                    >
-                      <FileText className="w-3.5 h-3.5 text-theme-accent" />
-                      <span>{task.notes ? 'View Notes' : 'Notes'}</span>
-                    </button>
-                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
+
+        {/* Target 2: Java Syntax Practice & Mini IDE */}
+        <JavaPracticeCard />
+
+        {/* Target 3: DSA Practice in JS (Short explanation, example, hints & solution space) */}
+        <DSAPracticeCard />
       </div>
 
       {/* 4. Bottom Grid: Tomorrow's Goal Sneak Peek + Study Consistency Tips */}

@@ -1,4 +1,4 @@
-﻿@tailwind base;
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -30,81 +30,62 @@
   }
 }
 
-/* Solid Opaque Background Utilities (prevents any transparent text bleeding) */
-.bg-theme-bg {
-  background-color: var(--bg-app) !important;
+/* ─── View Transitions API: smooth theme ripple ──────────────────────── */
+::view-transition-old(root) {
+  animation: none;
+}
+::view-transition-new(root) {
+  animation: none;
+}
+html.theme-switching * {
+  transition: none !important;
 }
 
-.bg-theme-header {
-  background-color: var(--bg-header) !important;
+/* ─── Solid Opaque Background Utilities ──────────────────────────────── */
+.bg-theme-bg    { background-color: var(--bg-app)      !important; }
+.bg-theme-header{ background-color: var(--bg-header)   !important; }
+.bg-theme-card  { background-color: var(--bg-card)     !important; opacity: 1 !important; }
+.bg-theme-cardSub { background-color: var(--bg-card-sub) !important; opacity: 1 !important; }
+.border-theme-border    { border-color: var(--border-main) !important; }
+.border-theme-borderSub { border-color: var(--border-sub)  !important; }
+.text-theme-text        { color: var(--text-primary)   !important; }
+.text-theme-secondary   { color: var(--text-secondary) !important; }
+.text-theme-muted       { color: var(--text-muted)     !important; }
+.text-theme-accentText  { color: var(--accent-text)    !important; }
+.bg-theme-accent        { background-color: var(--accent) !important; }
+.text-theme-accentBtnText { color: var(--accent-btn-text) !important; }
+
+/* ─── Theme Picker Panel ─────────────────────────────────────────────── */
+.theme-panel-backdrop {
+  animation: themePanelFadeIn 0.15s ease both;
+}
+.theme-panel-card {
+  animation: themePanelSlideUp 0.22s cubic-bezier(0.34, 1.25, 0.64, 1) both;
+  transform-origin: top right;
+}
+@keyframes themePanelFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes themePanelSlideUp {
+  from { opacity: 0; transform: scale(0.88) translateY(-8px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
 }
 
-.bg-theme-card {
-  background-color: var(--bg-card) !important;
-  opacity: 1 !important;
+/* Colour dot swatch buttons */
+.theme-swatch-btn {
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.18s ease;
+}
+.theme-swatch-btn:hover {
+  transform: scale(1.22) !important;
 }
 
-.bg-theme-cardSub {
-  background-color: var(--bg-card-sub) !important;
-  opacity: 1 !important;
-}
+/* ─── Dynamic scrollbar matching theme ───────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-app); }
+::-webkit-scrollbar-thumb { background: var(--border-sub); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
-.border-theme-border {
-  border-color: var(--border-main) !important;
-}
-
-.border-theme-borderSub {
-  border-color: var(--border-sub) !important;
-}
-
-.text-theme-text {
-  color: var(--text-primary) !important;
-}
-
-.text-theme-secondary {
-  color: var(--text-secondary) !important;
-}
-
-.text-theme-muted {
-  color: var(--text-muted) !important;
-}
-
-.text-theme-accentText {
-  color: var(--accent-text) !important;
-}
-
-.bg-theme-accent {
-  background-color: var(--accent) !important;
-}
-
-.text-theme-accentBtnText {
-  color: var(--accent-btn-text) !important;
-}
-
-/* Dynamic scrollbar matching theme */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--bg-app);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--border-sub);
-  border-radius: 9999px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--accent);
-}
-
-/* Hide scrollbar utility */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

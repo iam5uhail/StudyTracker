@@ -4,6 +4,8 @@ export { default as DayNavigatorTimeline } from './DayNavigatorTimeline';
 export { default as DayTargetCard } from './DayTargetCard';
 export { default as AllTargetsTableView } from './AllTargetsTableView';
 export { default as SimpleNotesModal } from './SimpleNotesModal';
+export { default as DSAPracticeCard } from './DSAPracticeCard';
+export { default as JavaPracticeCard } from './JavaPracticeCard';
 export { default as DashboardView } from './DashboardView';
 export { default as ProgressView } from './ProgressView';
 export { default as RoadmapView } from './RoadmapView';

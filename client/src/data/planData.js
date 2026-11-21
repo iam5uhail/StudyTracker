@@ -1,4 +1,5 @@
 import { lectureNotesData } from './lectureNotesData';
+import { practiceDataByDay, dsaGuideByTitle } from './practiceHelper';
 
 // Complete 70-Day Target Plan: All 140 Java Core Topics + Exactly 70 Rising Brain DSA Questions
 // Array (24) -> Strings (11) -> Binary Search (23) -> Stack (12)
@@ -2316,10 +2317,60 @@ const rawPlanDays = [
   }
 ];
 
-export const initialPlanDays = rawPlanDays.map(day => ({
-  ...day,
-  tasks: day.tasks.map(t => ({
-    ...t,
-    notes: lectureNotesData[t.id] || t.notes || ""
-  }))
-}));
+export const initialPlanDays = rawPlanDays.map(day => {
+  const practiceInfo = practiceDataByDay[day.dayNumber] || {
+    title: `Day ${day.dayNumber} Java Syntax & Concepts Drill`,
+    desc: `Syntax check and objective review for chapters studied today (${day.title}).`,
+    syntaxSnippet: `// Java Syntax Rule Reminder:\n// Ensure every statement ends with a semicolon;\n// Variable types cannot change after declaration in Java.`,
+    questions: [
+      {
+        question: `In Java, variables must have their data type declared before use.`,
+        options: ["True (Statically Typed)", "False (Dynamically Typed)"],
+        correctAnswer: 0,
+        explanation: "Java is statically typed: data types must be declared at compile-time."
+      }
+    ]
+  };
+
+  const practiceTask = {
+    id: `d${day.dayNumber}-practice`,
+    type: 'practice',
+    title: practiceInfo.title,
+    desc: practiceInfo.desc,
+    syntaxSnippet: practiceInfo.syntaxSnippet,
+    questions: practiceInfo.questions,
+    completed: false
+  };
+
+  const enrichedTasks = day.tasks.map(t => {
+    if (t.type === 'dsa') {
+      const guide = dsaGuideByTitle[t.title] || {
+        desc: `Solve ${t.title} using the ${t.pattern || 'standard'} pattern. Focus on logic and time complexity.`,
+        example: `Input: [example test data]\nOutput: [expected result]`,
+        hint: `Approach Guide:\n1. Understand input boundaries.\n2. Consider ${t.pattern || 'optimal'} technique.\n3. Implement in JavaScript first to verify logic before converting to Java.`
+      };
+      return {
+        ...t,
+        desc: t.desc || guide.desc,
+        example: t.example || guide.example,
+        hint: t.hint || guide.hint,
+        theory: lectureNotesData[t.id] || "",
+        codeSolution: "",
+        notes: ""
+      };
+    }
+    return {
+      ...t,
+      notes: lectureNotesData[t.id] || t.notes || ""
+    };
+  });
+
+  return {
+    ...day,
+    tasks: [
+      ...enrichedTasks.filter(t => t.type === 'java'),
+      practiceTask,
+      ...enrichedTasks.filter(t => t.type === 'dsa')
+    ]
+  };
+});

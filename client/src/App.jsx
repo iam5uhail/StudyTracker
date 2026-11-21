@@ -10,16 +10,14 @@ import {
   TrendingUp, 
   Map, 
   Brain, 
-  Calendar,
   Flame,
   Palette,
-  Check,
   Sun,
   Moon,
-  ChevronDown,
   Download,
   Smartphone,
   Share2,
+  Check,
   X
 } from 'lucide-react';
 import { useLearning } from './context/LearningContext';
@@ -35,7 +33,7 @@ export default function App() {
   const dropdownRef = useRef(null);
 
   const { activeDayNumber, progressStats } = useLearning();
-  const { theme, setTheme, themes, activeTheme, isDark } = useTheme();
+  const { theme, switchTheme, themes, activeTheme, isDark } = useTheme();
 
   const handleOpenNotes = (dayNumber, task) => {
     setActiveNotesData({ dayNumber, task });
@@ -193,94 +191,90 @@ export default function App() {
               </button>
             )}
 
-            {/* Dynamic Theme Switcher Dropdown */}
+            {/* Visual Theme Switcher — compact pill */}
             <div className="relative" ref={dropdownRef}>
+              {/* Trigger button: rounded pill showing current theme dot + mode icon */}
               <button
                 onClick={() => setThemeDropdownOpen(!themeDropdownOpen)}
-                className="flex items-center space-x-1 sm:space-x-1.5 bg-theme-card hover:bg-theme-cardSub border border-theme-border px-2 sm:px-2.5 py-1 rounded-xl text-theme-text shadow-sm transition-all focus:outline-none whitespace-nowrap"
-                title="Select Theme"
+                className="flex items-center space-x-1.5 px-2.5 py-1.5 rounded-xl border border-theme-border bg-theme-card hover:bg-theme-cardSub shadow-sm transition-all focus:outline-none"
+                title="Pick Theme"
               >
+                {/* Active colour swatch dot */}
                 <span
-                  className="w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full border border-black/20 flex-shrink-0 shadow-sm"
+                  className="w-4 h-4 rounded-md border border-black/10 shadow-sm flex-shrink-0"
                   style={{ backgroundColor: activeTheme.dotColor }}
                 />
-                <span className="font-semibold text-[11px] sm:text-xs hidden sm:inline">
-                  {activeTheme.label}
-                </span>
-                {isDark ? (
-                  <Moon className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-theme-muted" />
-                ) : (
-                  <Sun className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-500" />
-                )}
-                <ChevronDown className="w-3 h-3 text-theme-muted" />
+                {isDark
+                  ? <Moon className="w-3.5 h-3.5 text-theme-muted" />
+                  : <Sun  className="w-3.5 h-3.5 text-amber-500" />
+                }
               </button>
 
-              {/* Theme Dropdown Menu */}
+              {/* Compact pill theme picker */}
               {themeDropdownOpen && (
-                <div 
-                  className="absolute right-0 mt-2 w-64 sm:w-72 rounded-2xl border border-theme-border shadow-2xl p-2 z-[9999] space-y-1 max-h-80 sm:max-h-96 overflow-y-auto"
-                  style={{
-                    backgroundColor: activeTheme.vars['--bg-card'],
-                    color: activeTheme.vars['--text-primary'],
-                    boxShadow: isDark 
-                      ? '0 20px 40px -10px rgba(0, 0, 0, 0.8), 0 0 0 1px var(--border-main)' 
-                      : '0 20px 40px -10px rgba(0, 0, 0, 0.15), 0 0 0 1px var(--border-main)'
-                  }}
-                >
-                  <div className="px-3 py-1.5 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-theme-muted border-b border-theme-border flex items-center justify-between">
-                    <span>Select Color Theme</span>
-                    <Palette className="w-3.5 h-3.5" />
-                  </div>
+                <>
+                  {/* backdrop */}
+                  <div
+                    className="theme-panel-backdrop fixed inset-0 z-[9997]"
+                    onClick={() => setThemeDropdownOpen(false)}
+                  />
 
-                  {themes.map((t) => {
-                    const isSelected = t.id === theme;
-                    return (
-                      <button
-                        key={t.id}
-                        onClick={() => {
-                          setTheme(t.id);
-                          setThemeDropdownOpen(false);
-                        }}
-                        className={`w-full flex items-center justify-between px-2.5 sm:px-3 py-2 rounded-xl text-xs font-medium transition-all ${
-                          isSelected
-                            ? 'bg-theme-accentSub text-theme-accentText border border-theme-accentBorder font-bold'
-                            : 'text-theme-secondary hover:text-theme-text hover:bg-theme-cardSub'
-                        }`}
-                      >
-                        <div className="flex items-center space-x-2 sm:space-x-2.5">
-                          <span
-                            className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border border-black/20 flex-shrink-0 shadow-sm"
-                            style={{ backgroundColor: t.dotColor }}
-                          />
-                          <div className="text-left">
-                            <span className="block font-semibold">{t.name}</span>
-                            <span className="text-[10px] text-theme-muted capitalize">{t.mode} Mode</span>
-                          </div>
-                        </div>
-
-                        {isSelected && (
-                          <Check className="w-4 h-4 text-theme-accent flex-shrink-0" />
-                        )}
-                      </button>
-                    );
-                  })}
-
-                  {/* Install App option inside menu */}
-                  {!isStandalone && (
-                    <div className="pt-1.5 border-t border-theme-border mt-1">
-                      <button
-                        onClick={() => {
-                          setThemeDropdownOpen(false);
-                          handleInstallApp();
-                        }}
-                        className="w-full flex items-center space-x-2 px-3 py-2 rounded-xl text-xs font-semibold text-theme-accentText hover:bg-theme-accentSub transition-all"
-                      >
-                        <Download className="w-3.5 h-3.5" />
-                        <span>Install App on Device</span>
-                      </button>
+                  {/* Floating card — 3 curated themes */}
+                  <div
+                    className="theme-panel-card absolute right-0 z-[9998] rounded-2xl shadow-2xl overflow-hidden"
+                    style={{
+                      top: 'calc(100% + 10px)',
+                      width: 240,
+                      padding: '12px',
+                      backgroundColor: activeTheme.vars['--bg-card'],
+                      border: `1.5px solid ${activeTheme.vars['--border-sub']}`,
+                      boxShadow: isDark
+                        ? '0 20px 40px -6px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.06)'
+                        : '0 20px 40px -6px rgba(0,0,0,0.16), 0 0 0 1px rgba(0,0,0,0.05)',
+                    }}
+                    onClick={e => e.stopPropagation()}
+                  >
+                    <div className="flex items-center justify-between pb-2 mb-2 border-b border-theme-border">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-theme-muted">
+                        Select Theme
+                      </span>
+                      <Palette className="w-3.5 h-3.5 text-theme-accent" />
                     </div>
-                  )}
-                </div>
+
+                    {/* 3 Theme Options */}
+                    <div className="space-y-1.5">
+                      {themes.map(t => {
+                        const isSelected = t.id === theme;
+                        return (
+                          <button
+                            key={t.id}
+                            onClick={e => {
+                              const rect = e.currentTarget.getBoundingClientRect();
+                              switchTheme(t.id, rect.left + rect.width / 2, rect.top + rect.height / 2);
+                              setThemeDropdownOpen(false);
+                            }}
+                            className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
+                              isSelected
+                                ? 'bg-theme-accentSub border border-theme-accentBorder text-theme-accentText shadow-sm'
+                                : 'hover:bg-theme-cardSub text-theme-secondary hover:text-theme-text border border-transparent'
+                            }`}
+                          >
+                            <div className="flex items-center space-x-2.5">
+                              <span
+                                className="w-4 h-4 rounded-full border border-black/20 flex-shrink-0 shadow-sm"
+                                style={{ backgroundColor: t.dotColor }}
+                              />
+                              <span>{t.name}</span>
+                            </div>
+                            {isSelected && (
+                              <Check className="w-3.5 h-3.5 text-theme-accent flex-shrink-0" />
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </>
               )}
             </div>
           </div>
