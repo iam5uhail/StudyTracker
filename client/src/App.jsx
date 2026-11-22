@@ -31,7 +31,7 @@ export default function App() {
   const [showInstallGuide, setShowInstallGuide] = useState(false);
   const dropdownRef = useRef(null);
 
-  const { activeDayNumber, activeDay, progressStats, syncStatus } = useLearning();
+  const { activeDayNumber, activeDay, progressStats, syncStatus, setActiveDayNumber } = useLearning();
   const { theme, switchTheme, themes, activeTheme, isDark } = useTheme();
 
   // Progress metrics for active day
@@ -41,8 +41,12 @@ export default function App() {
   const dayProgressPct = totalDayTasks > 0 ? (completedDayTasks / totalDayTasks) * 100 : 0;
   const isDayFullyComplete = totalDayTasks > 0 && completedDayTasks === totalDayTasks;
 
+  const [openAccordionTaskId, setOpenAccordionTaskId] = useState(null);
+
   const handleOpenNotes = (dayNumber, task) => {
-    setActiveNotesData({ dayNumber, task });
+    if (dayNumber) setActiveDayNumber(dayNumber);
+    if (task?.id) setOpenAccordionTaskId(task.id);
+    setActiveNav('dashboard');
   };
 
   // Close theme dropdown when clicking outside
@@ -341,7 +345,10 @@ export default function App() {
       {/* Main Content Area - pb-24 on mobile ensures bottom nav dock never overlaps content */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-8 pb-24 md:pb-8">
         {activeNav === 'dashboard' && (
-          <DashboardView onOpenNotes={handleOpenNotes} />
+          <DashboardView 
+            openAccordionTaskId={openAccordionTaskId} 
+            onClearOpenAccordionTaskId={() => setOpenAccordionTaskId(null)} 
+          />
         )}
 
         {activeNav === 'progress' && (
@@ -424,13 +431,7 @@ export default function App() {
         </div>
       </nav>
 
-      {/* Simple Notes Modal */}
-      {activeNotesData && (
-        <SimpleNotesModal
-          taskData={activeNotesData}
-          onClose={() => setActiveNotesData(null)}
-        />
-      )}
+
 
       {/* Install App Guide Modal */}
       {showInstallGuide && (

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   CheckCircle2, 
   Circle, 
@@ -8,16 +8,26 @@ import {
   Brain, 
   ChevronRight, 
   ChevronLeft, 
+  ChevronDown,
   CheckCheck, 
   Video 
 } from 'lucide-react';
 import { useLearning } from '../context/LearningContext';
 import DSAPracticeCard from './DSAPracticeCard';
+import LectureNotesAccordion from './LectureNotesAccordion';
 
-export default function DayTargetCard({ onOpenNotes }) {
+export default function DayTargetCard() {
   const { activeDay, activeDayNumber, setActiveDayNumber, toggleTask, toggleAllDayTasks, days } = useLearning();
+  const [expandedNotes, setExpandedNotes] = useState({});
 
   if (!activeDay) return null;
+
+  const toggleAccordion = (taskId) => {
+    setExpandedNotes(prev => ({
+      ...prev,
+      [taskId]: !prev[taskId]
+    }));
+  };
 
   const javaTasks = activeDay.tasks.filter(t => t.type === 'java');
   const dsaTasks = activeDay.tasks.filter(t => t.type === 'dsa');
@@ -90,61 +100,75 @@ export default function DayTargetCard({ onOpenNotes }) {
           <span>Target 1: 2 Core Java Topics (From Video Course)</span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {javaTasks.map((task) => (
-            <div
-              key={task.id}
-              onClick={() => toggleTask(activeDay.dayNumber, task.id)}
-              className={`group flex items-start justify-between p-3.5 rounded-xl border cursor-pointer transition-all ${
-                task.completed
-                  ? 'bg-emerald-950/20 border-emerald-500/30 text-gray-400'
-                  : 'bg-[#080D0A] border-[#16241D] hover:border-amber-400/50 text-gray-100'
-              }`}
-            >
-              <div className="flex items-start space-x-3 flex-1 min-w-0 mr-2">
-                <button
-                  type="button"
-                  className="mt-0.5 text-amber-400 flex-shrink-0"
-                >
-                  {task.completed ? (
-                    <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                  ) : (
-                    <Circle className="w-5 h-5 text-gray-500 group-hover:text-amber-400" />
-                  )}
-                </button>
+        <div className="grid grid-cols-1 gap-3">
+          {javaTasks.map((task) => {
+            const isExpanded = Boolean(expandedNotes[task.id]);
 
-                <div className="flex-1 min-w-0">
-                  <span className={`text-xs sm:text-sm font-semibold leading-snug block ${
-                    task.completed ? 'line-through text-gray-500' : 'text-gray-100'
-                  }`}>
-                    {task.title}
-                  </span>
-                  <span className="text-[11px] text-gray-500 mt-0.5 flex items-center space-x-1 font-mono">
-                    <Video className="w-3 h-3 text-amber-400/80" />
-                    <span>Core Java Course Video</span>
-                  </span>
-                </div>
-              </div>
-
-              {/* Notes button */}
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onOpenNotes(activeDay.dayNumber, task);
-                }}
-                className={`p-1.5 rounded-lg border text-xs flex items-center space-x-1 flex-shrink-0 transition-colors ${
-                  task.notes
-                    ? 'bg-amber-500/15 border-amber-500/30 text-amber-300'
-                    : 'bg-[#14201A] border-[#1E3127] text-gray-400 hover:text-white'
+            return (
+              <div
+                key={task.id}
+                className={`p-3.5 rounded-xl border transition-all ${
+                  task.completed
+                    ? 'bg-emerald-950/20 border-emerald-500/30 text-gray-400'
+                    : 'bg-[#080D0A] border-[#16241D] hover:border-amber-400/50 text-gray-100'
                 }`}
-                title="Personal notes for this topic"
               >
-                <FileText className="w-3.5 h-3.5" />
-                {task.notes && <span className="text-[10px] font-bold">Notes</span>}
-              </button>
-            </div>
-          ))}
+                <div className="flex items-center justify-between gap-3">
+                  <div 
+                    className="flex items-start space-x-3 flex-1 min-w-0 cursor-pointer"
+                    onClick={() => toggleTask(activeDay.dayNumber, task.id)}
+                  >
+                    <button
+                      type="button"
+                      className="mt-0.5 text-amber-400 flex-shrink-0"
+                    >
+                      {task.completed ? (
+                        <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                      ) : (
+                        <Circle className="w-5 h-5 text-gray-500 hover:text-amber-400" />
+                      )}
+                    </button>
+
+                    <div className="flex-1 min-w-0">
+                      <span className={`text-xs sm:text-sm font-semibold leading-snug block ${
+                        task.completed ? 'line-through text-gray-500' : 'text-gray-100'
+                      }`}>
+                        {task.title}
+                      </span>
+                      <span className="text-[11px] text-gray-500 mt-0.5 flex items-center space-x-1 font-mono">
+                        <Video className="w-3 h-3 text-amber-400/80" />
+                        <span>Core Java Course Video</span>
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Notes accordion toggle button */}
+                  <button
+                    type="button"
+                    onClick={() => toggleAccordion(task.id)}
+                    className={`px-2.5 py-1.5 rounded-lg border text-xs flex items-center space-x-1.5 flex-shrink-0 transition-all ${
+                      isExpanded
+                        ? 'bg-amber-500 text-black border-amber-500 font-bold'
+                        : task.notes
+                        ? 'bg-amber-500/15 border-amber-500/30 text-amber-300'
+                        : 'bg-[#14201A] border-[#1E3127] text-gray-400 hover:text-white'
+                    }`}
+                    title="Notes for this topic"
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>{isExpanded ? 'Hide Notes' : (task.notes ? 'View Notes' : 'Notes')}</span>
+                    <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
+                  </button>
+                </div>
+
+                <LectureNotesAccordion
+                  task={task}
+                  dayNumber={activeDay.dayNumber}
+                  isOpen={isExpanded}
+                />
+              </div>
+            );
+          })}
         </div>
       </div>
 

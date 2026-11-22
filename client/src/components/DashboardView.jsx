@@ -14,13 +14,15 @@ import {
   Brain,
   Clock,
   ChevronRight,
+  ChevronDown,
   Trophy
 } from 'lucide-react';
 import { useLearning } from '../context/LearningContext';
 import DayNavigatorTimeline from './DayNavigatorTimeline';
 import DSAPracticeCard from './DSAPracticeCard';
+import LectureNotesAccordion from './LectureNotesAccordion';
 
-export default function DashboardView({ onOpenNotes }) {
+export default function DashboardView({ openAccordionTaskId, onClearOpenAccordionTaskId }) {
   const { 
     activeDay, 
     activeDayNumber, 
@@ -31,6 +33,26 @@ export default function DashboardView({ onOpenNotes }) {
     daysWithDates,
     progressStats
   } = useLearning();
+
+  const [expandedNotes, setExpandedNotes] = useState({});
+
+  useEffect(() => {
+    if (openAccordionTaskId) {
+      setExpandedNotes(prev => ({ ...prev, [openAccordionTaskId]: true }));
+      const el = document.getElementById(`task-card-${openAccordionTaskId}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      if (onClearOpenAccordionTaskId) onClearOpenAccordionTaskId();
+    }
+  }, [openAccordionTaskId]);
+
+  const toggleAccordion = (taskId) => {
+    setExpandedNotes(prev => ({
+      ...prev,
+      [taskId]: !prev[taskId]
+    }));
+  };
 
   if (!activeDay) return null;
 
@@ -191,13 +213,15 @@ export default function DashboardView({ onOpenNotes }) {
           <div className="space-y-3">
             {activeDay.tasks.filter(t => t.type === 'java').map((task) => {
               const isDone = Boolean(task.completed);
+              const isExpanded = Boolean(expandedNotes[task.id]);
 
               return (
                 <div
                   key={task.id}
-                  className={`p-4 sm:p-5 rounded-2xl border transition-all select-none ${
+                  id={`task-card-${task.id}`}
+                  className={`p-4 sm:p-5 rounded-2xl border transition-all ${
                     isDone
-                      ? 'bg-theme-cardSub/60 border-theme-border opacity-90'
+                      ? 'bg-theme-cardSub/60 border-theme-border opacity-95'
                       : 'bg-theme-card border-theme-border hover:border-theme-borderSub shadow-sm'
                   }`}
                 >
@@ -220,6 +244,12 @@ export default function DashboardView({ onOpenNotes }) {
                             <Code2 className="w-3 h-3" />
                             <span>Core Java Video #{task.num || 1}</span>
                           </span>
+                          {task.notes && (
+                            <span className="text-[10px] text-emerald-400 font-semibold flex items-center space-x-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                              <span>Notes Available</span>
+                            </span>
+                          )}
                         </div>
 
                         <h4 className={`text-sm sm:text-base font-semibold leading-snug ${
@@ -232,18 +262,29 @@ export default function DashboardView({ onOpenNotes }) {
 
                     <div className="flex items-center space-x-2 pt-2 sm:pt-0 pl-8 sm:pl-0 border-t sm:border-t-0 border-theme-border">
                       <button
-                        onClick={() => onOpenNotes(activeDay.dayNumber, task)}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-semibold border flex items-center space-x-1.5 transition-colors ${
-                          task.notes
-                            ? 'bg-theme-accentSub text-theme-accentText border-theme-accentBorder'
+                        type="button"
+                        onClick={() => toggleAccordion(task.id)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-semibold border flex items-center space-x-1.5 transition-all ${
+                          isExpanded
+                            ? 'bg-theme-accent text-theme-accentBtnText border-theme-accent shadow-theme-glow font-bold'
+                            : task.notes
+                            ? 'bg-theme-accentSub text-theme-accentText border-theme-accentBorder hover:opacity-90'
                             : 'bg-theme-cardSub hover:bg-theme-cardHover text-theme-secondary hover:text-theme-text border-theme-border'
                         }`}
                       >
-                        <FileText className="w-3.5 h-3.5 text-theme-accent" />
-                        <span>{task.notes ? 'View Notes' : 'Notes'}</span>
+                        <FileText className="w-3.5 h-3.5" />
+                        <span>{isExpanded ? 'Hide Notes' : (task.notes ? 'View Notes' : 'Notes')}</span>
+                        <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
                       </button>
                     </div>
                   </div>
+
+                  {/* Inline Smooth Accordion */}
+                  <LectureNotesAccordion
+                    task={task}
+                    dayNumber={activeDay.dayNumber}
+                    isOpen={isExpanded}
+                  />
                 </div>
               );
             })}
