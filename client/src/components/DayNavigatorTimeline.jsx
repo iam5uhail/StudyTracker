@@ -1,4 +1,4 @@
-﻿import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { CheckCircle2, ChevronLeft, ChevronRight, Calendar, Sparkles } from 'lucide-react';
 import { useLearning } from '../context/LearningContext';
 

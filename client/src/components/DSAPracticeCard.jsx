@@ -18,7 +18,8 @@ import {
   Sparkles
 } from 'lucide-react';
 import { useLearning } from '../context/LearningContext';
-import { dsaGuideByTitle } from '../data/practiceHelper';
+import { getDsaGuideForTask } from '../data/dsaQuestionsData';
+import CodeEditor from './CodeEditor';
 
 // Concept Theory for DSA Topics & Patterns
 const topicTheories = {
@@ -149,15 +150,7 @@ export default function DSAPracticeCard() {
       </div>
 
       {dsaTasks.map(task => {
-        const guide = dsaGuideByTitle[task.title] || {
-          questionTitle: task.title,
-          desc: task.desc || "Solve the problem using the required pattern.",
-          inputExample: "numbers = [2, 7, 11, 15], target = 9",
-          outputExample: "[1, 2]",
-          explanation: "Return indices of elements adding up to target.",
-          constraints: "Check constraints on LeetCode.",
-          hint: task.hint || "Review the pattern approach guide."
-        };
+        const guide = getDsaGuideForTask(task.title);
 
         const leftTab = activeLeftTab[task.id] || 'problem';
         // Clean blank code canvas: only user's written code, otherwise empty string ""
@@ -412,14 +405,13 @@ export default function DSAPracticeCard() {
                   </div>
                 </div>
 
-                {/* Textarea Code Canvas - Completely clean placeholder */}
-                <textarea
-                  rows={16}
-                  spellCheck={false}
-                  className="w-full p-4 font-mono text-xs sm:text-sm bg-transparent text-theme-text placeholder:text-theme-muted/50 focus:outline-none resize-y leading-relaxed flex-1"
-                  placeholder={`// Write your JavaScript solution here...\n// (Start typing to write your solution - this canvas is completely blank)`}
+                {/* Interactive IDE Code Canvas: Auto-indentation, Auto-closing brackets & Syntax Highlighting */}
+                <CodeEditor
                   value={userCode}
-                  onChange={e => handleCodeChange(task.id, e.target.value)}
+                  onChange={val => handleCodeChange(task.id, val)}
+                  placeholder={`// Write your JavaScript solution here...\n// (Start typing to write your solution - this canvas is completely blank)`}
+                  minRows={16}
+                  className="flex-1"
                 />
 
                 {/* Console Output Bar / Run button */}

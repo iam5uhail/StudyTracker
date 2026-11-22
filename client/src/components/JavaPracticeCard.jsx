@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useLearning } from '../context/LearningContext';
 import { getSyntaxExerciseForDay } from '../data/syntaxDrills';
+import CodeEditor from './CodeEditor';
 
 export default function JavaPracticeCard() {
   const { activeDay, toggleTask } = useLearning();
@@ -224,12 +225,10 @@ export default function JavaPracticeCard() {
               <span className="text-[11px]">Java 17 (Syntax Checker)</span>
             </div>
 
-            <textarea
+            <CodeEditor
               value={currentCode}
-              onChange={(e) => setCodeByDay(prev => ({ ...prev, [activeDay?.dayNumber]: e.target.value }))}
-              rows={8}
-              spellCheck={false}
-              className="w-full p-4 font-mono text-xs sm:text-sm bg-transparent text-theme-text focus:outline-none resize-y leading-relaxed"
+              onChange={(val) => setCodeByDay(prev => ({ ...prev, [activeDay?.dayNumber]: val }))}
+              minRows={8}
               placeholder="// Write your Java syntax here..."
             />
 
