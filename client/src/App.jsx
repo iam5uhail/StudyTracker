@@ -31,8 +31,15 @@ export default function App() {
   const [showInstallGuide, setShowInstallGuide] = useState(false);
   const dropdownRef = useRef(null);
 
-  const { activeDayNumber, progressStats, syncStatus } = useLearning();
+  const { activeDayNumber, activeDay, progressStats, syncStatus } = useLearning();
   const { theme, switchTheme, themes, activeTheme, isDark } = useTheme();
+
+  // Progress metrics for active day
+  const dayTasks = activeDay?.tasks || [];
+  const totalDayTasks = dayTasks.length;
+  const completedDayTasks = dayTasks.filter(t => t.completed).length;
+  const dayProgressPct = totalDayTasks > 0 ? (completedDayTasks / totalDayTasks) * 100 : 0;
+  const isDayFullyComplete = totalDayTasks > 0 && completedDayTasks === totalDayTasks;
 
   const handleOpenNotes = (dayNumber, task) => {
     setActiveNotesData({ dayNumber, task });
@@ -165,20 +172,66 @@ export default function App() {
 
           {/* Right Header Controls: Day Pill with integrated Save/Sync dot, Install & Theme Selector */}
           <div className="flex items-center space-x-1.5 sm:space-x-2 text-xs flex-shrink-0">
-            {/* Active Day Pill (Shows green dot if data is saved/synced, otherwise default dot) */}
+            {/* Active Day Pill (Circular progress border ring + complete full green state) */}
             <div 
-              className="flex items-center space-x-1.5 bg-theme-card border border-theme-border px-2.5 py-1 rounded-xl text-xs whitespace-nowrap shadow-sm cursor-default"
-              title={syncStatus === 'synced' ? `Day ${activeDayNumber} • Saved to MongoDB Atlas` : syncStatus === 'saving' ? `Day ${activeDayNumber} • Saving...` : `Day ${activeDayNumber}`}
+              className="flex items-center space-x-2 bg-theme-card border border-theme-border px-2.5 py-1 rounded-xl text-xs whitespace-nowrap shadow-sm cursor-default select-none"
+              title={`Day ${activeDayNumber} • ${completedDayTasks}/${totalDayTasks} completed (${Math.round(dayProgressPct)}%) • ${isDayFullyComplete ? 'Full Day Complete & Saved' : completedDayTasks > 0 ? 'Partially Saved to Cloud' : syncStatus === 'saving' ? 'Saving...' : 'Not Started'}`}
             >
-              <span 
-                className={`w-2 h-2 rounded-full flex-shrink-0 transition-colors duration-200 ${
-                  syncStatus === 'synced'
-                    ? 'bg-emerald-500 shadow-sm shadow-emerald-500/50'
-                    : syncStatus === 'saving'
-                    ? 'bg-amber-400 animate-pulse'
-                    : 'bg-theme-accent'
-                }`} 
-              />
+              {/* Dynamic Circular Progress Indicator */}
+              <div className="relative w-3.5 h-3.5 flex items-center justify-center flex-shrink-0">
+                <svg className="w-3.5 h-3.5 -rotate-90 transform" viewBox="0 0 16 16">
+                  {/* Track ring */}
+                  <circle
+                    cx="8"
+                    cy="8"
+                    r="6"
+                    fill="transparent"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    className="text-theme-border"
+                  />
+                  {/* Progress border ring (emerald green for completed portion) */}
+                  {dayProgressPct > 0 && (
+                    <circle
+                      cx="8"
+                      cy="8"
+                      r="6"
+                      fill="transparent"
+                      stroke="#10b981"
+                      strokeWidth="2.2"
+                      strokeDasharray={37.7}
+                      strokeDashoffset={37.7 * (1 - dayProgressPct / 100)}
+                      strokeLinecap="round"
+                      className="transition-all duration-500 ease-out"
+                    />
+                  )}
+                  {/* Center Dot: full green if complete, pulsing amber if saving, theme dot if 0% */}
+                  <circle
+                    cx="8"
+                    cy="8"
+                    r={isDayFullyComplete ? 4.5 : 2.5}
+                    fill={
+                      isDayFullyComplete
+                        ? '#10b981'
+                        : syncStatus === 'saving'
+                        ? '#fbbf24'
+                        : completedDayTasks > 0
+                        ? '#10b981'
+                        : 'currentColor'
+                    }
+                    className={`transition-all duration-300 ${
+                      isDayFullyComplete
+                        ? 'filter drop-shadow-[0_0_3px_rgba(16,185,129,0.8)]'
+                        : syncStatus === 'saving'
+                        ? 'animate-pulse'
+                        : completedDayTasks === 0
+                        ? 'text-theme-accent'
+                        : ''
+                    }`}
+                  />
+                </svg>
+              </div>
+
               <span className="text-theme-muted font-medium text-[11px] sm:text-xs">Day</span>
               <strong className="text-theme-text font-mono font-bold text-[11px] sm:text-xs">{activeDayNumber}</strong>
             </div>

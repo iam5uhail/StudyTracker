@@ -103,14 +103,35 @@ export default function DayNavigatorTimeline() {
                 {d.isDayComplete ? (
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
                 ) : d.isDayInProgress ? (
-                  <span 
-                    className={`w-2 h-2 rounded-full flex-shrink-0 transition-colors duration-200 ${
-                      syncStatus === 'synced'
-                        ? 'bg-emerald-500 shadow-sm shadow-emerald-500/50'
-                        : 'bg-amber-400'
-                    }`} 
-                    title={syncStatus === 'synced' ? 'Data saved to cloud' : 'In progress'}
-                  />
+                  <div 
+                    className="relative w-3.5 h-3.5 flex items-center justify-center flex-shrink-0"
+                    title={`Day ${d.dayNumber}: ${d.completedTasks}/${d.totalTasks} tasks saved`}
+                  >
+                    <svg className="w-3.5 h-3.5 -rotate-90 transform" viewBox="0 0 16 16">
+                      <circle
+                        cx="8"
+                        cy="8"
+                        r="6"
+                        fill="transparent"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        className="text-theme-border"
+                      />
+                      <circle
+                        cx="8"
+                        cy="8"
+                        r="6"
+                        fill="transparent"
+                        stroke="#10b981"
+                        strokeWidth="2.2"
+                        strokeDasharray={37.7}
+                        strokeDashoffset={37.7 * (1 - (d.completedTasks / d.totalTasks))}
+                        strokeLinecap="round"
+                        className="transition-all duration-300"
+                      />
+                      <circle cx="8" cy="8" r="2.5" fill="#10b981" />
+                    </svg>
+                  </div>
                 ) : null}
               </div>
 
