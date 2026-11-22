@@ -16,10 +16,11 @@ export function LearningProvider({ children }) {
         // Automatically inject lecture notes for tasks where default notes exist and current note is empty
         return parsed.map(day => {
           const initDay = initialPlanDays.find(d => d.dayNumber === day.dayNumber);
-          if (!initDay) return day;
+          const cleanTasks = (day.tasks || []).filter(t => t.type !== 'practice');
+          if (!initDay) return { ...day, tasks: cleanTasks };
           return {
             ...day,
-            tasks: day.tasks.map(t => {
+            tasks: cleanTasks.map(t => {
               if (t.type === 'dsa') {
                 return { ...t, notes: "", codeSolution: t.codeSolution || "" };
               }
@@ -74,9 +75,10 @@ export function LearningProvider({ children }) {
               return prevDays.map(d => {
                 const mDay = mongo.days.find(md => md.dayNumber === d.dayNumber);
                 if (!mDay) return d;
+                const cleanTasks = (d.tasks || []).filter(t => t.type !== 'practice');
                 return {
                   ...d,
-                  tasks: d.tasks.map(t => {
+                  tasks: cleanTasks.map(t => {
                     const mTask = mDay.tasks ? mDay.tasks.find(mt => mt.id === t.id) : null;
                     if (!mTask) return t;
                     return {

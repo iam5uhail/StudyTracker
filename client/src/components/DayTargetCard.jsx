@@ -13,7 +13,6 @@ import {
 } from 'lucide-react';
 import { useLearning } from '../context/LearningContext';
 import DSAPracticeCard from './DSAPracticeCard';
-import JavaPracticeCard from './JavaPracticeCard';
 
 export default function DayTargetCard({ onOpenNotes }) {
   const { activeDay, activeDayNumber, setActiveDayNumber, toggleTask, toggleAllDayTasks, days } = useLearning();
@@ -149,10 +148,7 @@ export default function DayTargetCard({ onOpenNotes }) {
         </div>
       </div>
 
-      {/* Target 2: Java Syntax Practice & Objective Questions */}
-      <JavaPracticeCard />
-
-      {/* Target 3: DSA Practice in JS (Short explanation, example, hints & solution space) */}
+      {/* Target 2: Daily LeetCode-Style DSA Problem in JavaScript */}
       <DSAPracticeCard />
     </div>
   );

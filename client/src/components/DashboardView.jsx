@@ -18,7 +18,6 @@ import {
 } from 'lucide-react';
 import { useLearning } from '../context/LearningContext';
 import DayNavigatorTimeline from './DayNavigatorTimeline';
-import JavaPracticeCard from './JavaPracticeCard';
 import DSAPracticeCard from './DSAPracticeCard';
 
 export default function DashboardView({ onOpenNotes }) {
@@ -251,10 +250,7 @@ export default function DashboardView({ onOpenNotes }) {
           </div>
         </div>
 
-        {/* Target 2: Java Syntax Practice & Mini IDE */}
-        <JavaPracticeCard />
-
-        {/* Target 3: DSA Practice in JS (Short explanation, example, hints & solution space) */}
+        {/* Target 2: Daily LeetCode-Style DSA Problem in JavaScript */}
         <DSAPracticeCard />
       </div>
 

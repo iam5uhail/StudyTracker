@@ -142,7 +142,7 @@ export default function DSAPracticeCard() {
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-theme-accentText">
           <Brain className="w-4 h-4 text-theme-accent" />
-          <span>Target 3: Daily LeetCode-Style DSA Problem (JavaScript)</span>
+          <span>Target 2: Daily LeetCode-Style DSA Problem (JavaScript)</span>
         </div>
         <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-theme-accentSub border border-theme-accentBorder text-theme-accentText font-semibold">
           LeetCode Two-Pane Layout • JS Canvas
