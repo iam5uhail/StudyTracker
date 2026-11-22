@@ -68,11 +68,21 @@ export default function JavaPracticeCard() {
     } catch (e) {}
   }, [selectedAnswers]);
 
-  // Auto-save code per day locally
+  // Auto-save code per day locally and to cloud
   useEffect(() => {
     try {
       localStorage.setItem('study_syntax_code', JSON.stringify(codeByDay));
     } catch (e) {}
+
+    const timer = setTimeout(() => {
+      fetch('/api/progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ syntaxCodeByDay: codeByDay })
+      }).catch(() => {});
+    }, 1500);
+
+    return () => clearTimeout(timer);
   }, [codeByDay]);
 
   const currentCode = codeByDay[activeDay?.dayNumber] ?? exercise.initialCode;

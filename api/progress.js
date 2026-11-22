@@ -1,20 +1,37 @@
-const dns = require("dns");
-try {
-  dns.setServers(["8.8.8.8", "8.8.4.4"]);
-} catch (e) {}
+// Only set custom DNS in local development where Windows node has SRV resolution issues
+if (process.env.VERCEL !== "1") {
+  try {
+    const dns = require("dns");
+    dns.setServers(["8.8.8.8", "8.8.4.4"]);
+  } catch (e) {}
+}
 
 const mongoose = require("mongoose");
 
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://suhailk241_db_user:Mhv5xh1pQfys3w1T@cluster0.7rmyp5r.mongodb.net/studytracker?retryWrites=true&w=majority";
 
-let isConnected = false;
+let cached = global.mongoose;
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
+}
+
 async function connectDB() {
-  if (isConnected || mongoose.connection.readyState >= 1) {
-    isConnected = true;
-    return;
+  if (cached.conn) {
+    return cached.conn;
   }
-  await mongoose.connect(MONGODB_URI, { serverSelectionTimeoutMS: 8000 });
-  isConnected = true;
+  if (!cached.promise) {
+    cached.promise = mongoose.connect(MONGODB_URI, {
+      serverSelectionTimeoutMS: 8000,
+      bufferCommands: false
+    }).then((m) => m);
+  }
+  try {
+    cached.conn = await cached.promise;
+  } catch (e) {
+    cached.promise = null;
+    throw e;
+  }
+  return cached.conn;
 }
 
 const ProgressSchema = new mongoose.Schema({
@@ -63,7 +80,15 @@ module.exports = async function handler(req, res) {
     }
 
     if (req.method === "POST") {
-      const { startDate, theme, days, syntaxCodeByDay, selectedMcqAnswers } = req.body || {};
+      let body = req.body;
+      if (typeof body === "string") {
+        try {
+          body = JSON.parse(body);
+        } catch (e) {
+          body = {};
+        }
+      }
+      const { startDate, theme, days, syntaxCodeByDay, selectedMcqAnswers } = body || {};
       const update = { lastUpdated: new Date() };
       if (startDate) update.startDate = startDate;
       if (theme) update.theme = theme;
