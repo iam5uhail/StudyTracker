@@ -51,19 +51,104 @@ export function LearningProvider({ children }) {
   // Search query
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Persist plan
+  // Cloud sync status ('synced' | 'saving' | 'offline')
+  const [syncStatus, setSyncStatus] = useState('synced');
+
+  // Load from MongoDB on initial mount
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchMongoProgress() {
+      try {
+        const res = await fetch('/api/progress');
+        if (!res.ok) {
+          if (isMounted) setSyncStatus('offline');
+          return;
+        }
+        const json = await res.json();
+        if (json.success && json.exists && json.data) {
+          if (!isMounted) return;
+          const mongo = json.data;
+          if (mongo.startDate) setStartDateStr(mongo.startDate);
+          if (mongo.days && Array.isArray(mongo.days) && mongo.days.length > 0) {
+            setDays(prevDays => {
+              return prevDays.map(d => {
+                const mDay = mongo.days.find(md => md.dayNumber === d.dayNumber);
+                if (!mDay) return d;
+                return {
+                  ...d,
+                  tasks: d.tasks.map(t => {
+                    const mTask = mDay.tasks ? mDay.tasks.find(mt => mt.id === t.id) : null;
+                    if (!mTask) return t;
+                    return {
+                      ...t,
+                      completed: mTask.completed !== undefined ? mTask.completed : t.completed,
+                      codeSolution: mTask.codeSolution !== undefined ? mTask.codeSolution : t.codeSolution,
+                      notes: mTask.notes || t.notes
+                    };
+                  })
+                };
+              });
+            });
+          }
+          setSyncStatus('synced');
+        } else {
+          if (isMounted) setSyncStatus('synced');
+        }
+      } catch (err) {
+        if (isMounted) setSyncStatus('offline');
+      }
+    }
+    fetchMongoProgress();
+    return () => { isMounted = false; };
+  }, []);
+
+  // Persist plan locally
   useEffect(() => {
     try {
       localStorage.setItem(PLAN_STORAGE_KEY, JSON.stringify(days));
     } catch (e) {}
   }, [days]);
 
-  // Persist start date
+  // Persist start date locally
   useEffect(() => {
     try {
       localStorage.setItem(START_DATE_KEY, startDateStr);
     } catch (e) {}
   }, [startDateStr]);
+
+  // Auto-save to MongoDB (debounced)
+  useEffect(() => {
+    setSyncStatus('saving');
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch('/api/progress', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            startDate: startDateStr,
+            days: days.map(d => ({
+              dayNumber: d.dayNumber,
+              tasks: d.tasks.map(t => ({
+                id: t.id,
+                completed: Boolean(t.completed),
+                codeSolution: t.codeSolution || "",
+                notes: t.notes || ""
+              }))
+            }))
+          })
+        });
+        if (res.ok) {
+          setSyncStatus('synced');
+        } else {
+          setSyncStatus('offline');
+        }
+      } catch (e) {
+        setSyncStatus('offline');
+      }
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, [days, startDateStr]);
 
   // Compute calendar dates for all days based on startDateStr
   const daysWithDates = useMemo(() => {
@@ -330,6 +415,7 @@ export function LearningProvider({ children }) {
         setStartDateStr,
         searchQuery,
         setSearchQuery,
+        syncStatus,
         toggleTask,
         updateTaskNotes,
         updateTaskCodeSolution,

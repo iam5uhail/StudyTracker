@@ -1,21 +1,122 @@
 const express = require("express");
 const cors = require("cors");
-const { initialSubjects, initialDailyGoals, initialDailyLogs } = require("./data/seedData");
+const dns = require("dns");
+const mongoose = require("mongoose");
+require("dotenv").config();
+
+// Workaround for Node.js SRV DNS resolution on Windows
+try {
+  dns.setServers(["8.8.8.8", "8.8.4.4"]);
+} catch (e) {}
 
 const app = express();
 app.use(cors());
-app.use(express.json({ limit: "10mb" }));
+app.use(express.json({ limit: "25mb" }));
 
-// In-memory state for API (client also saves in localStorage for full offline support)
+// MongoDB Atlas URI provided by user
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://suhailk241_db_user:Mhv5xh1pQfys3w1T@cluster0.7rmyp5r.mongodb.net/studytracker?retryWrites=true&w=majority";
+
+// Cached connection for Serverless / Local reuse
+let isConnected = false;
+async function connectDB() {
+  if (isConnected || mongoose.connection.readyState >= 1) {
+    isConnected = true;
+    return;
+  }
+  try {
+    await mongoose.connect(MONGODB_URI, {
+      serverSelectionTimeoutMS: 8000
+    });
+    isConnected = true;
+    console.log("Connected to MongoDB Atlas!");
+  } catch (err) {
+    console.error("MongoDB Atlas connection error:", err.message);
+  }
+}
+
+// Progress Schema: Stores full student learning progress, DSA solutions, notes, and MCQs
+const ProgressSchema = new mongoose.Schema({
+  userId: { type: String, default: "default_user", unique: true },
+  startDate: { type: String, default: "2026-11-21" },
+  theme: { type: String, default: "black" },
+  days: { type: Array, default: [] },
+  syntaxCodeByDay: { type: Object, default: {} },
+  selectedMcqAnswers: { type: Object, default: {} },
+  lastUpdated: { type: Date, default: Date.now }
+}, { timestamps: true, minimize: false });
+
+const StudyProgress = mongoose.models.StudyProgress || mongoose.model("StudyProgress", ProgressSchema);
+
+// In-memory seed state fallback
+const { initialSubjects, initialDailyGoals, initialDailyLogs } = require("./data/seedData");
 let state = {
   subjects: JSON.parse(JSON.stringify(initialSubjects)),
   dailyGoals: JSON.parse(JSON.stringify(initialDailyGoals)),
   dailyLogs: JSON.parse(JSON.stringify(initialDailyLogs))
 };
 
-// Health check
-app.get("/api/health", (req, res) => {
-  res.json({ status: "ok", timestamp: new Date().toISOString() });
+// Health check with DB status
+app.get("/api/health", async (req, res) => {
+  await connectDB();
+  res.json({
+    status: "ok",
+    dbConnected: mongoose.connection.readyState === 1,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// GET Progress from MongoDB
+app.get("/api/progress", async (req, res) => {
+  try {
+    await connectDB();
+    const doc = await StudyProgress.findOne({ userId: "default_user" }).lean();
+    if (!doc) {
+      return res.json({ success: true, exists: false });
+    }
+    res.json({
+      success: true,
+      exists: true,
+      data: {
+        startDate: doc.startDate,
+        theme: doc.theme,
+        days: doc.days || [],
+        syntaxCodeByDay: doc.syntaxCodeByDay || {},
+        selectedMcqAnswers: doc.selectedMcqAnswers || {},
+        lastUpdated: doc.lastUpdated
+      }
+    });
+  } catch (err) {
+    console.error("Error fetching progress:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// SAVE / UPSERT Progress to MongoDB
+app.post("/api/progress", async (req, res) => {
+  try {
+    await connectDB();
+    const { startDate, theme, days, syntaxCodeByDay, selectedMcqAnswers } = req.body;
+
+    const update = {
+      lastUpdated: new Date()
+    };
+    if (startDate) update.startDate = startDate;
+    if (theme) update.theme = theme;
+    if (days && Array.isArray(days)) update.days = days;
+    if (syntaxCodeByDay) update.syntaxCodeByDay = syntaxCodeByDay;
+    if (selectedMcqAnswers) update.selectedMcqAnswers = selectedMcqAnswers;
+
+    const doc = await StudyProgress.findOneAndUpdate(
+      { userId: "default_user" },
+      { $set: update },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+
+    res.json({ success: true, message: "Progress saved to MongoDB Atlas", lastUpdated: doc.lastUpdated });
+  } catch (err) {
+    console.error("Error saving progress:", err);
+    res.status(500).json({ success: false, error: err.message });
+  }
 });
 
 // GET all student data
@@ -53,94 +154,12 @@ app.delete("/api/subjects/:id", (req, res) => {
   res.json({ success: true, subjects: state.subjects });
 });
 
-// ADD Topic
-app.post("/api/subjects/:id/topics", (req, res) => {
-  const subject = state.subjects.find(s => s.id === req.params.id);
-  if (!subject) return res.status(404).json({ success: false, message: "Subject not found" });
-
-  const { title, notes, confidence } = req.body;
-  const newTopic = {
-    id: "top-" + Date.now().toString(36),
-    title: title || "New Topic",
-    status: "todo",
-    notes: notes || "",
-    minutesSpent: 0,
-    confidence: confidence || "medium"
-  };
-
-  subject.topics.push(newTopic);
-  res.status(201).json({ success: true, topic: newTopic, subject });
-});
-
-// UPDATE Topic status / notes / confidence
-app.patch("/api/subjects/:id/topics/:topicId", (req, res) => {
-  const subject = state.subjects.find(s => s.id === req.params.id);
-  if (!subject) return res.status(404).json({ success: false, message: "Subject not found" });
-
-  const topic = subject.topics.find(t => t.id === req.params.topicId);
-  if (!topic) return res.status(404).json({ success: false, message: "Topic not found" });
-
-  const { status, notes, confidence, minutesSpent, title } = req.body;
-  if (status !== undefined) topic.status = status;
-  if (notes !== undefined) topic.notes = notes;
-  if (confidence !== undefined) topic.confidence = confidence;
-  if (minutesSpent !== undefined) topic.minutesSpent = minutesSpent;
-  if (title !== undefined) topic.title = title;
-
-  res.json({ success: true, topic, subject });
-});
-
-// LOG Study Session
-app.post("/api/logs", (req, res) => {
-  const { subjectName, topicTitle, durationMinutes, summary, rating } = req.body;
-  const newLog = {
-    id: "log-" + Date.now().toString(36),
-    date: new Date().toISOString().slice(0, 10),
-    subjectName: subjectName || "General Study",
-    topicTitle: topicTitle || "Study Session",
-    durationMinutes: Number(durationMinutes) || 30,
-    summary: summary || "",
-    rating: rating || "Solid Progress"
-  };
-
-  state.dailyLogs.unshift(newLog);
-  res.status(201).json({ success: true, log: newLog, dailyLogs: state.dailyLogs });
-});
-
-// GOALS: Create, Toggle, Delete
-app.post("/api/goals", (req, res) => {
-  const { title, subjectName, estimatedMinutes } = req.body;
-  const newGoal = {
-    id: "g-" + Date.now().toString(36),
-    title: title || "Study Goal",
-    subjectName: subjectName || "General",
-    isCompleted: false,
-    estimatedMinutes: Number(estimatedMinutes) || 30
-  };
-  state.dailyGoals.push(newGoal);
-  res.status(201).json({ success: true, goal: newGoal, dailyGoals: state.dailyGoals });
-});
-
-app.patch("/api/goals/:id", (req, res) => {
-  const goal = state.dailyGoals.find(g => g.id === req.params.id);
-  if (!goal) return res.status(404).json({ success: false, message: "Goal not found" });
-
-  if (req.body.isCompleted !== undefined) goal.isCompleted = req.body.isCompleted;
-  if (req.body.title !== undefined) goal.title = req.body.title;
-
-  res.json({ success: true, goal, dailyGoals: state.dailyGoals });
-});
-
-app.delete("/api/goals/:id", (req, res) => {
-  state.dailyGoals = state.dailyGoals.filter(g => g.id !== req.params.id);
-  res.json({ success: true, dailyGoals: state.dailyGoals });
-});
-
 // Standalone local server listener
 if (process.env.NODE_ENV !== "production" || !process.env.VERCEL) {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
-    console.log(`Student Learning Tracker API running on port ${PORT}`);
+    console.log(`StudyTracker API running on port ${PORT}`);
+    connectDB();
   });
 }
 

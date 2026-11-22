@@ -19,12 +19,62 @@ import { getSyntaxExerciseForDay } from '../data/syntaxDrills';
 
 export default function JavaPracticeCard() {
   const { activeDay, toggleTask } = useLearning();
-  const [selectedAnswers, setSelectedAnswers] = useState({});
+
+  // Load persistent MCQ answers
+  const [selectedAnswers, setSelectedAnswers] = useState(() => {
+    try {
+      const saved = localStorage.getItem('study_mcq_answers');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return {};
+  });
+
   const [showExplanation, setShowExplanation] = useState({});
 
   // Mini IDE state dynamically loaded for ANY active day (1 to 70)
   const exercise = getSyntaxExerciseForDay(activeDay?.dayNumber || 1, activeDay?.title || "");
-  const [codeByDay, setCodeByDay] = useState({});
+
+  // Load persistent Java syntax code per day
+  const [codeByDay, setCodeByDay] = useState(() => {
+    try {
+      const saved = localStorage.getItem('study_syntax_code');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return {};
+  });
+
+  // Pull cloud answers if available
+  useEffect(() => {
+    let isMounted = true;
+    fetch('/api/progress')
+      .then(res => res.json())
+      .then(json => {
+        if (!isMounted || !json.data) return;
+        if (json.data.selectedMcqAnswers) {
+          setSelectedAnswers(prev => ({ ...json.data.selectedMcqAnswers, ...prev }));
+        }
+        if (json.data.syntaxCodeByDay) {
+          setCodeByDay(prev => ({ ...json.data.syntaxCodeByDay, ...prev }));
+        }
+      })
+      .catch(() => {});
+    return () => { isMounted = false; };
+  }, []);
+
+  // Auto-save MCQ answers locally and to cloud
+  useEffect(() => {
+    try {
+      localStorage.setItem('study_mcq_answers', JSON.stringify(selectedAnswers));
+    } catch (e) {}
+  }, [selectedAnswers]);
+
+  // Auto-save code per day locally
+  useEffect(() => {
+    try {
+      localStorage.setItem('study_syntax_code', JSON.stringify(codeByDay));
+    } catch (e) {}
+  }, [codeByDay]);
+
   const currentCode = codeByDay[activeDay?.dayNumber] ?? exercise.initialCode;
   const [output, setOutput] = useState(null);
   const [errorHint, setErrorHint] = useState(null);
@@ -40,10 +90,19 @@ export default function JavaPracticeCard() {
   };
 
   const handleSelectOption = (taskId, qIndex, optionIndex) => {
-    setSelectedAnswers(prev => ({
-      ...prev,
-      [`${taskId}-${qIndex}`]: optionIndex
-    }));
+    setSelectedAnswers(prev => {
+      const updated = {
+        ...prev,
+        [`${taskId}-${qIndex}`]: optionIndex
+      };
+      // Send to MongoDB
+      fetch('/api/progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ selectedMcqAnswers: updated })
+      }).catch(() => {});
+      return updated;
+    });
   };
 
   const toggleExp = (key) => {

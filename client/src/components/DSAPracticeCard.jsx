@@ -84,10 +84,21 @@ export default function DSAPracticeCard() {
   const [answers, setAnswers] = useState({});
   const [saved, setSaved] = useState({});
   const [consoleOutput, setConsoleOutput] = useState({});
+  const saveDebounceRef = React.useRef({});
 
   if (!activeDay) return null;
   const dsaTasks = activeDay.tasks.filter(t => t.type === 'dsa');
   if (dsaTasks.length === 0) return null;
+
+  const handleCodeChange = (taskId, val) => {
+    setAnswers(a => ({ ...a, [taskId]: val }));
+    if (saveDebounceRef.current[taskId]) {
+      clearTimeout(saveDebounceRef.current[taskId]);
+    }
+    saveDebounceRef.current[taskId] = setTimeout(() => {
+      updateTaskCodeSolution(activeDay.dayNumber, taskId, val);
+    }, 800);
+  };
 
   const handleSave = (taskId) => {
     const ans = answers[taskId] ?? '';
@@ -408,7 +419,7 @@ export default function DSAPracticeCard() {
                   className="w-full p-4 font-mono text-xs sm:text-sm bg-transparent text-theme-text placeholder:text-theme-muted/50 focus:outline-none resize-y leading-relaxed flex-1"
                   placeholder={`// Write your JavaScript solution here...\n// (Start typing to write your solution - this canvas is completely blank)`}
                   value={userCode}
-                  onChange={e => setAnswers(a => ({ ...a, [task.id]: e.target.value }))}
+                  onChange={e => handleCodeChange(task.id, e.target.value)}
                 />
 
                 {/* Console Output Bar / Run button */}

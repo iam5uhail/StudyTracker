@@ -32,7 +32,7 @@ export default function App() {
   const [showInstallGuide, setShowInstallGuide] = useState(false);
   const dropdownRef = useRef(null);
 
-  const { activeDayNumber, progressStats } = useLearning();
+  const { activeDayNumber, progressStats, syncStatus } = useLearning();
   const { theme, switchTheme, themes, activeTheme, isDark } = useTheme();
 
   const handleOpenNotes = (dayNumber, task) => {
@@ -177,6 +177,17 @@ export default function App() {
             <div className="flex items-center space-x-1 bg-theme-card border border-theme-border px-2 sm:px-2.5 py-1 rounded-xl text-xs text-theme-accentText whitespace-nowrap shadow-sm">
               <Flame className="w-3.5 h-3.5 text-theme-accent" />
               <span className="font-mono font-bold text-[11px] sm:text-xs">{progressStats.streak}d</span>
+            </div>
+
+            {/* MongoDB Cloud Sync Indicator */}
+            <div 
+              className="flex items-center space-x-1.5 px-2 sm:px-2.5 py-1 rounded-xl border border-theme-border bg-theme-card text-[11px] whitespace-nowrap shadow-sm"
+              title={syncStatus === 'synced' ? 'All progress synced with MongoDB Atlas' : syncStatus === 'saving' ? 'Saving progress to MongoDB...' : 'Running in local offline mode'}
+            >
+              <span className={`w-2 h-2 rounded-full ${syncStatus === 'synced' ? 'bg-emerald-500 shadow-sm shadow-emerald-500/50' : syncStatus === 'saving' ? 'bg-amber-400 animate-pulse' : 'bg-zinc-500'}`} />
+              <span className="text-theme-secondary font-semibold text-[10px] sm:text-[11px] hidden xs:inline">
+                {syncStatus === 'synced' ? 'Cloud Synced' : syncStatus === 'saving' ? 'Saving...' : 'Local'}
+              </span>
             </div>
 
             {/* Install App Button (Desktop only, mobile has install banner or menu) */}
