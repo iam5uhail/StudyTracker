@@ -1,13 +1,5 @@
 import React, { useRef, useMemo, useEffect } from 'react';
 
-// Escape HTML entities to prevent rendering issues
-function escapeHtml(str) {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-}
-
 // Tokenizer regex for JavaScript and Java syntax coloring
 const TOKEN_REGEX = new RegExp(
   [
@@ -17,24 +9,30 @@ const TOKEN_REGEX = new RegExp(
     '(?<number>\\b\\d+(?:\\.\\d+)?\\b)',
     '(?<fn>\\b[a-zA-Z_$][a-zA-Z0-9_$]*(?=\\s*\\())',
     '(?<bracket>[{}()\\[\\]])',
-    '(?<op>[=+\\-*/%&|!<>?:;])'
+    '(?<op>===|!==|==|!=|<=|>=|=>|&&|\\|\\||\\+\\+|--|<<|>>|[=+\\-*/%&|!<>?:;^~])',
+    '(?<other>[^\\s\\w])'
   ].join('|'),
   'gm'
 );
 
 function highlightSyntax(code) {
   if (!code) return '';
-  const escaped = escapeHtml(code);
-  return escaped.replace(TOKEN_REGEX, (match, ...args) => {
+  return code.replace(TOKEN_REGEX, (match, ...args) => {
     const groups = args[args.length - 1] || {};
-    if (groups.comment) return `<span class="text-zinc-500 italic font-normal">${match}</span>`;
-    if (groups.string) return `<span class="text-emerald-400 font-medium">${match}</span>`;
-    if (groups.keyword) return `<span class="text-purple-400 font-semibold">${match}</span>`;
-    if (groups.number) return `<span class="text-amber-400 font-medium">${match}</span>`;
-    if (groups.fn) return `<span class="text-sky-400 font-semibold">${match}</span>`;
-    if (groups.bracket) return `<span class="text-yellow-300 font-bold">${match}</span>`;
-    if (groups.op) return `<span class="text-pink-400">${match}</span>`;
-    return match;
+    // Escape HTML entities for the matched token
+    const safe = match
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    if (groups.comment) return `<span class="text-zinc-500 italic font-normal">${safe}</span>`;
+    if (groups.string) return `<span class="text-emerald-400 font-medium">${safe}</span>`;
+    if (groups.keyword) return `<span class="text-purple-400 font-semibold">${safe}</span>`;
+    if (groups.number) return `<span class="text-amber-400 font-medium">${safe}</span>`;
+    if (groups.fn) return `<span class="text-sky-400 font-semibold">${safe}</span>`;
+    if (groups.bracket) return `<span class="text-yellow-300 font-bold">${safe}</span>`;
+    if (groups.op) return `<span class="text-pink-400">${safe}</span>`;
+    return safe;
   });
 }
 
