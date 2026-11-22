@@ -3,7 +3,7 @@ import { CheckCircle2, ChevronLeft, ChevronRight, Calendar, Sparkles } from 'luc
 import { useLearning } from '../context/LearningContext';
 
 export default function DayNavigatorTimeline() {
-  const { days, activeDayNumber, setActiveDayNumber } = useLearning();
+  const { days, activeDayNumber, setActiveDayNumber, syncStatus } = useLearning();
   const scrollContainerRef = useRef(null);
   const activeBtnRef = useRef(null);
 
@@ -103,7 +103,14 @@ export default function DayNavigatorTimeline() {
                 {d.isDayComplete ? (
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
                 ) : d.isDayInProgress ? (
-                  <span className="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0" />
+                  <span 
+                    className={`w-2 h-2 rounded-full flex-shrink-0 transition-colors duration-200 ${
+                      syncStatus === 'synced'
+                        ? 'bg-emerald-500 shadow-sm shadow-emerald-500/50'
+                        : 'bg-amber-400'
+                    }`} 
+                    title={syncStatus === 'synced' ? 'Data saved to cloud' : 'In progress'}
+                  />
                 ) : null}
               </div>
 

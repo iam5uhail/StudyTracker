@@ -10,7 +10,6 @@ import {
   TrendingUp, 
   Map, 
   Brain, 
-  Flame,
   Palette,
   Sun,
   Moon,
@@ -164,30 +163,24 @@ export default function App() {
             </button>
           </nav>
 
-          {/* Right Header Controls: Day Pill, Streak, Install & Theme Selector */}
+          {/* Right Header Controls: Day Pill with integrated Save/Sync dot, Install & Theme Selector */}
           <div className="flex items-center space-x-1.5 sm:space-x-2 text-xs flex-shrink-0">
-            {/* Active Day Pill (Visible on both mobile & desktop) */}
-            <div className="flex items-center space-x-1 sm:space-x-1.5 bg-theme-card border border-theme-border px-2 sm:px-2.5 py-1 rounded-xl text-xs whitespace-nowrap shadow-sm">
-              <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-theme-accent animate-pulse" />
+            {/* Active Day Pill (Shows green dot if data is saved/synced, otherwise default dot) */}
+            <div 
+              className="flex items-center space-x-1.5 bg-theme-card border border-theme-border px-2.5 py-1 rounded-xl text-xs whitespace-nowrap shadow-sm cursor-default"
+              title={syncStatus === 'synced' ? `Day ${activeDayNumber} • Saved to MongoDB Atlas` : syncStatus === 'saving' ? `Day ${activeDayNumber} • Saving...` : `Day ${activeDayNumber}`}
+            >
+              <span 
+                className={`w-2 h-2 rounded-full flex-shrink-0 transition-colors duration-200 ${
+                  syncStatus === 'synced'
+                    ? 'bg-emerald-500 shadow-sm shadow-emerald-500/50'
+                    : syncStatus === 'saving'
+                    ? 'bg-amber-400 animate-pulse'
+                    : 'bg-theme-accent'
+                }`} 
+              />
               <span className="text-theme-muted font-medium text-[11px] sm:text-xs">Day</span>
               <strong className="text-theme-text font-mono font-bold text-[11px] sm:text-xs">{activeDayNumber}</strong>
-            </div>
-
-            {/* Streak Pill */}
-            <div className="flex items-center space-x-1 bg-theme-card border border-theme-border px-2 sm:px-2.5 py-1 rounded-xl text-xs text-theme-accentText whitespace-nowrap shadow-sm">
-              <Flame className="w-3.5 h-3.5 text-theme-accent" />
-              <span className="font-mono font-bold text-[11px] sm:text-xs">{progressStats.streak}d</span>
-            </div>
-
-            {/* MongoDB Cloud Sync Indicator */}
-            <div 
-              className="flex items-center space-x-1.5 px-2.5 py-1 rounded-xl border border-theme-border bg-theme-card text-xs whitespace-nowrap shadow-sm"
-              title={syncStatus === 'synced' ? 'Connected & Synced to MongoDB Atlas' : syncStatus === 'saving' ? 'Saving to MongoDB...' : 'Connected locally in browser'}
-            >
-              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${syncStatus === 'synced' ? 'bg-emerald-500 shadow-sm shadow-emerald-500/50' : syncStatus === 'saving' ? 'bg-amber-400 animate-pulse' : 'bg-zinc-400'}`} />
-              <span className="text-theme-text font-semibold text-[11px]">
-                {syncStatus === 'synced' ? 'Cloud Synced' : syncStatus === 'saving' ? 'Saving...' : 'Local (Saved)'}
-              </span>
             </div>
 
             {/* Install App Button (Desktop only, mobile has install banner or menu) */}
