@@ -181,12 +181,12 @@ export default function App() {
 
             {/* MongoDB Cloud Sync Indicator */}
             <div 
-              className="flex items-center space-x-1.5 px-2 sm:px-2.5 py-1 rounded-xl border border-theme-border bg-theme-card text-[11px] whitespace-nowrap shadow-sm"
-              title={syncStatus === 'synced' ? 'All progress synced with MongoDB Atlas' : syncStatus === 'saving' ? 'Saving progress to MongoDB...' : 'Running in local offline mode'}
+              className="flex items-center space-x-1.5 px-2.5 py-1 rounded-xl border border-theme-border bg-theme-card text-xs whitespace-nowrap shadow-sm"
+              title={syncStatus === 'synced' ? 'Connected & Synced to MongoDB Atlas' : syncStatus === 'saving' ? 'Saving to MongoDB...' : 'Connected locally in browser'}
             >
-              <span className={`w-2 h-2 rounded-full ${syncStatus === 'synced' ? 'bg-emerald-500 shadow-sm shadow-emerald-500/50' : syncStatus === 'saving' ? 'bg-amber-400 animate-pulse' : 'bg-zinc-500'}`} />
-              <span className="text-theme-secondary font-semibold text-[10px] sm:text-[11px] hidden xs:inline">
-                {syncStatus === 'synced' ? 'Cloud Synced' : syncStatus === 'saving' ? 'Saving...' : 'Local'}
+              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${syncStatus === 'synced' ? 'bg-emerald-500 shadow-sm shadow-emerald-500/50' : syncStatus === 'saving' ? 'bg-amber-400 animate-pulse' : 'bg-zinc-400'}`} />
+              <span className="text-theme-text font-semibold text-[11px]">
+                {syncStatus === 'synced' ? 'Cloud Synced' : syncStatus === 'saving' ? 'Saving...' : 'Local (Saved)'}
               </span>
             </div>
 
