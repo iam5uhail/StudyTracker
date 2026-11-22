@@ -4,10 +4,12 @@ const dns = require("dns");
 const mongoose = require("mongoose");
 require("dotenv").config();
 
-// Workaround for Node.js SRV DNS resolution on Windows
-try {
-  dns.setServers(["8.8.8.8", "8.8.4.4"]);
-} catch (e) {}
+// Workaround for Node.js SRV DNS resolution on Windows (local only)
+if (process.env.VERCEL !== "1") {
+  try {
+    dns.setServers(["8.8.8.8", "8.8.4.4"]);
+  } catch (e) {}
+}
 
 const app = express();
 app.use(cors());
@@ -17,21 +19,29 @@ app.use(express.json({ limit: "25mb" }));
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://suhailk241_db_user:Mhv5xh1pQfys3w1T@cluster0.7rmyp5r.mongodb.net/studytracker?retryWrites=true&w=majority";
 
 // Cached connection for Serverless / Local reuse
-let isConnected = false;
+let cached = global.mongoose;
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
+}
+
 async function connectDB() {
-  if (isConnected || mongoose.connection.readyState >= 1) {
-    isConnected = true;
-    return;
+  if (cached.conn) {
+    return cached.conn;
+  }
+  if (!cached.promise) {
+    cached.promise = mongoose.connect(MONGODB_URI, {
+      serverSelectionTimeoutMS: 8000,
+      bufferCommands: false
+    }).then((m) => m);
   }
   try {
-    await mongoose.connect(MONGODB_URI, {
-      serverSelectionTimeoutMS: 8000
-    });
-    isConnected = true;
-    console.log("Connected to MongoDB Atlas!");
-  } catch (err) {
-    console.error("MongoDB Atlas connection error:", err.message);
+    cached.conn = await cached.promise;
+  } catch (e) {
+    cached.promise = null;
+    console.error("MongoDB Atlas connection error:", e.message);
+    throw e;
   }
+  return cached.conn;
 }
 
 // Progress Schema: Stores full student learning progress, DSA solutions, notes, and MCQs
