@@ -82,10 +82,23 @@ const patternTheories = {
 export default function DSAPracticeCard() {
   const { activeDay, toggleTask, updateTaskCodeSolution } = useLearning();
   const [activeLeftTab, setActiveLeftTab] = useState({}); // { [taskId]: 'problem' | 'topic-theory' | 'approach-theory' | 'hint' }
-  const [answers, setAnswers] = useState({});
+  const [answers, setAnswers] = useState(() => {
+    try {
+      const saved = localStorage.getItem('study_dsa_solutions');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return {};
+  });
   const [saved, setSaved] = useState({});
   const [consoleOutput, setConsoleOutput] = useState({});
   const saveDebounceRef = React.useRef({});
+
+  // Persist DSA solutions locally
+  useEffect(() => {
+    try {
+      localStorage.setItem('study_dsa_solutions', JSON.stringify(answers));
+    } catch (e) {}
+  }, [answers]);
 
   if (!activeDay) return null;
   const dsaTasks = activeDay.tasks.filter(t => t.type === 'dsa');

@@ -81,11 +81,15 @@ export function LearningProvider({ children }) {
                   tasks: cleanTasks.map(t => {
                     const mTask = mDay.tasks ? mDay.tasks.find(mt => mt.id === t.id) : null;
                     if (!mTask) return t;
+                    // Safely preserve completed status, code solution, and notes (never overwrite with blank)
+                    const isDone = mTask.completed || t.completed;
+                    const code = (mTask.codeSolution && mTask.codeSolution.trim()) ? mTask.codeSolution : (t.codeSolution || '');
+                    const note = (mTask.notes && mTask.notes.trim()) ? mTask.notes : (t.notes || '');
                     return {
                       ...t,
-                      completed: mTask.completed !== undefined ? mTask.completed : t.completed,
-                      codeSolution: mTask.codeSolution !== undefined ? mTask.codeSolution : t.codeSolution,
-                      notes: mTask.notes || t.notes
+                      completed: Boolean(isDone),
+                      codeSolution: code,
+                      notes: note
                     };
                   })
                 };
