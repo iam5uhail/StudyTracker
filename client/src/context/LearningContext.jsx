@@ -54,6 +54,8 @@ export function LearningProvider({ children }) {
 
   // Cloud sync status ('synced' | 'saving' | 'offline')
   const [syncStatus, setSyncStatus] = useState('synced');
+  // Guard: prevents auto-saving uninitialized default state to MongoDB
+  const [isInitialLoadDone, setIsInitialLoadDone] = useState(false);
 
   // Load from MongoDB on initial mount
   useEffect(() => {
@@ -102,6 +104,8 @@ export function LearningProvider({ children }) {
         }
       } catch (err) {
         if (isMounted) setSyncStatus('offline');
+      } finally {
+        if (isMounted) setIsInitialLoadDone(true);
       }
     }
     fetchMongoProgress();
@@ -122,8 +126,10 @@ export function LearningProvider({ children }) {
     } catch (e) {}
   }, [startDateStr]);
 
-  // Auto-save to MongoDB (debounced)
+  // Auto-save to MongoDB (debounced, ONLY after initial load is complete)
   useEffect(() => {
+    if (!isInitialLoadDone) return; // Prevent race conditions on page load
+
     setSyncStatus('saving');
     const timer = setTimeout(async () => {
       try {
@@ -154,7 +160,7 @@ export function LearningProvider({ children }) {
     }, 1500);
 
     return () => clearTimeout(timer);
-  }, [days, startDateStr]);
+  }, [days, startDateStr, isInitialLoadDone]);
 
   // Compute calendar dates for all days based on startDateStr
   const daysWithDates = useMemo(() => {

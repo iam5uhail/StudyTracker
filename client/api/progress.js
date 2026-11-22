@@ -84,9 +84,52 @@ export default async function handler(req, res) {
       const update = { lastUpdated: new Date() };
       if (startDate) update.startDate = startDate;
       if (theme) update.theme = theme;
-      if (days && Array.isArray(days)) update.days = days;
-      if (syntaxCodeByDay) update.syntaxCodeByDay = syntaxCodeByDay;
-      if (selectedMcqAnswers) update.selectedMcqAnswers = selectedMcqAnswers;
+
+      // Safely merge with existing document so non-empty code and notes are never wiped
+      const existingDoc = await StudyProgress.findOne({ userId: "default_user" }).lean();
+
+      if (days && Array.isArray(days)) {
+        if (existingDoc && Array.isArray(existingDoc.days) && existingDoc.days.length > 0) {
+          update.days = days.map(inDay => {
+            const exDay = existingDoc.days.find(ed => ed.dayNumber === inDay.dayNumber);
+            if (!exDay) return inDay;
+            return {
+              ...inDay,
+              tasks: (inDay.tasks || []).map(inTask => {
+                const exTask = (exDay.tasks || []).find(et => et.id === inTask.id);
+                if (!exTask) return inTask;
+                const safeCode = (inTask.codeSolution && inTask.codeSolution.trim())
+                  ? inTask.codeSolution
+                  : (exTask.codeSolution || '');
+                const safeNotes = (inTask.notes && inTask.notes.trim())
+                  ? inTask.notes
+                  : (exTask.notes || '');
+                return {
+                  ...inTask,
+                  completed: inTask.completed !== undefined ? inTask.completed : exTask.completed,
+                  codeSolution: safeCode,
+                  notes: safeNotes
+                };
+              })
+            };
+          });
+        } else {
+          update.days = days;
+        }
+      }
+
+      if (syntaxCodeByDay) {
+        update.syntaxCodeByDay = {
+          ...(existingDoc?.syntaxCodeByDay || {}),
+          ...syntaxCodeByDay
+        };
+      }
+      if (selectedMcqAnswers) {
+        update.selectedMcqAnswers = {
+          ...(existingDoc?.selectedMcqAnswers || {}),
+          ...selectedMcqAnswers
+        };
+      }
 
       const doc = await StudyProgress.findOneAndUpdate(
         { userId: "default_user" },

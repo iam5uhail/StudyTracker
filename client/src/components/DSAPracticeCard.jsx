@@ -168,15 +168,12 @@ export default function DSAPracticeCard() {
         const leftTab = activeLeftTab[task.id] || 'problem';
         // Clean blank code canvas: only user's written code, otherwise empty string ""
         const rawCode = answers[task.id] !== undefined ? answers[task.id] : (task.codeSolution || "");
-        const isOldBoilerplate = typeof rawCode === 'string' && (
-          rawCode.includes("Write your Two-Pointer logic") ||
-          rawCode.includes("Two-Pointer logic here") ||
-          rawCode.includes("@param {number[]}") ||
-          rawCode.includes("function solve(input)") ||
-          rawCode.includes("function twoSum") ||
-          rawCode.includes("# Array Data Structure & Two-Pointer Pattern")
+        // Only strip if it is strictly the initial template placeholder
+        const isLegacyPlaceholder = typeof rawCode === 'string' && (
+          rawCode.trim() === "// Write your Two-Pointer logic here..." ||
+          rawCode.trim() === "// Write your JavaScript solution here..."
         );
-        const userCode = isOldBoilerplate ? "" : rawCode;
+        const userCode = isLegacyPlaceholder ? "" : rawCode;
         const isSaved = saved[task.id];
         const output = consoleOutput[task.id];
 
