@@ -1710,6 +1710,1217 @@ class Solution {
 ## 💡 Key Takeaway
 Whenever you see "contiguous subarray of fixed size K", use a Fixed-Size Sliding Window to achieve O(N) time with O(1) math transitions!`
 
+,
+
+  // d8-j1
+  "d8-j1": `# 15. Keywords and Identifiers in Java
+
+## 1. Core Concept: Words in Java
+Every word written in Java source code belongs to one of two categories:
+
+\`\`\`
++---------------------------------------------------------------------------------+
+|                       JAVA VOCABULARY & NAMING CONCEPTS                         |
++---------------------------------------+-----------------------------------------+
+| KEYWORDS (Reserved Words)             | IDENTIFIERS (Programmer-Defined Names)  |
++---------------------------------------+-----------------------------------------+
+| • Fixed meaning built into compiler   | • Names invented by you (the programmer)|
+| • Written entirely in LOWERCASE       | • Used for: Classes, Variables, Methods |
+| • Cannot be used as variable names    | • Must obey 5 strict language rules     |
+| • Examples: class, public, if, return | • Examples: StudentScore, totalMarks    |
++---------------------------------------+-----------------------------------------+
+\`\`\`
+
+---
+
+## 2. Java Reserved Keywords (Grouped by Purpose)
+Java has **53 reserved words** (50 active keywords + 3 literal values: \`true\`, \`false\`, \`null\`).
+
+| Purpose | Keywords |
+| :--- | :--- |
+| **Data Types** | \`byte\`, \`short\`, \`int\`, \`long\`, \`float\`, \`double\`, \`char\`, \`boolean\` |
+| **Flow Control** | \`if\`, \`else\`, \`switch\`, \`case\`, \`default\`, \`while\`, \`do\`, \`for\`, \`break\`, \`continue\`, \`return\` |
+| **Access Modifiers** | \`public\`, \`private\`, \`protected\` |
+| **Non-Access Modifiers** | \`static\`, \`final\`, \`abstract\`, \`synchronized\`, \`volatile\`, \`transient\`, \`native\`, \`strictfp\` |
+| **OOP & Packages** | \`class\`, \`interface\`, \`extends\`, \`implements\`, \`package\`, \`import\`, \`new\`, \`this\`, \`super\` |
+| **Exception Handling** | \`try\`, \`catch\`, \`finally\`, \`throw\`, \`throws\`, \`assert\` |
+| **Unused / Reserved** | \`goto\`, \`const\` *(cannot be used as identifiers)* |
+| **Special Built-in** | \`void\`, \`instanceof\`, \`enum\` |
+
+---
+
+## 3. The 5 Strict Rules for Identifiers
+
+\`\`\`
+RULE 1: Allowed Characters  ───> Letters (A-Z, a-z), Digits (0-9), Underscore (_), Dollar ($)
+RULE 2: No Digits at Start  ───> Cannot begin with 0-9. (e.g. 1stRank ❌, rank1 ✅)
+RULE 3: Case-Sensitive      ───> myAge, MyAge, and MYAGE are 3 completely different variables!
+RULE 4: No Reserved Words   ───> Cannot use keywords like 'class', 'int', 'while' as names.
+RULE 5: No Whitespace       ───> No spaces or punctuation (!, @, #, %, ^, &, *) allowed.
+\`\`\`
+
+---
+
+## 4. Code Example: Valid vs Invalid Identifiers
+
+\`\`\`java
+public class IdentifierRulesDemo {
+    public static void main(String[] args) {
+        // VALID Identifiers:
+        int totalScore = 95;      // Standard camelCase
+        int _privateCounter = 1;  // Starting with underscore is legal
+        int $dollarAmount = 500;  // Starting with dollar is legal
+        int student1 = 101;       // Number inside/at end is legal
+
+        // INVALID Identifiers (will cause COMPILE-TIME ERRORS):
+        // int 1stRank = 1;       // ❌ Error: cannot start with a digit
+        // int total score = 50;  // ❌ Error: no spaces allowed
+        // int class = 10;        // ❌ Error: 'class' is a reserved keyword
+        // int my-age = 25;       // ❌ Error: hyphen (-) is minus operator
+        // int user#id = 999;     // ❌ Error: special character # not allowed
+
+        System.out.println("Total Score: " + totalScore);
+    }
+}
+\`\`\`
+
+---
+
+## 5. Official Java Naming Conventions (Industry Best Practices)
+* **Classes & Interfaces**: **PascalCase** -> \`StudentManager\`, \`ArrayList\`.
+* **Methods & Variables**: **camelCase** -> \`calculateTotal()\`, \`studentAge\`.
+* **Constants**: **ALL_CAPS_SNAKE_CASE** -> \`MAX_VALUE\`, \`PI\`, \`DEFAULT_TIMEOUT\`.
+* **Packages**: **all_lowercase** -> \`com.company.project.util\`.
+
+---
+
+## 💡 Key Takeaway
+Keywords are the reserved grammar of Java, while Identifiers are your custom building blocks. Always stick to meaningful, descriptive camelCase names to write clean, industry-standard code.`,
+
+  // d8-j2
+  "d8-j2": `# 16. Selection Statements (Conditional Branching)
+
+## 1. What are Selection Statements?
+Selection statements control the flow of program execution based on **Boolean conditions** (\`true\` or \`false\`).
+
+\`\`\`
+                     [ Condition Check ]
+                            │
+               ┌────────────┴────────────┐
+             true                      false
+               │                         │
+     [ Execute Branch A ]      [ Execute Branch B ]
+               │                         │
+               └────────────┬────────────┘
+                            │
+                   [ Continue Program ]
+\`\`\`
+
+Java provides two primary decision-making mechanisms:
+1. **if / if-else / if-else-if Ladder** (Condition-based branching)
+2. **switch-case** (Value-based multi-way jump)
+
+---
+
+## 2. The Four \`if\` Statement Variations
+
+### 1. Simple \`if\`:
+Executes code block only if condition evaluates to \`true\`.
+\`\`\`java
+if (age >= 18) {
+    System.out.println("Eligible to vote");
+}
+\`\`\`
+
+### 2. \`if-else\`:
+Provides an alternative branch when condition is \`false\`.
+\`\`\`java
+if (number % 2 == 0) {
+    System.out.println(number + " is Even");
+} else {
+    System.out.println(number + " is Odd");
+}
+\`\`\`
+
+### 3. \`if-else-if\` Ladder:
+Evaluates multiple sequential conditions from top to bottom.
+\`\`\`java
+if (marks >= 90) {
+    grade = 'A';
+} else if (marks >= 75) {
+    grade = 'B';
+} else if (marks >= 50) {
+    grade = 'C';
+} else {
+    grade = 'F';
+}
+\`\`\`
+
+### 4. Nested \`if\`:
+An \`if\` statement nested inside another \`if\` block for secondary validation.
+
+---
+
+## 3. The \`switch-case\` Statement Deep Dive
+
+\`switch\` evaluates an expression once and directly jumps to the matching \`case\` label.
+
+\`\`\`
+Expression: [ dayNumber = 3 ] ──> Direct Jump to ──> [ case 3: "Wednesday" ]
+\`\`\`
+
+* **Supported Data Types in Switch**:
+  * \`byte\`, \`short\`, \`char\`, \`int\` (and their wrappers).
+  * \`String\` (since Java 7).
+  * \`enum\` types (since Java 5).
+  * *Note*: \`float\`, \`double\`, and \`boolean\` are **NOT allowed** in switch!
+
+### Crucial Concept: The \`break\` Statement & Fall-Through:
+Without a \`break\`, execution continues straight into the next case regardless of whether the condition matches!
+
+\`\`\`java
+public class SwitchDemo {
+    public static void main(String[] args) {
+        int day = 2;
+
+        switch (day) {
+            case 1:
+                System.out.println("Monday");
+                break;
+            case 2:
+                System.out.println("Tuesday"); // Matches!
+                break; // Exits switch block
+            case 3:
+                System.out.println("Wednesday");
+                break;
+            default:
+                System.out.println("Invalid day");
+                break;
+        }
+    }
+}
+\`\`\`
+
+---
+
+## 4. Enhanced Switch Expression (Java 14+)
+Modern Java provides arrow (\`->\`) syntax that eliminates tedious \`break\` statements and prevents accidental fall-through bugs:
+
+\`\`\`java
+String dayName = switch (day) {
+    case 1 -> "Monday";
+    case 2 -> "Tuesday";
+    case 3 -> "Wednesday";
+    case 4, 5 -> "Weekday";
+    case 6, 7 -> "Weekend";
+    default -> "Invalid Day";
+};
+\`\`\`
+
+---
+
+## 💡 Key Takeaway
+Use **if-else** for range comparisons (\`x >= 10 && x <= 50\`) or complex boolean logic. Use **switch-case** when comparing a single variable against multiple discrete constant values.`,
+
+  // d8-dsa
+  "d8-dsa": `# Array Pattern: Max Consecutive Ones
+
+## 1. What is the Question Asking? (LeetCode 485)
+* **Problem**: Given a binary array \`nums\` containing only \`0\`s and \`1\`s, return the maximum number of consecutive \`1\`s in the array.
+* **Example**:
+  * Input: \`nums = [1, 1, 0, 1, 1, 1]\`
+  * First sequence: Two 1s -> length = 2
+  * Second sequence: Three 1s -> length = 3
+  * Output: \`3\`
+
+---
+
+## 2. Intuition & State Tracking Diagram
+
+\`\`\`
+nums = [ 1 , 1 , 0 , 1 , 1 , 1 ]
+         ▲   ▲   ▲   ▲   ▲   ▲
+count:   1   2   0   1   2   3
+max:     1   2   2   2   2   3
+\`\`\`
+
+* Maintain two integer variables:
+  * \`currentCount\`: Tracks the length of the current running streak of \`1\`s.
+  * \`maxCount\`: Records the global maximum streak seen so far.
+* When we hit \`1\`: Increment \`currentCount++\`, then update \`maxCount = Math.max(maxCount, currentCount)\`.
+* When we hit \`0\`: The streak is broken! Reset \`currentCount = 0\`.
+
+---
+
+## 3. Optimal Java Solution
+
+\`\`\`java
+class Solution {
+    public int findMaxConsecutiveOnes(int[] nums) {
+        int currentCount = 0;
+        int maxCount = 0;
+
+        for (int num : nums) {
+            if (num == 1) {
+                currentCount++;
+                if (currentCount > maxCount) {
+                    maxCount = currentCount;
+                }
+            } else {
+                currentCount = 0; // Streak broken by zero
+            }
+        }
+
+        return maxCount;
+    }
+}
+\`\`\`
+
+---
+
+## 4. Complexity Analysis
+* **Time Complexity**: **O(N)** — Single pass through the array.
+* **Space Complexity**: **O(1)** — Only two integer counter variables used.
+
+---
+
+## 💡 Key Takeaway
+A running counter + a global maximum variable is the fundamental pattern for tracking streaks in arrays.`,
+
+  // d9-j1
+  "d9-j1": `# 17. Iteration & Looping - Part 1 (While & Do-While)
+
+## 1. Why Do We Need Loops?
+In programming, **iteration (looping)** allows us to execute a block of statements repeatedly as long as a specified condition remains \`true\`. Without loops, printing numbers 1 to 1000 would require 1000 separate print lines!
+
+---
+
+## 2. Entry-Controlled vs Exit-Controlled Loops
+
+\`\`\`
++------------------------------------+------------------------------------+
+| ENTRY-CONTROLLED (while loop)      | EXIT-CONTROLLED (do-while loop)    |
++------------------------------------+------------------------------------+
+|           [ Start ]                |             [ Start ]              |
+|               │                    |                 │                  |
+|     [ Check Condition ]            |         [ Execute Body ]           |
+|         /           \\              |                 │                  |
+|     (true)        (false)          |       [ Check Condition ]          |
+|       │              │             |           /           \\            |
+| [ Execute Body ]     │             |       (true)        (false)        |
+|       │              │             |         │              │           |
+|       └──> Recheck ──┘             |         └──> Repeat    │           |
+|                      │             |                        │           |
+|                   [ Exit ]         |                     [ Exit ]       |
++------------------------------------+------------------------------------+
+| Condition checked BEFORE body.     | Condition checked AFTER body.      |
+| Might execute ZERO times!          | GUARANTEED to execute at least ONCE|
++------------------------------------+------------------------------------+
+\`\`\`
+
+---
+
+## 3. The 4 Essential Parts of Every Loop
+1. **Initialization**: Setting the starting value of loop control variable (\`int i = 1\`).
+2. **Condition**: Boolean expression checked every round (\`i <= 5\`).
+3. **Loop Body**: Statements executed repeatedly.
+4. **Update Expression (Increment/Decrement)**: Modifies variable so loop eventually terminates (\`i++\`).
+
+---
+
+## 4. The \`while\` Loop Syntax & Example
+
+\`\`\`java
+public class WhileLoopDemo {
+    public static void main(String[] args) {
+        int count = 1; // 1. Initialization
+
+        while (count <= 5) { // 2. Condition
+            System.out.println("Count is: " + count); // 3. Body
+            count++; // 4. Update
+        }
+
+        System.out.println("Loop finished. Final count: " + count);
+    }
+}
+\`\`\`
+
+### Practical Real-World Example: Counting Digits in a Number
+\`\`\`java
+int n = 7492;
+int digitCount = 0;
+
+while (n > 0) {
+    n = n / 10; // Drops the last digit
+    digitCount++;
+}
+System.out.println("Total Digits: " + digitCount); // 4
+\`\`\`
+
+---
+
+## 5. The \`do-while\` Loop Syntax & Example
+
+The \`do-while\` loop executes its block first, and then checks the condition at the end. Note the required semicolon \`;\` after \`while(condition);\`.
+
+\`\`\`java
+public class DoWhileDemo {
+    public static void main(String[] args) {
+        int x = 10;
+
+        // Even though 10 > 5 is false, body runs ONCE!
+        do {
+            System.out.println("This prints at least once, x = " + x);
+            x++;
+        } while (x < 5);
+    }
+}
+\`\`\`
+
+### Classic Use Case: Menu-Driven CLI Program
+\`\`\`java
+import java.util.Scanner;
+
+public class MenuProgram {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int choice;
+
+        do {
+            System.out.println("\\n--- MENU ---");
+            System.out.println("1. Balance Check");
+            System.out.println("2. Withdraw");
+            System.out.println("3. Exit");
+            System.out.print("Enter choice: ");
+            choice = sc.nextInt();
+        } while (choice != 3);
+
+        System.out.println("Thank you for banking with us!");
+    }
+}
+\`\`\`
+
+---
+
+## 💡 Key Takeaway
+Use a **while loop** when you don't know the exact iteration count in advance and might run zero times. Use a **do-while loop** when the action must happen at least once before checking (such as asking for user input or displaying a menu).`,
+
+  // d9-j2
+  "d9-j2": `# 18. Iteration & Looping - Part 2 (For Loop & Nested Loops)
+
+## 1. Anatomy of the Standard \`for\` Loop
+The \`for\` loop is the most widely used loop in software engineering because it packages **initialization**, **condition**, and **update** into one compact line.
+
+\`\`\`
+         ┌── 1. Init (runs ONCE at start)
+         │           ┌── 2. Condition (checked before each iteration)
+         │           │             ┌── 4. Update (runs after body)
+         ▼           ▼             ▼
+    for (int i = 1 ; i <= 5     ; i++ ) {
+        System.out.println(i);   // ◄── 3. Loop Body
+    }
+\`\`\`
+
+### Execution Cycle Order:
+1. \`int i = 1\` (Initialized once).
+2. Check \`i <= 5\` -> \`true\`.
+3. Execute loop body -> Prints \`1\`.
+4. Run update \`i++\` -> \`i\` becomes \`2\`.
+5. Repeat steps 2 -> 3 -> 4 until condition becomes \`false\`.
+
+---
+
+## 2. Advanced Variations of \`for\` Loop
+
+### A. Multiple Variables in Init & Update:
+\`\`\`java
+for (int i = 1, j = 10; i < j; i++, j--) {
+    System.out.println("i=" + i + ", j=" + j);
+}
+\`\`\`
+
+### B. Infinite \`for\` Loop:
+\`\`\`java
+for (;;) {
+    System.out.println("Runs forever until break is hit");
+    break; // Exits loop
+}
+\`\`\`
+
+---
+
+## 3. Nested \`for\` Loops (Row & Column Grid Processing)
+A loop placed inside the body of another loop is called a **nested loop**.
+* The **Outer Loop** controls the **Rows**.
+* The **Inner Loop** controls the **Columns**.
+
+\`\`\`
+OUTER LOOP (Row i = 1 to 3)
+  └── INNER LOOP (Column j = 1 to 3)
+        Prints matrix coordinates: (i, j)
+
+(1,1)  (1,2)  (1,3)
+(2,1)  (2,2)  (2,3)
+(3,1)  (3,2)  (3,3)
+\`\`\`
+
+\`\`\`java
+public class NestedLoopDemo {
+    public static void main(String[] args) {
+        for (int i = 1; i <= 3; i++) {
+            for (int j = 1; j <= 3; j++) {
+                System.out.print("(" + i + "," + j + ") ");
+            }
+            System.out.println(); // Line break after finishing each row
+        }
+    }
+}
+\`\`\`
+
+---
+
+## 4. The Enhanced \`for-each\` Loop (Arrays & Collections)
+Introduced in Java 5 to iterate over arrays and collections without needing manual index manipulation:
+
+\`\`\`java
+public class ForEachDemo {
+    public static void main(String[] args) {
+        String[] fruits = {"Apple", "Banana", "Cherry", "Mango"};
+
+        for (String fruit : fruits) {
+            System.out.println("Fruit: " + fruit);
+        }
+    }
+}
+\`\`\`
+* **Advantage**: Prevents \`ArrayIndexOutOfBoundsException\`.
+* **Limitation**: Read-only iteration; does not give access to the index (\`i\`).
+
+---
+
+## 💡 Key Takeaway
+Use the standard **for loop** when the number of iterations is known beforehand or index manipulation is required. Use the **for-each loop** for clean, readable traversals of arrays and collections.`,
+
+  // d9-dsa
+  "d9-dsa": `# Sliding Window Pattern: Max Consecutive Ones III
+
+## 1. What is the Question Asking? (LeetCode 1004)
+* **Problem**: Given a binary array \`nums\` and an integer \`k\`, return the maximum number of consecutive \`1\`s in the array if you can flip at most \`k\` \`0\`s to \`1\`s.
+* **Example**:
+  * Input: \`nums = [1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0], k = 2\`
+  * If we flip the two \`0\`s at indices 5 and 10 (or 3 and 4), the longest contiguous segment of 1s has length **6**.
+  * Output: \`6\`
+
+---
+
+## 2. Problem Rephrasing: The Sliding Window Intuition
+Instead of physically flipping zeros, rephrase the problem:
+> **"Find the longest contiguous subarray that contains AT MOST k zeros!"**
+
+\`\`\`
+SLIDING WINDOW WITH ZERO BUDGET (k = 2):
+[ 1 , 1 , 1 , 0 , 0 , 0 , 1 , 1 , 1 , 1 , 0 ]
+  └───────┬───────┘
+  Window has 2 zeros (valid!). Size = 5
+
+Expand right:
+[ 1 , 1 , 1 , 0 , 0 , 0 , 1 , 1 , 1 , 1 , 0 ]
+  └─────────┬─────────┘
+  Window has 3 zeros (EXCEEDED k=2!).
+  Shrink left pointer until zeros count <= 2!
+\`\`\`
+
+---
+
+## 3. Optimal Java Solution (Dynamic Sliding Window)
+
+\`\`\`java
+class Solution {
+    public int longestOnes(int[] nums, int k) {
+        int left = 0;
+        int zeroCount = 0;
+        int maxLength = 0;
+
+        for (int right = 0; right < nums.length; right++) {
+            // Expand window by including nums[right]
+            if (nums[right] == 0) {
+                zeroCount++;
+            }
+
+            // If zeros exceed budget k, shrink window from left
+            while (zeroCount > k) {
+                if (nums[left] == 0) {
+                    zeroCount--;
+                }
+                left++;
+            }
+
+            // Window [left...right] is valid with <= k zeros
+            maxLength = Math.max(maxLength, right - left + 1);
+        }
+
+        return maxLength;
+    }
+}
+\`\`\`
+
+---
+
+## 4. Complexity Analysis
+* **Time Complexity**: **O(N)** — Each element is visited at most twice (once by \`right\`, once by \`left\`).
+* **Space Complexity**: **O(1)** — No extra memory allocated.
+
+---
+
+## 💡 Key Takeaway
+Whenever a problem asks for "maximum subarray length with at most K replacements", translate it into a dynamic sliding window tracking the count of violating elements.`,
+
+  // d10-j1
+  "d10-j1": `# 19. Jump Statements in Java (break, continue, return)
+
+## 1. Overview of Jump Statements
+Jump (transfer) statements unconditionally alter the normal linear execution flow of a program.
+
+\`\`\`
++---------------------------------------------------------------------------------+
+|                           JAVA JUMP STATEMENTS                                  |
++----------------------+---------------------------+------------------------------+
+| 1. break             | 2. continue               | 3. return                    |
++----------------------+---------------------------+------------------------------+
+| • Exits the loop or  | • Skips remaining code in | • Exits the entire method    |
+|   switch immediately |   current iteration       | • Optionally returns a value |
+| • Jumps to code      | • Jumps to next iteration | • Transfers control back to  |
+|   AFTER the block    |   update expression       |   the caller                 |
++----------------------+---------------------------+------------------------------+
+\`\`\`
+
+---
+
+## 2. The \`break\` Statement
+
+### Used inside a loop:
+Terminates the loop immediately upon meeting a condition.
+\`\`\`java
+for (int i = 1; i <= 10; i++) {
+    if (i == 5) {
+        break; // Stops loop when i reaches 5
+    }
+    System.out.print(i + " "); // Prints: 1 2 3 4
+}
+\`\`\`
+
+### Labeled \`break\` (Breaking Outer Nested Loops):
+In nested loops, a normal \`break\` only terminates the innermost loop. A **labeled break** can terminate the outer loop directly!
+
+\`\`\`java
+public class LabeledBreakDemo {
+    public static void main(String[] args) {
+        outerLoop: // Label
+        for (int i = 1; i <= 3; i++) {
+            for (int j = 1; j <= 3; j++) {
+                if (i == 2 && j == 2) {
+                    System.out.println("Breaking outer loop at i=" + i + ", j=" + j);
+                    break outerLoop; // Exits BOTH loops!
+                }
+                System.out.println("i=" + i + ", j=" + j);
+            }
+        }
+    }
+}
+\`\`\`
+
+---
+
+## 3. The \`continue\` Statement
+
+Skips the rest of the current iteration and jumps directly to the update step (\`i++\`).
+
+\`\`\`java
+for (int i = 1; i <= 6; i++) {
+    if (i % 2 == 0) {
+        continue; // Skip even numbers!
+    }
+    System.out.print(i + " "); // Prints: 1 3 5
+}
+\`\`\`
+
+### Labeled \`continue\`:
+Directly skips to the next iteration of the outer labeled loop.
+
+\`\`\`java
+outer:
+for (int i = 1; i <= 3; i++) {
+    for (int j = 1; j <= 3; j++) {
+        if (j == 2) continue outer; // Skips to next i
+        System.out.println("i=" + i + ", j=" + j);
+    }
+}
+\`\`\`
+
+---
+
+## 4. The \`return\` Statement
+Terminates execution of the current method and optionally passes back a value to the caller.
+
+\`\`\`java
+public class ReturnDemo {
+    public static int findFirstNegative(int[] nums) {
+        for (int n : nums) {
+            if (n < 0) {
+                return n; // Exits method immediately with result
+            }
+        }
+        return 0; // Default if no negative found
+    }
+
+    public static void main(String[] args) {
+        int[] arr = {5, 8, -3, 9};
+        System.out.println("Found: " + findFirstNegative(arr)); // -3
+    }
+}
+\`\`\`
+
+---
+
+## 💡 Key Takeaway
+* \`break\` says: *"I am done with this loop entirely—get me out."*
+* \`continue\` says: *"Skip this round and proceed directly to the next."*
+* \`return\` says: *"I am done with this entire method—hand control back to caller."*`,
+
+  // d10-j2
+  "d10-j2": `# 20. Essential Control Statement Programs (Interview Classics)
+
+## 1. Number Extraction Technique (The Engine of Digit Programs)
+Almost all number-manipulation programs rely on two fundamental arithmetic operators:
+* \`num % 10\` -> Extracts the **last digit**.
+* \`num / 10\` -> Removes/chops off the **last digit**.
+
+\`\`\`
+Original Number: 458
+  458 % 10  ───> 8  (Last digit extracted)
+  458 / 10  ───> 45 (Number reduced)
+\`\`\`
+
+---
+
+## 2. Classic Program 1: Prime Number Check
+A prime number is a natural number greater than 1 that has no positive divisors other than 1 and itself.
+* **Optimization**: Check divisors only up to \`Math.sqrt(n)\` (or \`i * i <= n\`).
+
+\`\`\`java
+public class PrimeCheck {
+    public static boolean isPrime(int n) {
+        if (n <= 1) return false;
+        if (n == 2) return true;
+        if (n % 2 == 0) return false;
+
+        for (int i = 3; i * i <= n; i += 2) {
+            if (n % i == 0) return false;
+        }
+        return true;
+    }
+
+    public static void main(String[] args) {
+        System.out.println("Is 29 prime? " + isPrime(29)); // true
+        System.out.println("Is 49 prime? " + isPrime(49)); // false
+    }
+}
+\`\`\`
+
+---
+
+## 3. Classic Program 2: Fibonacci Series
+0, 1, 1, 2, 3, 5, 8, 13, 21... (Each number is sum of preceding two).
+
+\`\`\`java
+public class Fibonacci {
+    public static void printFibonacci(int count) {
+        int a = 0, b = 1;
+        System.out.print(a + " " + b + " ");
+
+        for (int i = 2; i < count; i++) {
+            int c = a + b;
+            System.out.print(c + " ");
+            a = b;
+            b = c;
+        }
+        System.out.println();
+    }
+}
+\`\`\`
+
+---
+
+## 4. Classic Program 3: Palindrome Number Check
+A number that reads the same backwards as forwards (e.g., 121, 1331).
+
+\`\`\`java
+public class PalindromeNumber {
+    public static boolean isPalindrome(int num) {
+        if (num < 0) return false; // Negatives like -121 are not palindromes
+        int original = num;
+        int reversed = 0;
+
+        while (num > 0) {
+            int digit = num % 10;
+            reversed = (reversed * 10) + digit;
+            num = num / 10;
+        }
+
+        return original == reversed;
+    }
+}
+\`\`\`
+
+---
+
+## 5. Classic Program 4: Armstrong Number Check
+A number equal to the sum of its own digits each raised to the power of number of digits.
+* Example: \`153 = 1^3 + 5^3 + 3^3 = 1 + 125 + 27 = 153\`!
+
+\`\`\`java
+public class ArmstrongNumber {
+    public static boolean isArmstrong(int n) {
+        int original = n;
+        int temp = n;
+        int digits = 0;
+
+        // Step 1: Count digits
+        while (temp > 0) {
+            digits++;
+            temp /= 10;
+        }
+
+        // Step 2: Compute sum of powers
+        temp = n;
+        int sum = 0;
+        while (temp > 0) {
+            int digit = temp % 10;
+            sum += Math.pow(digit, digits);
+            temp /= 10;
+        }
+
+        return sum == original;
+    }
+}
+\`\`\`
+
+---
+
+## 6. Classic Program 5: Factorial of a Number
+\`n! = n * (n - 1) * ... * 1\`. Note: \`0! = 1\`.
+
+\`\`\`java
+public class Factorial {
+    public static long getFactorial(int n) {
+        long fact = 1;
+        for (int i = 1; i <= n; i++) {
+            fact *= i;
+        }
+        return fact;
+    }
+}
+\`\`\`
+
+---
+
+## 💡 Key Takeaway
+Mastering digit extraction (\`% 10\`), reduction (\`/ 10\`), and mathematical bounds (\`i * i <= n\`) builds the analytical muscle required for all coding assessments.`,
+
+  // d10-dsa
+  "d10-dsa": `# Sliding Window Pattern: Subarray Product Less Than K
+
+## 1. What is the Question Asking? (LeetCode 713)
+* **Problem**: Given an array of positive integers \`nums\` and an integer \`k\`, return the number of contiguous subarrays where the product of all the elements in the subarray is strictly less than \`k\`.
+* **Example**:
+  * Input: \`nums = [10, 5, 2, 6], k = 100\`
+  * Valid subarrays:
+    * Length 1: \`[10]\`, \`[5]\`, \`[2]\`, \`[6]\` (4)
+    * Length 2: \`[10, 5]\` (50), \`[5, 2]\` (10), \`[2, 6]\` (12) (3)
+    * Length 3: \`[5, 2, 6]\` (60) (1)
+  * Total count = \`4 + 3 + 1 = 8\`.
+  * Output: \`8\`
+
+---
+
+## 2. The Counting Insight in Sliding Window
+When our sliding window \`[left...right]\` has \`product < k\`, **how many new valid subarrays end at index \`right\`**?
+
+\`\`\`
+For window [5, 2, 6] (left=1, right=3):
+All valid subarrays ending at 6:
+  1. [6]
+  2. [2, 6]
+  3. [5, 2, 6]
+Number of new subarrays = (right - left + 1) = (3 - 1 + 1) = 3!
+\`\`\`
+
+Every time the right pointer expands and the window is valid, the number of new subarrays ending at \`right\` is exactly \`(right - left + 1)\`!
+
+---
+
+## 3. Optimal Java Solution
+
+\`\`\`java
+class Solution {
+    public int numSubarrayProductLessThanK(int[] nums, int k) {
+        if (k <= 1) return 0; // Since nums elements are positive integers >= 1
+
+        int left = 0;
+        int currentProduct = 1;
+        int totalCount = 0;
+
+        for (int right = 0; right < nums.length; right++) {
+            currentProduct *= nums[right];
+
+            // If product violates condition, shrink from left
+            while (currentProduct >= k && left <= right) {
+                currentProduct /= nums[left];
+                left++;
+            }
+
+            // Add all subarrays ending at right
+            totalCount += (right - left + 1);
+        }
+
+        return totalCount;
+    }
+}
+\`\`\`
+
+---
+
+## 4. Complexity Analysis
+* **Time Complexity**: **O(N)** — Left and right pointers advance monotonically.
+* **Space Complexity**: **O(1)** — Scalar state variables only.
+
+---
+
+## 💡 Key Takeaway
+For counting subarrays ending at the right pointer in a valid sliding window of size L, always add \`right - left + 1\`.`,
+
+  // d11-j1
+  "d11-j1": `# 21. Star Patterns (Nested Loops Visual Logic)
+
+## 1. The Universal 3-Step Pattern Formula
+Every pattern problem on a 2D console follows the exact same 3 steps:
+
+\`\`\`
+STEP 1: Outer Loop (Rows)    ───> for (int i = 1; i <= n; i++)
+STEP 2: Inner Loop (Columns) ───> for (int j = 1; j <= ?; j++)
+STEP 3: Print & Line Break   ───> System.out.print("*");
+                                  System.out.println(); // at end of row
+\`\`\`
+
+---
+
+## 2. Pattern 1: Solid Square Matrix (n x n)
+\`\`\`
+* * * *
+* * * *
+* * * *
+* * * *
+\`\`\`
+* **Logic**: For every row \`i\` from 1 to \`n\`, print \`n\` stars.
+\`\`\`java
+for (int i = 1; i <= n; i++) {
+    for (int j = 1; j <= n; j++) {
+        System.out.print("* ");
+    }
+    System.out.println();
+}
+\`\`\`
+
+---
+
+## 3. Pattern 2: Right-Angled Triangle
+\`\`\`
+*
+* *
+* * *
+* * * *
+\`\`\`
+* **Logic**: Row 1 has 1 star, Row 2 has 2 stars... Row \`i\` has \`i\` stars!
+* Inner loop runs: \`j <= i\`.
+\`\`\`java
+for (int i = 1; i <= n; i++) {
+    for (int j = 1; j <= i; j++) {
+        System.out.print("* ");
+    }
+    System.out.println();
+}
+\`\`\`
+
+---
+
+## 4. Pattern 3: Inverted Right-Angled Triangle
+\`\`\`
+* * * *
+* * *
+* *
+*
+\`\`\`
+* **Logic**: Row 1 has \`n\` stars, Row 2 has \`n - 1\`... Row \`i\` has \`n - i + 1\` stars!
+\`\`\`java
+for (int i = 1; i <= n; i++) {
+    for (int j = 1; j <= n - i + 1; j++) {
+        System.out.print("* ");
+    }
+    System.out.println();
+}
+\`\`\`
+
+---
+
+## 5. Pattern 4: Mirrored Right-Angled Triangle (Spaces + Stars)
+\`\`\`
+      *
+    * *
+  * * *
+* * * *
+\`\`\`
+* **Logic**: Two inner loops:
+  1. Print \`n - i\` spaces.
+  2. Print \`i\` stars.
+\`\`\`java
+for (int i = 1; i <= n; i++) {
+    // Print leading spaces
+    for (int s = 1; s <= n - i; s++) {
+        System.out.print("  ");
+    }
+    // Print stars
+    for (int j = 1; j <= i; j++) {
+        System.out.print("* ");
+    }
+    System.out.println();
+}
+\`\`\`
+
+---
+
+## 6. Pattern 5: Centered Full Pyramid
+\`\`\`
+   *
+  * *
+ * * *
+* * * *
+\`\`\`
+* **Logic**: Same as mirrored triangle, but with single space in between stars:
+\`\`\`java
+for (int i = 1; i <= n; i++) {
+    for (int s = 1; s <= n - i; s++) {
+        System.out.print(" ");
+    }
+    for (int j = 1; j <= i; j++) {
+        System.out.print("* ");
+    }
+    System.out.println();
+}
+\`\`\`
+
+---
+
+## 💡 Key Takeaway
+Break every 2D pattern into mathematical relationships: count of spaces as a function of \`i\` and count of stars as a function of \`i\`.`,
+
+  // d11-j2
+  "d11-j2": `# 22. Number & Alphabet Patterns
+
+## 1. Character Arithmetic in Java
+In Java, \`char\` is an integer type (16-bit Unicode). You can perform arithmetic on characters!
+* \`'A' + 1 = 65 + 1 = 66 = 'B'\`
+* \`(char)('A' + j)\` produces sequential letters \`A, B, C, D...\`
+
+---
+
+## 2. Pattern 1: Sequential Number Triangle
+\`\`\`
+1
+1 2
+1 2 3
+1 2 3 4
+\`\`\`
+* **Logic**: In row \`i\`, column \`j\` prints the value of \`j\`.
+\`\`\`java
+for (int i = 1; i <= n; i++) {
+    for (int j = 1; j <= i; j++) {
+        System.out.print(j + " ");
+    }
+    System.out.println();
+}
+\`\`\`
+
+---
+
+## 3. Pattern 2: Repeating Row Number Triangle
+\`\`\`
+1
+2 2
+3 3 3
+4 4 4 4
+\`\`\`
+* **Logic**: In row \`i\`, print the value of \`i\` repeatedly.
+\`\`\`java
+for (int i = 1; i <= n; i++) {
+    for (int j = 1; j <= i; j++) {
+        System.out.print(i + " ");
+    }
+    System.out.println();
+}
+\`\`\`
+
+---
+
+## 4. Pattern 3: Floyd's Triangle (Continuous Counter)
+\`\`\`
+1
+2  3
+4  5  6
+7  8  9  10
+\`\`\`
+* **Logic**: Maintain an independent running counter variable outside the loops!
+\`\`\`java
+int counter = 1;
+for (int i = 1; i <= n; i++) {
+    for (int j = 1; j <= i; j++) {
+        System.out.print(counter + " ");
+        counter++;
+    }
+    System.out.println();
+}
+\`\`\`
+
+---
+
+## 5. Pattern 4: 0-1 Binary Alternating Triangle
+\`\`\`
+1
+0 1
+1 0 1
+0 1 0 1
+\`\`\`
+* **The Mathematical Trick**:
+  * Row 1 Col 1: (1+1)=2 (even) -> 1
+  * Row 2 Col 1: (2+1)=3 (odd)  -> 0
+  * Row 2 Col 2: (2+2)=4 (even) -> 1
+  * If \`(i + j) % 2 == 0\`, print \`1\`, otherwise print \`0\`!
+\`\`\`java
+for (int i = 1; i <= n; i++) {
+    for (int j = 1; j <= i; j++) {
+        if ((i + j) % 2 == 0) {
+            System.out.print("1 ");
+        } else {
+            System.out.print("0 ");
+        }
+    }
+    System.out.println();
+}
+\`\`\`
+
+---
+
+## 6. Pattern 5: Alphabet Triangle (A, B, C...)
+\`\`\`
+A
+A B
+A B C
+A B C D
+\`\`\`
+* **Logic**: Cast \`'A' + (j - 1)\` to \`char\`.
+\`\`\`java
+for (int i = 1; i <= n; i++) {
+    for (int j = 1; j <= i; j++) {
+        char ch = (char) ('A' + (j - 1));
+        System.out.print(ch + " ");
+    }
+    System.out.println();
+}
+\`\`\`
+
+---
+
+## 💡 Key Takeaway
+Number and character patterns are simply star patterns where \`*\` is replaced by \`j\`, \`i\`, a running counter, or ASCII offset calculation.`,
+
+  // d11-dsa
+  "d11-dsa": `# Monotonic Queue Pattern: Sliding Window Maximum
+
+## 1. What is the Question Asking? (LeetCode 239)
+* **Problem**: You are given an array of integers \`nums\`, and a sliding window of size \`k\` moving from left to right. Return the max element in the sliding window at each step.
+* **Constraints**: \`nums.length\` up to \`100,000\`.
+* **Why Brute Force Fails**: Checking max of each window takes O(N * K) = 10^10 operations (Time Limit Exceeded).
+* **Target Time**: **O(N) linear time**!
+
+---
+
+## 2. Intuition: Monotonic Decreasing Deque
+We need a structure that gives us the current maximum in O(1) time while efficiently discarding elements that can **never be the maximum**.
+
+> **"If a newly arrived element is GREATER than older elements in the window, those older elements are useless and can be removed immediately!"**
+
+\`\`\`
+MONOTONIC DEQUE (Stores indices):
+Elements in deque are in STRICTLY DECREASING order of their values!
+Front of Deque ───> ALWAYS points to the MAXIMUM element of the current window!
+\`\`\`
+
+* **Two Invariants**:
+  1. **Evict out-of-bounds**: If front index \`<= i - k\`, it has slid out of window -> \`deque.pollFirst()\`.
+  2. **Maintain decreasing order**: Before inserting \`nums[i]\`, pop smaller elements from the back -> \`while (!deque.isEmpty() && nums[deque.peekLast()] <= nums[i]) deque.pollLast()\`.
+
+---
+
+## 3. Optimal Java Solution
+
+\`\`\`java
+import java.util.*;
+
+class Solution {
+    public int[] maxSlidingWindow(int[] nums, int k) {
+        if (nums == null || nums.length == 0 || k <= 0) return new int[0];
+
+        int n = nums.length;
+        int[] result = new int[n - k + 1];
+        int resultIndex = 0;
+
+        // Deque stores INDICES
+        Deque<Integer> deque = new ArrayDeque<>();
+
+        for (int i = 0; i < n; i++) {
+            // 1. Remove indices that are outside the current window
+            while (!deque.isEmpty() && deque.peekFirst() <= i - k) {
+                deque.pollFirst();
+            }
+
+            // 2. Remove smaller elements from back (they can never be the max)
+            while (!deque.isEmpty() && nums[deque.peekLast()] <= nums[i]) {
+                deque.pollLast();
+            }
+
+            // 3. Add current index to back
+            deque.offerLast(i);
+
+            // 4. Record current max once the first window is formed (i >= k - 1)
+            if (i >= k - 1) {
+                result[resultIndex++] = nums[deque.peekFirst()];
+            }
+        }
+
+        return result;
+    }
+}
+\`\`\`
+
+---
+
+## 4. Complexity Analysis
+* **Time Complexity**: **O(N)** — Each element index is added to the deque once and removed at most once.
+* **Space Complexity**: **O(K)** — Deque stores at most \`k\` indices at any time.
+
+---
+
+## 💡 Key Takeaway
+Whenever you need the running minimum/maximum of a sliding window in O(N) time, use a Monotonic Deque.`
 };
 
 export function getLectureNote(taskId) {
