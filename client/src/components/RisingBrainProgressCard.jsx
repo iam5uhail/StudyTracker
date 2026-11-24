@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Rocket } from 'lucide-react';
 import { useLearning } from '../context/LearningContext';
 
