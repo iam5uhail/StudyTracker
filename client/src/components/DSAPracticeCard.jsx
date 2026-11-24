@@ -185,7 +185,7 @@ export default function DSAPracticeCard() {
             key={task.id}
             className={`rounded-3xl border transition-all overflow-hidden p-5 sm:p-6 shadow-sm space-y-4 ${
               task.completed
-                ? 'bg-theme-cardSub/60 border-theme-border opacity-90'
+                ? 'bg-emerald-500/5 dark:bg-emerald-950/15 border-emerald-500/25 opacity-95'
                 : 'bg-theme-card border-theme-border hover:border-theme-borderSub'
             }`}
           >
@@ -197,7 +197,7 @@ export default function DSAPracticeCard() {
               >
                 <button type="button" className="mt-0.5 flex-shrink-0">
                   {task.completed ? (
-                    <CheckCircle2 className="w-5 h-5 text-theme-accent" />
+                    <CheckCircle2 className="w-5 h-5 text-emerald-500" />
                   ) : (
                     <div className="w-5 h-5 rounded-full border-2 border-theme-muted hover:border-theme-accent transition-colors" />
                   )}

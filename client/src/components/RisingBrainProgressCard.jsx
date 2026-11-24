@@ -44,7 +44,7 @@ export default function RisingBrainProgressCard() {
               cx={center}
               cy={center}
               r={radius}
-              stroke="var(--accent)"
+              stroke="#10B981"
               strokeWidth={strokeWidth}
               strokeDasharray={circumference}
               strokeDashoffset={offset}
@@ -55,7 +55,7 @@ export default function RisingBrainProgressCard() {
           </svg>
 
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-            <span className="text-xl font-bold text-theme-text tracking-tight font-mono">{progressStats.dsaPercent}%</span>
+            <span className="text-xl font-bold text-emerald-500 dark:text-emerald-400 tracking-tight font-mono">{progressStats.dsaPercent}%</span>
             <span className="text-[10px] text-theme-muted font-mono mt-0.5">
               {progressStats.dsaCompleted}/{progressStats.dsaTotal}
             </span>

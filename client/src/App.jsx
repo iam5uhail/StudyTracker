@@ -22,8 +22,25 @@ import {
 import { useLearning } from './context/LearningContext';
 import { useTheme } from './context/ThemeContext';
 
+const ACTIVE_NAV_STORAGE_KEY = 'study_tracker_active_nav_v1';
+
 export default function App() {
-  const [activeNav, setActiveNav] = useState('dashboard'); // 'dashboard', 'progress', 'roadmap'
+  const [activeNav, setActiveNav] = useState(() => {
+    try {
+      const saved = localStorage.getItem(ACTIVE_NAV_STORAGE_KEY);
+      if (saved && ['dashboard', 'progress', 'roadmap'].includes(saved)) {
+        return saved;
+      }
+    } catch (e) {}
+    return 'dashboard'; // 'dashboard', 'progress', 'roadmap'
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(ACTIVE_NAV_STORAGE_KEY, activeNav);
+    } catch (e) {}
+  }, [activeNav]);
+
   const [activeNotesData, setActiveNotesData] = useState(null); // { dayNumber, task }
   const [themeDropdownOpen, setThemeDropdownOpen] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState(null);

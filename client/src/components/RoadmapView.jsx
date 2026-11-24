@@ -404,7 +404,7 @@ export default function RoadmapView({ onOpenNotes }) {
                           }}
                           className={`flex items-start justify-between p-3 rounded-2xl border text-xs transition-all cursor-pointer group ${
                             done 
-                              ? 'bg-theme-accentSub border-theme-accentBorder text-theme-accentText' 
+                              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-semibold' 
                               : 'bg-theme-cardSub border-theme-border text-theme-secondary hover:border-theme-borderSub hover:bg-theme-card'
                           }`}
                         >
@@ -421,7 +421,7 @@ export default function RoadmapView({ onOpenNotes }) {
                               title={done ? "Mark Incomplete" : "Mark Complete"}
                             >
                               {done ? (
-                                <CheckCircle2 className="w-4 h-4 text-theme-accent" />
+                                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                               ) : (
                                 <Circle className="w-4 h-4 text-theme-muted group-hover:text-theme-text" />
                               )}
@@ -495,7 +495,7 @@ export default function RoadmapView({ onOpenNotes }) {
                             }}
                             className={`flex items-center justify-between p-3 rounded-xl border text-xs transition-all cursor-pointer ${
                               isDone
-                                ? 'bg-theme-accentSub border-theme-accentBorder text-theme-accentText'
+                                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-semibold'
                                 : 'bg-theme-card border-theme-border hover:border-theme-borderSub hover:bg-theme-cardSub'
                             }`}
                           >
@@ -513,7 +513,7 @@ export default function RoadmapView({ onOpenNotes }) {
                                   title={isDone ? "Mark Incomplete" : "Mark Complete"}
                                 >
                                   {isDone ? (
-                                    <CheckCircle2 className="w-3.5 h-3.5 text-theme-accent" />
+                                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
                                   ) : (
                                     <Circle className="w-3.5 h-3.5 text-theme-muted" />
                                   )}
@@ -524,7 +524,7 @@ export default function RoadmapView({ onOpenNotes }) {
                               </div>
                               <div className="flex flex-wrap items-center gap-1 pl-5">
                                 {prob.companies.slice(0, 2).map((comp, compIdx) => (
-                                  <span key={compIdx} className="text-[9px] px-1.5 py-0.5 rounded bg-theme-cardSub text-theme-muted border border-theme-border">
+                                  <span key={compIdx} className="text-[9px] px-1.5 py-0.5 rounded bg-theme-cardSub text-theme-secondary font-medium border border-theme-border">
                                     {comp}
                                   </span>
                                 ))}

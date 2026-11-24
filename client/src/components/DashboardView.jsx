@@ -90,8 +90,8 @@ export default function DashboardView({ openAccordionTaskId, onClearOpenAccordio
               </span>
 
               {isDayDone && (
-                <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-xs font-bold bg-theme-accent text-theme-accentBtnText shadow-theme-glow">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
+                <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-500 dark:text-emerald-400 border border-emerald-500/30 shadow-[0_0_12px_rgba(16,185,129,0.3)]">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
                   <span>Target Completed!</span>
                 </span>
               )}
@@ -123,7 +123,7 @@ export default function DashboardView({ openAccordionTaskId, onClearOpenAccordio
                     cx="32"
                     cy="32"
                     r="26"
-                    stroke="var(--accent)"
+                    stroke={isDayDone ? "#10B981" : dayPercent > 0 ? "#10B981" : "var(--accent)"}
                     strokeWidth="6"
                     strokeDasharray={2 * Math.PI * 26}
                     strokeDashoffset={2 * Math.PI * 26 - (dayPercent / 100) * (2 * Math.PI * 26)}
@@ -132,14 +132,18 @@ export default function DashboardView({ openAccordionTaskId, onClearOpenAccordio
                     className="transition-all duration-500 ease-out"
                   />
                 </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center font-bold text-sm text-theme-text font-mono">
+                <div className={`absolute inset-0 flex flex-col items-center justify-center font-bold text-sm font-mono ${
+                  isDayDone ? 'text-emerald-500 dark:text-emerald-400' : 'text-theme-text'
+                }`}>
                   {completedTasks}/{totalTasks}
                 </div>
               </div>
 
               <div>
                 <div className="text-xs text-theme-muted font-medium">Day Progress</div>
-                <div className="text-lg font-extrabold text-theme-text font-mono">{dayPercent}%</div>
+                <div className={`text-lg font-extrabold font-mono ${
+                  isDayDone ? 'text-emerald-500 dark:text-emerald-400' : 'text-theme-text'
+                }`}>{dayPercent}%</div>
                 <div className="text-[11px] text-theme-muted">
                   {totalTasks - completedTasks === 0 ? 'All done!' : `${totalTasks - completedTasks} left for today`}
                 </div>
@@ -150,11 +154,11 @@ export default function DashboardView({ openAccordionTaskId, onClearOpenAccordio
               onClick={() => toggleDayComplete(activeDay.dayNumber)}
               className={`w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-2 ${
                 isDayDone
-                  ? 'bg-theme-card border border-theme-border text-theme-muted hover:text-theme-text'
+                  ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/25'
                   : 'bg-theme-accent text-theme-accentBtnText shadow-theme-glow hover:opacity-90'
               }`}
             >
-              <CheckCircle2 className="w-4 h-4" />
+              <CheckCircle2 className={`w-4 h-4 ${isDayDone ? 'text-emerald-500' : ''}`} />
               <span>{isDayDone ? 'Mark as Incomplete' : 'Mark Day Complete'}</span>
             </button>
           </div>
@@ -221,7 +225,7 @@ export default function DashboardView({ openAccordionTaskId, onClearOpenAccordio
                   id={`task-card-${task.id}`}
                   className={`p-4 sm:p-5 rounded-2xl border transition-all ${
                     isDone
-                      ? 'bg-theme-cardSub/60 border-theme-border opacity-95'
+                      ? 'bg-emerald-500/5 dark:bg-emerald-950/15 border-emerald-500/25 opacity-95'
                       : 'bg-theme-card border-theme-border hover:border-theme-borderSub shadow-sm'
                   }`}
                 >
@@ -232,7 +236,7 @@ export default function DashboardView({ openAccordionTaskId, onClearOpenAccordio
                         className="mt-0.5 flex-shrink-0 transition-transform active:scale-95"
                       >
                         {isDone ? (
-                          <CheckCircle2 className="w-5 h-5 text-theme-accent" />
+                          <CheckCircle2 className="w-5 h-5 text-emerald-500" />
                         ) : (
                           <Circle className="w-5 h-5 text-theme-muted hover:text-theme-text" />
                         )}

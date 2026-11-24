@@ -37,7 +37,7 @@ export default function ProgressView() {
 
         <div className="flex items-center space-x-3 bg-theme-cardSub border border-theme-border rounded-2xl p-3 px-4 flex-shrink-0 shadow-sm">
           <div className="text-center">
-            <div className="text-xl font-extrabold text-theme-accentText font-mono">{progressStats.overallPercent}%</div>
+            <div className="text-xl font-extrabold text-emerald-500 font-mono">{progressStats.overallPercent}%</div>
             <div className="text-[10px] text-theme-muted uppercase font-semibold">Total Done</div>
           </div>
           <div className="h-8 w-px bg-theme-border" />
@@ -55,23 +55,23 @@ export default function ProgressView() {
 
       {/* 2. Top Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Total Tasks Done */}
+        {/* Total Tasks Done - Emerald Green */}
         <div className="bg-theme-card border border-theme-border rounded-2xl p-5 flex items-center justify-between shadow-sm">
           <div>
             <span className="text-xs text-theme-muted font-medium">Completed Items</span>
             <div className="text-2xl font-bold text-theme-text font-mono mt-1">
               {progressStats.completedTasks} <span className="text-xs text-theme-muted font-normal">/ {progressStats.totalTasks}</span>
             </div>
-            <span className="text-[11px] text-theme-accentText font-medium">
+            <span className="text-[11px] text-emerald-500 dark:text-emerald-400 font-medium">
               {progressStats.overallPercent}% curriculum covered
             </span>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-theme-accentSub border border-theme-accentBorder flex items-center justify-center text-theme-accentText">
-            <CheckCircle2 className="w-6 h-6 text-theme-accent" />
+          <div className="w-12 h-12 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-500 dark:text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.2)]">
+            <CheckCircle2 className="w-6 h-6 text-emerald-500" />
           </div>
         </div>
 
-        {/* Java Progress */}
+        {/* Java Progress - Warm Amber */}
         <div className="bg-theme-card border border-theme-border rounded-2xl p-5 flex items-center justify-between shadow-sm">
           <div>
             <span className="text-xs text-theme-muted font-medium">Core Java Topics</span>
@@ -87,19 +87,19 @@ export default function ProgressView() {
           </div>
         </div>
 
-        {/* DSA Progress */}
+        {/* DSA Progress - Distinct Electric Cyan */}
         <div className="bg-theme-card border border-theme-border rounded-2xl p-5 flex items-center justify-between shadow-sm">
           <div>
             <span className="text-xs text-theme-muted font-medium">Rising Brain DSA</span>
-            <div className="text-2xl font-bold text-theme-accentText font-mono mt-1">
+            <div className="text-2xl font-bold text-cyan-500 dark:text-cyan-400 font-mono mt-1">
               {progressStats.dsaCompleted} <span className="text-xs text-theme-muted font-normal">/ {progressStats.dsaTotal}</span>
             </div>
-            <span className="text-[11px] text-theme-accentText font-medium">
+            <span className="text-[11px] text-cyan-500 dark:text-cyan-400 font-medium">
               {progressStats.dsaPercent}% problems solved
             </span>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-theme-accentSub border border-theme-accentBorder flex items-center justify-center text-theme-accentText">
-            <Brain className="w-6 h-6 text-theme-accent" />
+          <div className="w-12 h-12 rounded-xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-500 dark:text-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.2)]">
+            <Brain className="w-6 h-6 text-cyan-500 dark:text-cyan-400" />
           </div>
         </div>
 
@@ -107,15 +107,15 @@ export default function ProgressView() {
         <div className="bg-theme-card border border-theme-border rounded-2xl p-5 flex items-center justify-between shadow-sm">
           <div>
             <span className="text-xs text-theme-muted font-medium">Current Streak</span>
-            <div className="text-2xl font-bold text-theme-accentText font-mono mt-1">
+            <div className="text-2xl font-bold text-amber-500 font-mono mt-1">
               {progressStats.streak} <span className="text-xs text-theme-muted font-normal">Days</span>
             </div>
             <span className="text-[11px] text-theme-muted font-medium">
               Target plan starts 21 Nov 2026
             </span>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-theme-accentSub border border-theme-accentBorder flex items-center justify-center text-theme-accentText">
-            <Flame className="w-6 h-6 text-theme-accent" />
+          <div className="w-12 h-12 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-500">
+            <Flame className="w-6 h-6 text-amber-500" />
           </div>
         </div>
       </div>

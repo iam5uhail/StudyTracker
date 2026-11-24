@@ -46,8 +46,25 @@ export function LearningProvider({ children }) {
     return DEFAULT_START_DATE || "2026-11-21";
   });
 
-  // Selected Day number (1 to 70)
-  const [activeDayNumber, setActiveDayNumber] = useState(1);
+  const ACTIVE_DAY_STORAGE_KEY = 'study_tracker_active_day_v1';
+
+  // Selected Day number (1 to 70) with localStorage persistence across refreshes
+  const [activeDayNumber, setActiveDayNumber] = useState(() => {
+    try {
+      const saved = localStorage.getItem(ACTIVE_DAY_STORAGE_KEY);
+      const parsed = parseInt(saved, 10);
+      if (!isNaN(parsed) && parsed >= 1 && parsed <= 70) {
+        return parsed;
+      }
+    } catch (e) {}
+    return 1;
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(ACTIVE_DAY_STORAGE_KEY, String(activeDayNumber));
+    } catch (e) {}
+  }, [activeDayNumber]);
 
   // Search query
   const [searchQuery, setSearchQuery] = useState('');

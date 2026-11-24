@@ -97,7 +97,7 @@ export default function AllTargetsTableView({ onOpenNotes }) {
               onClick={() => toggleTask(task.dayNumber, task.id)}
               className={`flex items-center justify-between p-3 rounded-2xl border cursor-pointer transition-all ${
                 task.completed
-                  ? 'bg-theme-cardSub/60 border-theme-border text-theme-muted opacity-80'
+                  ? 'bg-emerald-500/5 dark:bg-emerald-950/15 border-emerald-500/25 opacity-90'
                   : 'bg-theme-cardSub border-theme-border hover:border-theme-borderSub text-theme-text shadow-sm'
               }`}
             >
@@ -107,9 +107,9 @@ export default function AllTargetsTableView({ onOpenNotes }) {
                   className="flex-shrink-0"
                 >
                   {task.completed ? (
-                    <CheckCircle2 className="w-4 h-4 text-theme-accent" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                   ) : (
-                    <Circle className="w-4 h-4 text-theme-muted hover:text-theme-accent" />
+                    <Circle className="w-4 h-4 text-theme-muted hover:text-emerald-500" />
                   )}
                 </button>
 

@@ -54,15 +54,15 @@ export default function ProgressOverviewBars() {
 
       {/* 3 Primary Progress Bars: Overall, Java, DSA */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* 1. Overall Completion */}
+        {/* 1. Overall Completion - Vibrant Emerald Green */}
         <div className="bg-theme-cardSub border border-theme-border rounded-2xl p-4 flex flex-col justify-between shadow-sm">
           <div>
             <div className="flex justify-between items-center mb-1">
-              <span className="text-xs font-semibold text-theme-secondary flex items-center space-x-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-theme-accent" />
+              <span className="text-xs font-semibold text-emerald-500 dark:text-emerald-400 flex items-center space-x-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
                 <span>Overall Completion</span>
               </span>
-              <span className="text-sm font-extrabold text-theme-accentText font-mono">
+              <span className="text-sm font-extrabold text-emerald-500 dark:text-emerald-400 font-mono">
                 {progressStats.overallPercent}%
               </span>
             </div>
@@ -73,18 +73,18 @@ export default function ProgressOverviewBars() {
           </div>
           <div className="w-full h-2.5 bg-theme-border rounded-full overflow-hidden">
             <div 
-              className="h-full bg-theme-accent rounded-full transition-all duration-500 shadow-theme-glow" 
+              className="h-full bg-gradient-to-r from-emerald-500 to-green-400 rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(16,185,129,0.3)]" 
               style={{ width: `${progressStats.overallPercent}%` }}
             />
           </div>
         </div>
 
-        {/* 2. Core Java Topics (140 Topics) */}
+        {/* 2. Core Java Topics (140 Topics) - Warm Amber */}
         <div className="bg-theme-cardSub border border-theme-border rounded-2xl p-4 flex flex-col justify-between shadow-sm">
           <div>
             <div className="flex justify-between items-center mb-1">
               <span className="text-xs font-semibold text-amber-500 flex items-center space-x-1.5">
-                <Code2 className="w-3.5 h-3.5" />
+                <Code2 className="w-3.5 h-3.5 text-amber-500" />
                 <span>Core Java Topics</span>
               </span>
               <span className="text-sm font-extrabold text-amber-500 font-mono">
@@ -104,15 +104,15 @@ export default function ProgressOverviewBars() {
           </div>
         </div>
 
-        {/* 3. Rising Brain DSA (70 Patterns) */}
+        {/* 3. Rising Brain DSA (70 Patterns) - Electric Cyan */}
         <div className="bg-theme-cardSub border border-theme-border rounded-2xl p-4 flex flex-col justify-between shadow-sm">
           <div>
             <div className="flex justify-between items-center mb-1">
-              <span className="text-xs font-semibold text-theme-accentText flex items-center space-x-1.5">
-                <Brain className="w-3.5 h-3.5 text-theme-accent" />
+              <span className="text-xs font-semibold text-cyan-500 dark:text-cyan-400 flex items-center space-x-1.5">
+                <Brain className="w-3.5 h-3.5 text-cyan-500 dark:text-cyan-400" />
                 <span>Rising Brain DSA</span>
               </span>
-              <span className="text-sm font-extrabold text-theme-accentText font-mono">
+              <span className="text-sm font-extrabold text-cyan-500 dark:text-cyan-400 font-mono">
                 {progressStats.dsaPercent}%
               </span>
             </div>
@@ -123,7 +123,7 @@ export default function ProgressOverviewBars() {
           </div>
           <div className="w-full h-2.5 bg-theme-border rounded-full overflow-hidden">
             <div 
-              className="h-full bg-theme-accent rounded-full transition-all duration-500 shadow-theme-glow" 
+              className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(6,182,212,0.3)]" 
               style={{ width: `${progressStats.dsaPercent}%` }}
             />
           </div>
