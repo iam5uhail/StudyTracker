@@ -1,11 +1,12 @@
-import React, { useRef, useMemo, useEffect } from 'react';
+import React, { useRef, useMemo, useState, useEffect, useCallback } from 'react';
+import { Sparkles, Code2, Check, ArrowUpDown, HelpCircle } from 'lucide-react';
 
 // Tokenizer regex for JavaScript and Java syntax coloring
 const TOKEN_REGEX = new RegExp(
   [
     '(?<comment>//.*$|/\\*[\\s\\S]*?\\*/)',
     '(?<string>"(\\\\.|[^"\\\\])*"|\'(\\\\.|[^\'\\\\])*\'|`(\\\\.|[^`\\\\])*`)',
-    '(?<keyword>\\b(?:function|return|if|else|while|for|let|const|var|class|new|this|typeof|instanceof|import|export|from|public|private|static|void|int|boolean|String|char|double|float|long|true|false|null|undefined|try|catch|finally|throw|break|continue|switch|case|default)\\b)',
+    '(?<keyword>\\b(?:function|return|if|else|while|for|let|const|var|class|new|this|typeof|instanceof|import|export|from|public|private|static|void|int|boolean|String|char|double|float|long|true|false|null|undefined|try|catch|finally|throw|break|continue|switch|case|default|async|await|yield)\\b)',
     '(?<number>\\b\\d+(?:\\.\\d+)?\\b)',
     '(?<fn>\\b[a-zA-Z_$][a-zA-Z0-9_$]*(?=\\s*\\())',
     '(?<bracket>[{}()\\[\\]])',
@@ -15,22 +16,312 @@ const TOKEN_REGEX = new RegExp(
   'gm'
 );
 
-function highlightSyntax(code) {
+// Built-in intelligent auto-suggestions for JavaScript & Java DSA coding
+const BASE_SUGGESTIONS = [
+  { label: 'function', kind: 'keyword', insert: 'function ' },
+  { label: 'return', kind: 'keyword', insert: 'return ' },
+  { label: 'const', kind: 'keyword', insert: 'const ' },
+  { label: 'let', kind: 'keyword', insert: 'let ' },
+  { label: 'var', kind: 'keyword', insert: 'var ' },
+  { label: 'if', kind: 'snippet', insert: 'if () {\n  \n}' },
+  { label: 'if...else', kind: 'snippet', insert: 'if () {\n  \n} else {\n  \n}' },
+  { label: 'for (let i = 0; i < n; i++)', kind: 'snippet', insert: 'for (let i = 0; i < ; i++) {\n  \n}' },
+  { label: 'for...of', kind: 'snippet', insert: 'for (const item of ) {\n  \n}' },
+  { label: 'while', kind: 'snippet', insert: 'while () {\n  \n}' },
+  { label: 'console.log', kind: 'method', insert: 'console.log()' },
+  { label: 'System.out.println', kind: 'method', insert: 'System.out.println();' },
+  { label: 'Math.max', kind: 'method', insert: 'Math.max()' },
+  { label: 'Math.min', kind: 'method', insert: 'Math.min()' },
+  { label: 'Math.floor', kind: 'method', insert: 'Math.floor()' },
+  { label: 'Math.ceil', kind: 'method', insert: 'Math.ceil()' },
+  { label: 'Math.abs', kind: 'method', insert: 'Math.abs()' },
+  { label: 'Math.sqrt', kind: 'method', insert: 'Math.sqrt()' },
+  { label: 'Math.pow', kind: 'method', insert: 'Math.pow()' },
+  { label: 'Arrays.sort', kind: 'method', insert: 'Arrays.sort()' },
+  { label: 'Arrays.toString', kind: 'method', insert: 'Arrays.toString()' },
+  { label: 'length', kind: 'property', insert: 'length' },
+  { label: 'push', kind: 'method', insert: 'push()' },
+  { label: 'pop', kind: 'method', insert: 'pop()' },
+  { label: 'shift', kind: 'method', insert: 'shift()' },
+  { label: 'unshift', kind: 'method', insert: 'unshift()' },
+  { label: 'slice', kind: 'method', insert: 'slice()' },
+  { label: 'splice', kind: 'method', insert: 'splice()' },
+  { label: 'split', kind: 'method', insert: 'split("")' },
+  { label: 'join', kind: 'method', insert: 'join("")' },
+  { label: 'indexOf', kind: 'method', insert: 'indexOf()' },
+  { label: 'includes', kind: 'method', insert: 'includes()' },
+  { label: 'toLowerCase', kind: 'method', insert: 'toLowerCase()' },
+  { label: 'toUpperCase', kind: 'method', insert: 'toUpperCase()' },
+  { label: 'charAt', kind: 'method', insert: 'charAt()' },
+  { label: 'substring', kind: 'method', insert: 'substring()' },
+  { label: 'class', kind: 'keyword', insert: 'class ' },
+  { label: 'public', kind: 'keyword', insert: 'public ' },
+  { label: 'private', kind: 'keyword', insert: 'private ' },
+  { label: 'static', kind: 'keyword', insert: 'static ' },
+  { label: 'void', kind: 'keyword', insert: 'void ' },
+  { label: 'int', kind: 'type', insert: 'int ' },
+  { label: 'String', kind: 'type', insert: 'String ' },
+  { label: 'boolean', kind: 'type', insert: 'boolean ' },
+  { label: 'true', kind: 'literal', insert: 'true' },
+  { label: 'false', kind: 'literal', insert: 'false' },
+  { label: 'null', kind: 'literal', insert: 'null' },
+  { label: 'new Array()', kind: 'snippet', insert: 'new Array()' },
+  { label: 'new Set()', kind: 'snippet', insert: 'new Set()' },
+  { label: 'new Map()', kind: 'snippet', insert: 'new Map()' },
+  { label: 'break', kind: 'keyword', insert: 'break;' },
+  { label: 'continue', kind: 'keyword', insert: 'continue;' },
+  { label: 'switch', kind: 'snippet', insert: 'switch () {\n  case :\n    break;\n  default:\n    break;\n}' },
+  { label: 'try...catch', kind: 'snippet', insert: 'try {\n  \n} catch (err) {\n  \n}' }
+];
+
+// Bracket pair definitions
+const BRACKET_PAIRS = {
+  '(': ')',
+  '[': ']',
+  '{': '}',
+  ')': '(',
+  ']': '[',
+  '}': '{'
+};
+
+const OPENING_BRACKETS = new Set(['(', '[', '{']);
+const CLOSING_BRACKETS = new Set([')', ']', '}']);
+
+// Find matching bracket position (forward or backward)
+function findMatchingBracket(text, cursorIndex) {
+  if (!text || cursorIndex < 0 || cursorIndex > text.length) return null;
+
+  let targetIdx = -1;
+  if (BRACKET_PAIRS[text[cursorIndex]]) {
+    targetIdx = cursorIndex;
+  } else if (cursorIndex > 0 && BRACKET_PAIRS[text[cursorIndex - 1]]) {
+    targetIdx = cursorIndex - 1;
+  }
+
+  if (targetIdx === -1) return null;
+
+  const targetChar = text[targetIdx];
+  const matchChar = BRACKET_PAIRS[targetChar];
+
+  // Helper to get line number (1-based) for an index
+  const getLine = (idx) => text.slice(0, idx).split('\n').length;
+
+  if (OPENING_BRACKETS.has(targetChar)) {
+    // Scan forward
+    let depth = 0;
+    for (let i = targetIdx; i < text.length; i++) {
+      if (text[i] === targetChar) depth++;
+      else if (text[i] === matchChar) {
+        depth--;
+        if (depth === 0) {
+          return {
+            targetIdx,
+            matchIdx: i,
+            targetChar,
+            matchChar,
+            targetLine: getLine(targetIdx),
+            matchLine: getLine(i),
+            found: true
+          };
+        }
+      }
+    }
+    return {
+      targetIdx,
+      matchIdx: -1,
+      targetChar,
+      matchChar,
+      targetLine: getLine(targetIdx),
+      matchLine: null,
+      found: false
+    };
+  } else if (CLOSING_BRACKETS.has(targetChar)) {
+    // Scan backward
+    let depth = 0;
+    for (let i = targetIdx; i >= 0; i--) {
+      if (text[i] === targetChar) depth++;
+      else if (text[i] === matchChar) {
+        depth--;
+        if (depth === 0) {
+          return {
+            targetIdx,
+            matchIdx: i,
+            targetChar,
+            matchChar,
+            targetLine: getLine(targetIdx),
+            matchLine: getLine(i),
+            found: true
+          };
+        }
+      }
+    }
+    return {
+      targetIdx,
+      matchIdx: -1,
+      targetChar,
+      matchChar,
+      targetLine: getLine(targetIdx),
+      matchLine: null,
+      found: false
+    };
+  }
+
+  return null;
+}
+
+// Full code auto-formatter (fixes and standardizes indentation across entire document)
+export function formatCode(text) {
+  if (!text) return '';
+  const lines = text.split('\n');
+  let indentLevel = 0;
+  const indentStr = '  '; // 2 spaces standard
+  const formatted = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const rawLine = lines[i].trim();
+    if (!rawLine) {
+      formatted.push('');
+      continue;
+    }
+
+    // Count leading closing brackets on this line to dedent current line
+    let leadingClosers = 0;
+    const match = rawLine.match(/^([}\])]+)/);
+    if (match) {
+      leadingClosers = match[1].length;
+    }
+
+    const currentIndent = Math.max(0, indentLevel - leadingClosers);
+    formatted.push(indentStr.repeat(currentIndent) + rawLine);
+
+    // Calculate delta for following lines
+    let opens = 0;
+    let closes = 0;
+    let inString = false;
+    let stringChar = '';
+
+    for (let c = 0; c < rawLine.length; c++) {
+      const ch = rawLine[c];
+      const prev = c > 0 ? rawLine[c - 1] : '';
+
+      if (!inString && ch === '/' && rawLine[c + 1] === '/') {
+        break; // Ignore comments
+      }
+
+      if (inString) {
+        if (ch === stringChar && prev !== '\\') {
+          inString = false;
+        }
+      } else {
+        if (ch === '"' || ch === "'" || ch === '`') {
+          inString = true;
+          stringChar = ch;
+        } else if (ch === '{' || ch === '[' || ch === '(') {
+          opens++;
+        } else if (ch === '}' || ch === ']' || ch === ')') {
+          closes++;
+        }
+      }
+    }
+
+    indentLevel = Math.max(0, indentLevel + opens - closes);
+  }
+
+  return formatted.join('\n');
+}
+
+// Move lines up or down (Alt + ArrowUp / Alt + ArrowDown)
+function moveLines(text, selStart, selEnd, direction) {
+  const lines = text.split('\n');
+
+  let charCount = 0;
+  let startLine = 0;
+  let endLine = 0;
+
+  for (let i = 0; i < lines.length; i++) {
+    const nextCount = charCount + lines[i].length + 1;
+    if (selStart >= charCount && selStart < nextCount) {
+      startLine = i;
+    }
+    if (selEnd >= charCount && selEnd < nextCount) {
+      endLine = i;
+    }
+    charCount = nextCount;
+  }
+  if (selEnd >= charCount) {
+    endLine = lines.length - 1;
+  }
+
+  if (direction === 'up' && startLine === 0) {
+    return { text, newStart: selStart, newEnd: selEnd };
+  }
+  if (direction === 'down' && endLine === lines.length - 1) {
+    return { text, newStart: selStart, newEnd: selEnd };
+  }
+
+  const selectedCount = endLine - startLine + 1;
+
+  if (direction === 'up') {
+    const targetLine = lines[startLine - 1];
+    const block = lines.splice(startLine, selectedCount);
+    lines.splice(startLine - 1, 0, ...block);
+
+    const shiftOffset = targetLine.length + 1;
+    return {
+      text: lines.join('\n'),
+      newStart: selStart - shiftOffset,
+      newEnd: selEnd - shiftOffset
+    };
+  } else {
+    const targetLine = lines[endLine + 1];
+    const block = lines.splice(startLine, selectedCount);
+    lines.splice(startLine + 1, 0, ...block);
+
+    const shiftOffset = targetLine.length + 1;
+    return {
+      text: lines.join('\n'),
+      newStart: selStart + shiftOffset,
+      newEnd: selEnd + shiftOffset
+    };
+  }
+}
+
+// Highlight syntax with bracket match illumination
+function highlightSyntaxWithBrackets(code, bracketInfo) {
   if (!code) return '';
+
+  const matchedSet = new Set();
+  if (bracketInfo) {
+    if (bracketInfo.targetIdx !== undefined && bracketInfo.targetIdx >= 0) {
+      matchedSet.add(bracketInfo.targetIdx);
+    }
+    if (bracketInfo.matchIdx !== undefined && bracketInfo.matchIdx >= 0) {
+      matchedSet.add(bracketInfo.matchIdx);
+    }
+  }
+
   return code.replace(TOKEN_REGEX, (match, ...args) => {
+    const offset = args[args.length - 3];
     const groups = args[args.length - 1] || {};
-    // Escape HTML entities for the matched token
+
     const safe = match
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
+
+    if (groups.bracket) {
+      const isMatched = matchedSet.has(offset);
+      if (isMatched) {
+        return `<span class="bg-amber-400/35 text-amber-300 ring-1 ring-amber-400 rounded-sm font-extrabold shadow-[0_0_10px_rgba(251,191,36,0.8)] px-0.5">${safe}</span>`;
+      }
+      return `<span class="text-yellow-300 font-bold">${safe}</span>`;
+    }
 
     if (groups.comment) return `<span class="text-zinc-500 italic font-normal">${safe}</span>`;
     if (groups.string) return `<span class="text-emerald-400 font-medium">${safe}</span>`;
     if (groups.keyword) return `<span class="text-purple-400 font-semibold">${safe}</span>`;
     if (groups.number) return `<span class="text-amber-400 font-medium">${safe}</span>`;
     if (groups.fn) return `<span class="text-sky-400 font-semibold">${safe}</span>`;
-    if (groups.bracket) return `<span class="text-yellow-300 font-bold">${safe}</span>`;
     if (groups.op) return `<span class="text-pink-400">${safe}</span>`;
     return safe;
   });
@@ -47,13 +338,84 @@ export default function CodeEditor({
   const preRef = useRef(null);
   const gutterRef = useRef(null);
 
-  // Compute total lines for line numbers gutter
+  // Caret position & cursor coordinates for bracket matching & auto-complete
+  const [cursorPos, setCursorPos] = useState(0);
+  const [cursorCoords, setCursorCoords] = useState({ line: 1, col: 1 });
+
+  // Auto-suggestions dropdown state
+  const [suggestions, setSuggestions] = useState([]);
+  const [selectedSuggestionIdx, setSelectedSuggestionIdx] = useState(0);
+  const [suggestionMenuPos, setSuggestionMenuPos] = useState(null); // { top, left, prefix }
+  const [formatNotice, setFormatNotice] = useState(false);
+
+  // Line count for gutter
   const lineCount = useMemo(() => {
     const lines = value.split('\n').length;
     return Math.max(lines, minRows);
   }, [value, minRows]);
 
-  // Synchronize scrolling between textarea, pre syntax layer, and line number gutter
+  // Compute matching bracket
+  const bracketInfo = useMemo(() => {
+    return findMatchingBracket(value, cursorPos);
+  }, [value, cursorPos]);
+
+  // Update cursor position and line/col indicator
+  const updateCursorInfo = useCallback(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    const pos = textarea.selectionStart;
+    setCursorPos(pos);
+
+    const textBefore = value.slice(0, pos);
+    const lines = textBefore.split('\n');
+    const line = lines.length;
+    const col = lines[lines.length - 1].length + 1;
+    setCursorCoords({ line, col });
+
+    // Inspect word prefix before cursor for autocomplete suggestions
+    const prefixMatch = textBefore.match(/([a-zA-Z_$][a-zA-Z0-9_$]*)$/);
+    if (prefixMatch && prefixMatch[1] && prefixMatch[1].length >= 1) {
+      const prefix = prefixMatch[1];
+
+      // Dynamic words from current code
+      const dynamicWords = Array.from(new Set(value.match(/\b[a-zA-Z_$][a-zA-Z0-9_$]{2,}\b/g) || []))
+        .filter(w => !BASE_SUGGESTIONS.some(s => s.label === w))
+        .map(w => ({ label: w, kind: 'variable', insert: w }));
+
+      const allList = [...BASE_SUGGESTIONS, ...dynamicWords];
+      const filtered = allList.filter(item =>
+        item.label.toLowerCase().startsWith(prefix.toLowerCase()) && item.label !== prefix
+      ).slice(0, 8);
+
+      if (filtered.length > 0) {
+        setSuggestions(filtered);
+        setSelectedSuggestionIdx(0);
+
+        // Position suggestions box near cursor
+        const lineHeight = 22;
+        const charWidth = 7.8;
+        const top = Math.min((line * lineHeight) + 6, Math.max(lineCount * lineHeight, 300));
+        const left = Math.min(Math.max((col * charWidth) + 38, 48), 350);
+        setSuggestionMenuPos({ top, left, prefix });
+      } else {
+        setSuggestions([]);
+        setSuggestionMenuPos(null);
+      }
+    } else {
+      setSuggestions([]);
+      setSuggestionMenuPos(null);
+    }
+  }, [value, lineCount]);
+
+  // Handle format document
+  const handleFormatDocument = () => {
+    const formatted = formatCode(value);
+    onChange(formatted);
+    setFormatNotice(true);
+    setTimeout(() => setFormatNotice(false), 1800);
+  };
+
+  // Synchronize scrolling between textarea, pre, and gutter
   const handleScroll = (e) => {
     const { scrollTop, scrollLeft } = e.currentTarget;
     if (preRef.current) {
@@ -65,7 +427,40 @@ export default function CodeEditor({
     }
   };
 
-  // Keyboard enhancements: Auto-indent, Tab insertion, Auto-bracket closing & pair deletion
+  // Insert a selected auto-suggestion
+  const applySuggestion = (item) => {
+    const textarea = textareaRef.current;
+    if (!textarea || !suggestionMenuPos) return;
+
+    const start = textarea.selectionStart;
+    const prefix = suggestionMenuPos.prefix;
+    const prefixStart = start - prefix.length;
+
+    const newVal = value.substring(0, prefixStart) + item.insert + value.substring(start);
+    onChange(newVal);
+
+    setSuggestions([]);
+    setSuggestionMenuPos(null);
+
+    requestAnimationFrame(() => {
+      // Place cursor inside parentheses if method or snippet, or at end
+      let targetCursor = prefixStart + item.insert.length;
+      if (item.insert.endsWith('()') || item.insert.endsWith('();')) {
+        targetCursor = item.insert.endsWith('();') ? prefixStart + item.insert.length - 2 : prefixStart + item.insert.length - 1;
+      }
+      textarea.selectionStart = textarea.selectionEnd = targetCursor;
+      textarea.focus();
+      updateCursorInfo();
+    });
+  };
+
+  // Keyboard enhancements:
+  // 1. Alt + Up / Alt + Down (Move sentence/line up and down)
+  // 2. Tab / Shift+Tab (Indent / Unindent line or selection)
+  // 3. Auto-closing pairs & Backspace pair deletion
+  // 4. Smart Enter key (Auto-indent + block expansion)
+  // 5. Autocomplete navigation (ArrowUp, ArrowDown, Tab, Enter, Escape)
+  // 6. Shift + Alt + F (Format Code shortcut)
   const handleKeyDown = (e) => {
     const textarea = textareaRef.current;
     if (!textarea) return;
@@ -73,29 +468,122 @@ export default function CodeEditor({
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
 
-    // 1. Tab key -> Insert 2 spaces (Shift+Tab -> unindent)
-    if (e.key === 'Tab') {
+    // Handle suggestion menu keyboard navigation first
+    if (suggestions.length > 0 && suggestionMenuPos) {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        setSelectedSuggestionIdx((prev) => (prev + 1) % suggestions.length);
+        return;
+      }
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setSelectedSuggestionIdx((prev) => (prev - 1 + suggestions.length) % suggestions.length);
+        return;
+      }
+      if (e.key === 'Tab' || e.key === 'Enter') {
+        e.preventDefault();
+        applySuggestion(suggestions[selectedSuggestionIdx]);
+        return;
+      }
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setSuggestions([]);
+        setSuggestionMenuPos(null);
+        return;
+      }
+    }
+
+    // 0. Shift + Alt + F -> Format document
+    if (e.shiftKey && e.altKey && e.key.toLowerCase() === 'f') {
       e.preventDefault();
-      if (e.shiftKey) {
-        const lineStart = value.lastIndexOf('\n', start - 1) + 1;
-        if (value.slice(lineStart, lineStart + 2) === '  ') {
-          const newVal = value.slice(0, lineStart) + value.slice(lineStart + 2);
-          onChange(newVal);
-          requestAnimationFrame(() => {
-            textarea.selectionStart = textarea.selectionEnd = Math.max(lineStart, start - 2);
-          });
-        }
-      } else {
-        const newVal = value.substring(0, start) + '  ' + value.substring(end);
-        onChange(newVal);
+      handleFormatDocument();
+      return;
+    }
+
+    // 1. Alt + ArrowUp / Alt + ArrowDown -> Move line(s) up / down
+    if (e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+      e.preventDefault();
+      const direction = e.key === 'ArrowUp' ? 'up' : 'down';
+      const result = moveLines(value, start, end, direction);
+      if (result.text !== value) {
+        onChange(result.text);
         requestAnimationFrame(() => {
-          textarea.selectionStart = textarea.selectionEnd = start + 2;
+          textarea.selectionStart = result.newStart;
+          textarea.selectionEnd = result.newEnd;
+          updateCursorInfo();
         });
       }
       return;
     }
 
-    // 2. Auto-closing pairs: { }, ( ), [ ], " ", ' ', ` `
+    // 2. Tab key -> Indent 2 spaces (Shift+Tab -> Unindent 2 spaces)
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      if (start !== end) {
+        // Multi-line selection indentation
+        const firstLineStart = value.lastIndexOf('\n', start - 1) + 1;
+        const lastLineEnd = value.indexOf('\n', end);
+        const actualEnd = lastLineEnd === -1 ? value.length : lastLineEnd;
+        const selectedBlock = value.substring(firstLineStart, actualEnd);
+        const lines = selectedBlock.split('\n');
+
+        let modifiedLines;
+        let delta = 0;
+
+        if (e.shiftKey) {
+          // Unindent
+          modifiedLines = lines.map(line => {
+            if (line.startsWith('  ')) {
+              delta -= 2;
+              return line.slice(2);
+            } else if (line.startsWith(' ')) {
+              delta -= 1;
+              return line.slice(1);
+            }
+            return line;
+          });
+        } else {
+          // Indent
+          modifiedLines = lines.map(line => {
+            delta += 2;
+            return '  ' + line;
+          });
+        }
+
+        const newBlock = modifiedLines.join('\n');
+        const newVal = value.substring(0, firstLineStart) + newBlock + value.substring(actualEnd);
+        onChange(newVal);
+
+        requestAnimationFrame(() => {
+          textarea.selectionStart = firstLineStart;
+          textarea.selectionEnd = actualEnd + delta;
+          updateCursorInfo();
+        });
+      } else {
+        // Single cursor indentation
+        if (e.shiftKey) {
+          const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+          if (value.slice(lineStart, lineStart + 2) === '  ') {
+            const newVal = value.slice(0, lineStart) + value.slice(lineStart + 2);
+            onChange(newVal);
+            requestAnimationFrame(() => {
+              textarea.selectionStart = textarea.selectionEnd = Math.max(lineStart, start - 2);
+              updateCursorInfo();
+            });
+          }
+        } else {
+          const newVal = value.substring(0, start) + '  ' + value.substring(end);
+          onChange(newVal);
+          requestAnimationFrame(() => {
+            textarea.selectionStart = textarea.selectionEnd = start + 2;
+            updateCursorInfo();
+          });
+        }
+      }
+      return;
+    }
+
+    // 3. Auto-closing pairs: { }, ( ), [ ], " ", ' ', ` `
     const pairs = {
       '{': '}',
       '(': ')',
@@ -106,16 +594,17 @@ export default function CodeEditor({
     };
 
     // If user types closing bracket when next char is that closing bracket -> skip over it
-    const closingBrackets = ['}', ')', ']', '"', "'", '`'];
-    if (closingBrackets.includes(e.key) && start === end && value[start] === e.key) {
+    const closingChars = [')', ']', '}', '"', "'", '`'];
+    if (closingChars.includes(e.key) && start === end && value[start] === e.key) {
       e.preventDefault();
       requestAnimationFrame(() => {
         textarea.selectionStart = textarea.selectionEnd = start + 1;
+        updateCursorInfo();
       });
       return;
     }
 
-    // Auto-insert pair
+    // Auto-insert closing pair
     if (pairs[e.key]) {
       e.preventDefault();
       const openChar = e.key;
@@ -125,11 +614,12 @@ export default function CodeEditor({
       onChange(newVal);
       requestAnimationFrame(() => {
         textarea.selectionStart = textarea.selectionEnd = start + 1 + selected.length;
+        updateCursorInfo();
       });
       return;
     }
 
-    // 3. Backspace pair deletion: {|} -> backspace -> removes both
+    // 4. Backspace pair deletion: {|} -> backspace -> removes both
     if (e.key === 'Backspace' && start === end && start > 0) {
       const prevChar = value[start - 1];
       const nextChar = value[start];
@@ -139,12 +629,13 @@ export default function CodeEditor({
         onChange(newVal);
         requestAnimationFrame(() => {
           textarea.selectionStart = textarea.selectionEnd = start - 1;
+          updateCursorInfo();
         });
         return;
       }
     }
 
-    // 4. Enter key -> Smart Auto-Indentation & Bracket Splitting
+    // 5. Smart Enter key with block indentation & bracket expansion
     if (e.key === 'Enter') {
       e.preventDefault();
       const lineStart = value.lastIndexOf('\n', start - 1) + 1;
@@ -156,14 +647,17 @@ export default function CodeEditor({
       const isBeforeCloseBrace = /^[\s]*[})\]]/.test(value.slice(start));
 
       if (isAfterOpenBrace && isBeforeCloseBrace) {
-        // Split:
-        // {\n  |\n}
+        // Expand:
+        // {
+        //   |
+        // }
         const extraIndent = '  ';
         const insert = '\n' + currentIndent + extraIndent + '\n' + currentIndent;
         const newVal = value.substring(0, start) + insert + value.substring(end);
         onChange(newVal);
         requestAnimationFrame(() => {
           textarea.selectionStart = textarea.selectionEnd = start + 1 + currentIndent.length + extraIndent.length;
+          updateCursorInfo();
         });
       } else if (isAfterOpenBrace) {
         const extraIndent = '  ';
@@ -172,6 +666,7 @@ export default function CodeEditor({
         onChange(newVal);
         requestAnimationFrame(() => {
           textarea.selectionStart = textarea.selectionEnd = start + insert.length;
+          updateCursorInfo();
         });
       } else {
         const insert = '\n' + currentIndent;
@@ -179,55 +674,178 @@ export default function CodeEditor({
         onChange(newVal);
         requestAnimationFrame(() => {
           textarea.selectionStart = textarea.selectionEnd = start + insert.length;
+          updateCursorInfo();
         });
       }
     }
   };
 
-  const highlightedHtml = useMemo(() => highlightSyntax(value), [value]);
+  // Highlight syntax with bracket match illumination
+  const highlightedHtml = useMemo(() => {
+    return highlightSyntaxWithBrackets(value, bracketInfo);
+  }, [value, bracketInfo]);
 
   return (
-    <div className={`relative flex rounded-b-2xl overflow-hidden font-mono text-xs sm:text-sm bg-[#0d1117] ${className}`}>
-      {/* 1. Line Numbers Gutter */}
-      <div
-        ref={gutterRef}
-        aria-hidden="true"
-        className="select-none py-3 px-3 bg-[#090d13] border-r border-[#21262d] text-zinc-500/50 text-right font-mono text-xs leading-[22px] overflow-hidden flex-shrink-0"
-        style={{ minWidth: '40px' }}
-      >
-        {Array.from({ length: lineCount }).map((_, i) => (
-          <div key={i} className="tabular-nums">
-            {i + 1}
-          </div>
-        ))}
+    <div className={`relative flex flex-col rounded-b-2xl overflow-hidden font-mono text-xs sm:text-sm bg-[#0d1117] border border-[#21262d] ${className}`}>
+      {/* 1. Main Editor Canvas: Line Numbers + Pre Highlighting + Textarea */}
+      <div className="relative flex flex-1 overflow-hidden" style={{ minHeight: `${minRows * 22 + 24}px` }}>
+        {/* Line Numbers Gutter */}
+        <div
+          ref={gutterRef}
+          aria-hidden="true"
+          className="select-none py-3 px-3 bg-[#090d13] border-r border-[#21262d] text-zinc-500/50 text-right font-mono text-xs leading-[22px] overflow-hidden flex-shrink-0"
+          style={{ minWidth: '42px' }}
+        >
+          {Array.from({ length: lineCount }).map((_, i) => (
+            <div
+              key={i}
+              className={`tabular-nums transition-colors ${
+                cursorCoords.line === i + 1 ? 'text-amber-400 font-bold' : ''
+              }`}
+            >
+              {i + 1}
+            </div>
+          ))}
+        </div>
+
+        {/* Code Canvas Container */}
+        <div className="relative flex-1 overflow-hidden">
+          {/* Syntax Highlighted Visual Layer */}
+          <pre
+            ref={preRef}
+            aria-hidden="true"
+            className="absolute inset-0 m-0 py-3 px-4 font-mono text-xs sm:text-sm leading-[22px] whitespace-pre overflow-hidden pointer-events-none text-zinc-200 select-none z-10"
+            dangerouslySetInnerHTML={{ __html: highlightedHtml + (value.endsWith('\n') ? ' ' : '') }}
+          />
+
+          {/* User Input Layer */}
+          <textarea
+            ref={textareaRef}
+            value={value}
+            onChange={(e) => {
+              onChange(e.target.value);
+              requestAnimationFrame(updateCursorInfo);
+            }}
+            onClick={updateCursorInfo}
+            onKeyUp={updateCursorInfo}
+            onKeyDown={handleKeyDown}
+            onScroll={handleScroll}
+            placeholder={placeholder}
+            spellCheck={false}
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            rows={minRows}
+            className="relative z-20 w-full h-full m-0 py-3 px-4 font-mono text-xs sm:text-sm leading-[22px] whitespace-pre bg-transparent text-transparent caret-theme-accent placeholder:text-zinc-600 focus:outline-none resize-none overflow-auto"
+            style={{ minHeight: `${minRows * 22 + 24}px` }}
+          />
+
+          {/* 3. Floating Auto-Suggestions / IntelliSense Dropdown */}
+          {suggestions.length > 0 && suggestionMenuPos && (
+            <div
+              className="absolute z-30 bg-[#161b22] border border-[#30363d] rounded-xl shadow-2xl overflow-hidden py-1 w-64 max-h-56 overflow-y-auto backdrop-blur-md"
+              style={{
+                top: `${suggestionMenuPos.top}px`,
+                left: `${suggestionMenuPos.left}px`
+              }}
+            >
+              <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400 border-b border-[#21262d] flex justify-between items-center bg-[#0d1117]/60">
+                <span>Suggestions</span>
+                <span className="font-normal lowercase text-[9px] text-zinc-500">Tab / Enter</span>
+              </div>
+              {suggestions.map((item, idx) => (
+                <div
+                  key={idx}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    applySuggestion(item);
+                  }}
+                  className={`px-3 py-1.5 flex items-center justify-between text-xs cursor-pointer transition-colors ${
+                    idx === selectedSuggestionIdx
+                      ? 'bg-amber-500/20 text-amber-300 font-semibold border-l-2 border-amber-400'
+                      : 'text-zinc-300 hover:bg-[#21262d]'
+                  }`}
+                >
+                  <div className="flex items-center space-x-2 truncate">
+                    <span
+                      className={`text-[9px] font-bold px-1 py-0.5 rounded uppercase font-mono ${
+                        item.kind === 'keyword'
+                          ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                          : item.kind === 'snippet'
+                          ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                          : item.kind === 'method'
+                          ? 'bg-sky-500/20 text-sky-400 border border-sky-500/30'
+                          : item.kind === 'type'
+                          ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                          : 'bg-zinc-700/50 text-zinc-400'
+                      }`}
+                    >
+                      {item.kind.slice(0, 3)}
+                    </span>
+                    <span className="truncate">{item.label}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* 2. Code Canvas: Pre (Colored Syntax Layer) + Textarea (Input Layer) */}
-      <div className="relative flex-1 overflow-hidden">
-        {/* Preformatted Syntax Highlighting Overlay (Visual Layer) */}
-        <pre
-          ref={preRef}
-          aria-hidden="true"
-          className="absolute inset-0 m-0 py-3 px-4 font-mono text-xs sm:text-sm leading-[22px] whitespace-pre overflow-hidden pointer-events-none text-zinc-200 select-none z-10"
-          dangerouslySetInnerHTML={{ __html: highlightedHtml + (value.endsWith('\n') ? ' ' : '') }}
-        />
+      {/* 2. Professional IDE Status Bar & Action Toolbar */}
+      <div className="px-3 py-1.5 bg-[#090d13] border-t border-[#21262d] flex flex-wrap items-center justify-between gap-2 text-[11px] text-zinc-400 font-mono select-none">
+        {/* Left: Position & Matching Bracket info */}
+        <div className="flex items-center space-x-3">
+          <span className="text-zinc-400 font-medium">
+            Ln <strong className="text-zinc-200">{cursorCoords.line}</strong>, Col <strong className="text-zinc-200">{cursorCoords.col}</strong>
+          </span>
 
-        {/* User Interaction Layer: Transparent Textarea with Visible Caret */}
-        <textarea
-          ref={textareaRef}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onKeyDown={handleKeyDown}
-          onScroll={handleScroll}
-          placeholder={placeholder}
-          spellCheck={false}
-          autoComplete="off"
-          autoCorrect="off"
-          autoCapitalize="off"
-          rows={minRows}
-          className="relative z-20 w-full h-full m-0 py-3 px-4 font-mono text-xs sm:text-sm leading-[22px] whitespace-pre bg-transparent text-transparent caret-theme-accent placeholder:text-zinc-600 focus:outline-none resize-none overflow-auto"
-          style={{ minHeight: `${minRows * 22 + 24}px` }}
-        />
+          <span className="text-zinc-600">|</span>
+
+          {/* Bracket Matching Indicator */}
+          {bracketInfo ? (
+            bracketInfo.found ? (
+              <span className="inline-flex items-center space-x-1 text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/20 text-[10px] font-semibold">
+                <span>Bracket</span>
+                <span>{bracketInfo.targetChar} (Ln {bracketInfo.targetLine}) ↔ {bracketInfo.matchChar} (Ln {bracketInfo.matchLine})</span>
+              </span>
+            ) : (
+              <span className="inline-flex items-center space-x-1 text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/30 text-[10px] font-bold animate-pulse">
+                <span>Unmatched: {bracketInfo.targetChar}</span>
+              </span>
+            )
+          ) : (
+            <span className="text-zinc-500 hidden sm:inline text-[10px]">
+              Brackets matched
+            </span>
+          )}
+        </div>
+
+        {/* Right: Format Document & Keyboard shortcut helpers */}
+        <div className="flex items-center space-x-2 text-[10px]">
+          {/* Format Code button */}
+          <button
+            type="button"
+            onClick={handleFormatDocument}
+            className="flex items-center space-x-1 px-2.5 py-1 rounded bg-[#161b22] hover:bg-[#21262d] text-zinc-300 hover:text-white border border-[#30363d] transition-all active:scale-95 shadow-sm"
+            title="Auto-format and fix code indentation (Shift + Alt + F)"
+          >
+            {formatNotice ? (
+              <>
+                <Check className="w-3 h-3 text-emerald-400" />
+                <span className="text-emerald-400 font-bold">Indented ✓</span>
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-3 h-3 text-amber-400" />
+                <span>Format Indentation</span>
+              </>
+            )}
+          </button>
+
+          <span className="hidden md:inline text-zinc-500">
+            <span className="text-zinc-400 font-semibold">Alt+↑/↓</span> Move Line • <span className="text-zinc-400 font-semibold">Tab</span> Indent
+          </span>
+        </div>
       </div>
     </div>
   );
