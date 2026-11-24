@@ -1,4 +1,4 @@
-import React, { useRef, useMemo, useState, useEffect, useCallback } from 'react';
+import React, { useRef, useMemo, useState, useEffect, useLayoutEffect, useCallback } from 'react';
 import { Sparkles, Code2, Check, ArrowUpDown, HelpCircle } from 'lucide-react';
 
 // Tokenizer regex for JavaScript and Java syntax coloring
@@ -103,11 +103,9 @@ function findMatchingBracket(text, cursorIndex) {
   const targetChar = text[targetIdx];
   const matchChar = BRACKET_PAIRS[targetChar];
 
-  // Helper to get line number (1-based) for an index
   const getLine = (idx) => text.slice(0, idx).split('\n').length;
 
   if (OPENING_BRACKETS.has(targetChar)) {
-    // Scan forward
     let depth = 0;
     for (let i = targetIdx; i < text.length; i++) {
       if (text[i] === targetChar) depth++;
@@ -136,7 +134,6 @@ function findMatchingBracket(text, cursorIndex) {
       found: false
     };
   } else if (CLOSING_BRACKETS.has(targetChar)) {
-    // Scan backward
     let depth = 0;
     for (let i = targetIdx; i >= 0; i--) {
       if (text[i] === targetChar) depth++;
@@ -184,7 +181,6 @@ export function formatCode(text) {
       continue;
     }
 
-    // Count leading closing brackets on this line to dedent current line
     let leadingClosers = 0;
     const match = rawLine.match(/^([}\])]+)/);
     if (match) {
@@ -194,7 +190,6 @@ export function formatCode(text) {
     const currentIndent = Math.max(0, indentLevel - leadingClosers);
     formatted.push(indentStr.repeat(currentIndent) + rawLine);
 
-    // Calculate delta for following lines
     let opens = 0;
     let closes = 0;
     let inString = false;
@@ -205,7 +200,7 @@ export function formatCode(text) {
       const prev = c > 0 ? rawLine[c - 1] : '';
 
       if (!inString && ch === '/' && rawLine[c + 1] === '/') {
-        break; // Ignore comments
+        break;
       }
 
       if (inString) {
@@ -337,6 +332,9 @@ export default function CodeEditor({
   const textareaRef = useRef(null);
   const preRef = useRef(null);
   const gutterRef = useRef(null);
+  const selectedSuggestionRef = useRef(null);
+  const pendingSelectionRef = useRef(null);
+  const lastPrefixRef = useRef('');
 
   // Caret position & cursor coordinates for bracket matching & auto-complete
   const [cursorPos, setCursorPos] = useState(0);
@@ -359,8 +357,32 @@ export default function CodeEditor({
     return findMatchingBracket(value, cursorPos);
   }, [value, cursorPos]);
 
+  // Ensure cursor is placed exactly where intended after React re-renders value
+  useLayoutEffect(() => {
+    if (pendingSelectionRef.current !== null && textareaRef.current) {
+      const sel = pendingSelectionRef.current;
+      if (typeof sel === 'number') {
+        textareaRef.current.selectionStart = sel;
+        textareaRef.current.selectionEnd = sel;
+        setCursorPos(sel);
+      } else if (typeof sel === 'object' && sel !== null) {
+        textareaRef.current.selectionStart = sel.start;
+        textareaRef.current.selectionEnd = sel.end;
+        setCursorPos(sel.start);
+      }
+      pendingSelectionRef.current = null;
+    }
+  }, [value]);
+
+  // Scroll active suggestion into view as user navigates with up/down arrows
+  useEffect(() => {
+    if (selectedSuggestionRef.current) {
+      selectedSuggestionRef.current.scrollIntoView({ block: 'nearest' });
+    }
+  }, [selectedSuggestionIdx]);
+
   // Update cursor position and line/col indicator
-  const updateCursorInfo = useCallback(() => {
+  const updateCursorInfo = useCallback((forceResetIndex = false) => {
     const textarea = textareaRef.current;
     if (!textarea) return;
     const pos = textarea.selectionStart;
@@ -389,7 +411,13 @@ export default function CodeEditor({
 
       if (filtered.length > 0) {
         setSuggestions(filtered);
-        setSelectedSuggestionIdx(0);
+
+        // ONLY reset index to 0 if the prefix changed or explicitly requested!
+        // This prevents keyUp from resetting the index when user presses ArrowDown!
+        if (prefix !== lastPrefixRef.current || forceResetIndex) {
+          lastPrefixRef.current = prefix;
+          setSelectedSuggestionIdx(0);
+        }
 
         // Position suggestions box near cursor
         const lineHeight = 22;
@@ -400,10 +428,12 @@ export default function CodeEditor({
       } else {
         setSuggestions([]);
         setSuggestionMenuPos(null);
+        lastPrefixRef.current = '';
       }
     } else {
       setSuggestions([]);
       setSuggestionMenuPos(null);
+      lastPrefixRef.current = '';
     }
   }, [value, lineCount]);
 
@@ -427,7 +457,7 @@ export default function CodeEditor({
     }
   };
 
-  // Insert a selected auto-suggestion
+  // Insert a selected auto-suggestion with robust cursor-inside-brackets placement
   const applySuggestion = (item) => {
     const textarea = textareaRef.current;
     if (!textarea || !suggestionMenuPos) return;
@@ -437,29 +467,66 @@ export default function CodeEditor({
     const prefixStart = start - prefix.length;
 
     const newVal = value.substring(0, prefixStart) + item.insert + value.substring(start);
-    onChange(newVal);
 
+    // Calculate exact target cursor position inside parentheses or quotes
+    let targetCursor = prefixStart + item.insert.length;
+    if (item.insert.endsWith('()')) {
+      targetCursor = prefixStart + item.insert.length - 1; // exactly inside ()
+    } else if (item.insert.endsWith('();')) {
+      targetCursor = prefixStart + item.insert.length - 2; // exactly inside ()
+    } else if (item.insert.endsWith('("")')) {
+      targetCursor = prefixStart + item.insert.length - 2; // inside ""
+    } else if (item.insert.includes('() {\n  \n}')) {
+      const openParenIdx = item.insert.indexOf('(');
+      if (openParenIdx !== -1) {
+        targetCursor = prefixStart + openParenIdx + 1;
+      }
+    }
+
+    // Crucial: Set pendingSelectionRef so useLayoutEffect sets it the moment React commits DOM!
+    pendingSelectionRef.current = targetCursor;
+
+    // Immediately update DOM elements directly
+    textarea.value = newVal;
+    textarea.selectionStart = targetCursor;
+    textarea.selectionEnd = targetCursor;
+    setCursorPos(targetCursor);
+
+    // Close suggestions
     setSuggestions([]);
     setSuggestionMenuPos(null);
+    lastPrefixRef.current = '';
+
+    // Notify parent
+    onChange(newVal);
 
     requestAnimationFrame(() => {
-      // Place cursor inside parentheses if method or snippet, or at end
-      let targetCursor = prefixStart + item.insert.length;
-      if (item.insert.endsWith('()') || item.insert.endsWith('();')) {
-        targetCursor = item.insert.endsWith('();') ? prefixStart + item.insert.length - 2 : prefixStart + item.insert.length - 1;
+      if (textareaRef.current) {
+        textareaRef.current.selectionStart = targetCursor;
+        textareaRef.current.selectionEnd = targetCursor;
+        textareaRef.current.focus();
       }
-      textarea.selectionStart = textarea.selectionEnd = targetCursor;
-      textarea.focus();
-      updateCursorInfo();
     });
   };
 
+  // KeyUp handler: do NOT recalculate suggestions or reset index on arrow keys or modifiers
+  const handleKeyUp = (e) => {
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Tab', 'Enter', 'Escape', 'Shift', 'Alt', 'Control', 'Meta'].includes(e.key)) {
+      const textarea = textareaRef.current;
+      if (textarea) {
+        setCursorPos(textarea.selectionStart);
+      }
+      return;
+    }
+    updateCursorInfo(false);
+  };
+
   // Keyboard enhancements:
-  // 1. Alt + Up / Alt + Down (Move sentence/line up and down)
-  // 2. Tab / Shift+Tab (Indent / Unindent line or selection)
-  // 3. Auto-closing pairs & Backspace pair deletion
-  // 4. Smart Enter key (Auto-indent + block expansion)
-  // 5. Autocomplete navigation (ArrowUp, ArrowDown, Tab, Enter, Escape)
+  // 1. Suggestion navigation (ArrowDown, ArrowUp, Tab, Enter, Escape)
+  // 2. Alt + Up / Alt + Down (Move sentence/line up and down)
+  // 3. Tab / Shift+Tab (Indent / Unindent line or selection)
+  // 4. Auto-closing pairs & Backspace pair deletion
+  // 5. Smart Enter key (Auto-indent + block expansion)
   // 6. Shift + Alt + F (Format Code shortcut)
   const handleKeyDown = (e) => {
     const textarea = textareaRef.current;
@@ -468,55 +535,56 @@ export default function CodeEditor({
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
 
-    // Handle suggestion menu keyboard navigation first
+    // 1. Handle suggestion menu keyboard navigation first
     if (suggestions.length > 0 && suggestionMenuPos) {
       if (e.key === 'ArrowDown') {
         e.preventDefault();
+        e.stopPropagation();
         setSelectedSuggestionIdx((prev) => (prev + 1) % suggestions.length);
         return;
       }
       if (e.key === 'ArrowUp') {
         e.preventDefault();
+        e.stopPropagation();
         setSelectedSuggestionIdx((prev) => (prev - 1 + suggestions.length) % suggestions.length);
         return;
       }
       if (e.key === 'Tab' || e.key === 'Enter') {
         e.preventDefault();
+        e.stopPropagation();
         applySuggestion(suggestions[selectedSuggestionIdx]);
         return;
       }
       if (e.key === 'Escape') {
         e.preventDefault();
+        e.stopPropagation();
         setSuggestions([]);
         setSuggestionMenuPos(null);
+        lastPrefixRef.current = '';
         return;
       }
     }
 
-    // 0. Shift + Alt + F -> Format document
+    // 2. Shift + Alt + F -> Format document
     if (e.shiftKey && e.altKey && e.key.toLowerCase() === 'f') {
       e.preventDefault();
       handleFormatDocument();
       return;
     }
 
-    // 1. Alt + ArrowUp / Alt + ArrowDown -> Move line(s) up / down
+    // 3. Alt + ArrowUp / Alt + ArrowDown -> Move line(s) up / down
     if (e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
       e.preventDefault();
       const direction = e.key === 'ArrowUp' ? 'up' : 'down';
       const result = moveLines(value, start, end, direction);
       if (result.text !== value) {
+        pendingSelectionRef.current = { start: result.newStart, end: result.newEnd };
         onChange(result.text);
-        requestAnimationFrame(() => {
-          textarea.selectionStart = result.newStart;
-          textarea.selectionEnd = result.newEnd;
-          updateCursorInfo();
-        });
       }
       return;
     }
 
-    // 2. Tab key -> Indent 2 spaces (Shift+Tab -> Unindent 2 spaces)
+    // 4. Tab key -> Indent 2 spaces (Shift+Tab -> Unindent 2 spaces)
     if (e.key === 'Tab') {
       e.preventDefault();
       if (start !== end) {
@@ -552,38 +620,29 @@ export default function CodeEditor({
 
         const newBlock = modifiedLines.join('\n');
         const newVal = value.substring(0, firstLineStart) + newBlock + value.substring(actualEnd);
+        pendingSelectionRef.current = { start: firstLineStart, end: actualEnd + delta };
         onChange(newVal);
-
-        requestAnimationFrame(() => {
-          textarea.selectionStart = firstLineStart;
-          textarea.selectionEnd = actualEnd + delta;
-          updateCursorInfo();
-        });
       } else {
         // Single cursor indentation
         if (e.shiftKey) {
           const lineStart = value.lastIndexOf('\n', start - 1) + 1;
           if (value.slice(lineStart, lineStart + 2) === '  ') {
             const newVal = value.slice(0, lineStart) + value.slice(lineStart + 2);
+            const targetPos = Math.max(lineStart, start - 2);
+            pendingSelectionRef.current = targetPos;
             onChange(newVal);
-            requestAnimationFrame(() => {
-              textarea.selectionStart = textarea.selectionEnd = Math.max(lineStart, start - 2);
-              updateCursorInfo();
-            });
           }
         } else {
           const newVal = value.substring(0, start) + '  ' + value.substring(end);
+          const targetPos = start + 2;
+          pendingSelectionRef.current = targetPos;
           onChange(newVal);
-          requestAnimationFrame(() => {
-            textarea.selectionStart = textarea.selectionEnd = start + 2;
-            updateCursorInfo();
-          });
         }
       }
       return;
     }
 
-    // 3. Auto-closing pairs: { }, ( ), [ ], " ", ' ', ` `
+    // 5. Auto-closing pairs: { }, ( ), [ ], " ", ' ', ` `
     const pairs = {
       '{': '}',
       '(': ')',
@@ -597,10 +656,8 @@ export default function CodeEditor({
     const closingChars = [')', ']', '}', '"', "'", '`'];
     if (closingChars.includes(e.key) && start === end && value[start] === e.key) {
       e.preventDefault();
-      requestAnimationFrame(() => {
-        textarea.selectionStart = textarea.selectionEnd = start + 1;
-        updateCursorInfo();
-      });
+      textarea.selectionStart = textarea.selectionEnd = start + 1;
+      setCursorPos(start + 1);
       return;
     }
 
@@ -611,31 +668,27 @@ export default function CodeEditor({
       const closeChar = pairs[openChar];
       const selected = value.substring(start, end);
       const newVal = value.substring(0, start) + openChar + selected + closeChar + value.substring(end);
+      const targetPos = start + 1 + selected.length;
+      pendingSelectionRef.current = targetPos;
       onChange(newVal);
-      requestAnimationFrame(() => {
-        textarea.selectionStart = textarea.selectionEnd = start + 1 + selected.length;
-        updateCursorInfo();
-      });
       return;
     }
 
-    // 4. Backspace pair deletion: {|} -> backspace -> removes both
+    // 6. Backspace pair deletion: {|} -> backspace -> removes both
     if (e.key === 'Backspace' && start === end && start > 0) {
       const prevChar = value[start - 1];
       const nextChar = value[start];
       if (pairs[prevChar] && pairs[prevChar] === nextChar) {
         e.preventDefault();
         const newVal = value.substring(0, start - 1) + value.substring(start + 1);
+        const targetPos = start - 1;
+        pendingSelectionRef.current = targetPos;
         onChange(newVal);
-        requestAnimationFrame(() => {
-          textarea.selectionStart = textarea.selectionEnd = start - 1;
-          updateCursorInfo();
-        });
         return;
       }
     }
 
-    // 5. Smart Enter key with block indentation & bracket expansion
+    // 7. Smart Enter key with block indentation & bracket expansion
     if (e.key === 'Enter') {
       e.preventDefault();
       const lineStart = value.lastIndexOf('\n', start - 1) + 1;
@@ -654,28 +707,22 @@ export default function CodeEditor({
         const extraIndent = '  ';
         const insert = '\n' + currentIndent + extraIndent + '\n' + currentIndent;
         const newVal = value.substring(0, start) + insert + value.substring(end);
+        const targetPos = start + 1 + currentIndent.length + extraIndent.length;
+        pendingSelectionRef.current = targetPos;
         onChange(newVal);
-        requestAnimationFrame(() => {
-          textarea.selectionStart = textarea.selectionEnd = start + 1 + currentIndent.length + extraIndent.length;
-          updateCursorInfo();
-        });
       } else if (isAfterOpenBrace) {
         const extraIndent = '  ';
         const insert = '\n' + currentIndent + extraIndent;
         const newVal = value.substring(0, start) + insert + value.substring(end);
+        const targetPos = start + insert.length;
+        pendingSelectionRef.current = targetPos;
         onChange(newVal);
-        requestAnimationFrame(() => {
-          textarea.selectionStart = textarea.selectionEnd = start + insert.length;
-          updateCursorInfo();
-        });
       } else {
         const insert = '\n' + currentIndent;
         const newVal = value.substring(0, start) + insert + value.substring(end);
+        const targetPos = start + insert.length;
+        pendingSelectionRef.current = targetPos;
         onChange(newVal);
-        requestAnimationFrame(() => {
-          textarea.selectionStart = textarea.selectionEnd = start + insert.length;
-          updateCursorInfo();
-        });
       }
     }
   };
@@ -724,10 +771,10 @@ export default function CodeEditor({
             value={value}
             onChange={(e) => {
               onChange(e.target.value);
-              requestAnimationFrame(updateCursorInfo);
+              requestAnimationFrame(() => updateCursorInfo(false));
             }}
-            onClick={updateCursorInfo}
-            onKeyUp={updateCursorInfo}
+            onClick={() => updateCursorInfo(false)}
+            onKeyUp={handleKeyUp}
             onKeyDown={handleKeyDown}
             onScroll={handleScroll}
             placeholder={placeholder}
@@ -751,18 +798,20 @@ export default function CodeEditor({
             >
               <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400 border-b border-[#21262d] flex justify-between items-center bg-[#0d1117]/60">
                 <span>Suggestions</span>
-                <span className="font-normal lowercase text-[9px] text-zinc-500">Tab / Enter</span>
+                <span className="font-normal lowercase text-[9px] text-zinc-500">↑/↓ navigate • Tab/Enter pick</span>
               </div>
               {suggestions.map((item, idx) => (
                 <div
                   key={idx}
+                  ref={idx === selectedSuggestionIdx ? selectedSuggestionRef : null}
                   onMouseDown={(e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     applySuggestion(item);
                   }}
                   className={`px-3 py-1.5 flex items-center justify-between text-xs cursor-pointer transition-colors ${
                     idx === selectedSuggestionIdx
-                      ? 'bg-amber-500/20 text-amber-300 font-semibold border-l-2 border-amber-400'
+                      ? 'bg-amber-500/25 text-amber-300 font-semibold border-l-2 border-amber-400'
                       : 'text-zinc-300 hover:bg-[#21262d]'
                   }`}
                 >
