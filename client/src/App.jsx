@@ -4,6 +4,7 @@ import {
   ProgressView,
   RoadmapView,
   JavaPracticeView,
+  DSAPracticeSheetView,
   SimpleNotesModal
 } from './components';
 import { 
@@ -19,7 +20,8 @@ import {
   Share2,
   Check,
   X,
-  Coffee
+  Coffee,
+  BookOpen
 } from 'lucide-react';
 import { useLearning } from './context/LearningContext';
 import { useTheme } from './context/ThemeContext';
@@ -30,11 +32,11 @@ export default function App() {
   const [activeNav, setActiveNav] = useState(() => {
     try {
       const saved = localStorage.getItem(ACTIVE_NAV_STORAGE_KEY);
-      if (saved && ['dashboard', 'progress', 'roadmap', 'java-practice'].includes(saved)) {
+      if (saved && ['dashboard', 'java-lectures', 'java-practice', 'dsa-practice', 'progress', 'progress-tracking', 'roadmap'].includes(saved)) {
         return saved;
       }
     } catch (e) {}
-    return 'dashboard'; // 'dashboard', 'progress', 'roadmap', 'java-practice'
+    return 'java-lectures'; // 'java-lectures', 'java-practice', 'dsa-practice', 'progress-tracking'
   });
 
   useEffect(() => {
@@ -65,7 +67,7 @@ export default function App() {
   const handleOpenNotes = (dayNumber, task) => {
     if (dayNumber) setActiveDayNumber(dayNumber);
     if (task?.id) setOpenAccordionTaskId(task.id);
-    setActiveNav('dashboard');
+    setActiveNav('java-lectures');
   };
 
   // Close theme dropdown when clicking outside
@@ -156,42 +158,20 @@ export default function App() {
 
           {/* Desktop Center Navigation Tabs (Hidden on mobile, uses bottom dock instead) */}
           <nav className="hidden md:flex items-center space-x-1 bg-theme-card border border-theme-border p-1 rounded-2xl text-xs sm:text-sm shadow-sm flex-shrink-0">
+            {/* 1. Java Lectures & Notes */}
             <button
-              onClick={() => setActiveNav('dashboard')}
+              onClick={() => setActiveNav('java-lectures')}
               className={`flex items-center space-x-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl font-bold transition-all whitespace-nowrap ${
-                activeNav === 'dashboard'
+                (activeNav === 'java-lectures' || activeNav === 'dashboard')
                   ? 'bg-theme-accent text-theme-accentBtnText shadow-theme-glow'
                   : 'text-theme-muted hover:text-theme-text hover:bg-theme-cardSub'
               }`}
             >
-              <Target className="w-4 h-4" />
-              <span>Dashboard</span>
+              <BookOpen className="w-4 h-4" />
+              <span>Java Lectures & Notes</span>
             </button>
 
-            <button
-              onClick={() => setActiveNav('progress')}
-              className={`flex items-center space-x-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl font-bold transition-all whitespace-nowrap ${
-                activeNav === 'progress'
-                  ? 'bg-theme-accent text-theme-accentBtnText shadow-theme-glow'
-                  : 'text-theme-muted hover:text-theme-text hover:bg-theme-cardSub'
-              }`}
-            >
-              <TrendingUp className="w-4 h-4" />
-              <span>Progress</span>
-            </button>
-
-            <button
-              onClick={() => setActiveNav('roadmap')}
-              className={`flex items-center space-x-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl font-bold transition-all whitespace-nowrap ${
-                activeNav === 'roadmap'
-                  ? 'bg-theme-accent text-theme-accentBtnText shadow-theme-glow'
-                  : 'text-theme-muted hover:text-theme-text hover:bg-theme-cardSub'
-              }`}
-            >
-              <Map className="w-4 h-4" />
-              <span>Roadmap</span>
-            </button>
-
+            {/* 2. Java Practice */}
             <button
               onClick={() => setActiveNav('java-practice')}
               className={`flex items-center space-x-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl font-bold transition-all whitespace-nowrap ${
@@ -202,6 +182,32 @@ export default function App() {
             >
               <Coffee className="w-4 h-4 text-amber-400" />
               <span>Java Practice</span>
+            </button>
+
+            {/* 3. DSA Practice (RisingBrain Pattern-Wise Sheet) */}
+            <button
+              onClick={() => setActiveNav('dsa-practice')}
+              className={`flex items-center space-x-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl font-bold transition-all whitespace-nowrap ${
+                activeNav === 'dsa-practice'
+                  ? 'bg-cyan-500 text-black shadow-theme-glow'
+                  : 'text-theme-muted hover:text-cyan-400 hover:bg-theme-cardSub'
+              }`}
+            >
+              <Brain className="w-4 h-4 text-cyan-400" />
+              <span>DSA Practice Sheet</span>
+            </button>
+
+            {/* 4. Progress & Tracking Records */}
+            <button
+              onClick={() => setActiveNav('progress-tracking')}
+              className={`flex items-center space-x-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl font-bold transition-all whitespace-nowrap ${
+                (activeNav === 'progress-tracking' || activeNav === 'progress' || activeNav === 'roadmap')
+                  ? 'bg-theme-accent text-theme-accentBtnText shadow-theme-glow'
+                  : 'text-theme-muted hover:text-theme-text hover:bg-theme-cardSub'
+              }`}
+            >
+              <TrendingUp className="w-4 h-4" />
+              <span>Progress & Records</span>
             </button>
           </nav>
 
@@ -375,23 +381,24 @@ export default function App() {
 
       {/* Main Content Area - pb-24 on mobile ensures bottom nav dock never overlaps content */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-8 pb-24 md:pb-8">
-        {activeNav === 'dashboard' && (
+        {(activeNav === 'java-lectures' || activeNav === 'dashboard') && (
           <DashboardView 
             openAccordionTaskId={openAccordionTaskId} 
             onClearOpenAccordionTaskId={() => setOpenAccordionTaskId(null)} 
+            onNavigate={(tab) => setActiveNav(tab)}
           />
-        )}
-
-        {activeNav === 'progress' && (
-          <ProgressView />
-        )}
-
-        {activeNav === 'roadmap' && (
-          <RoadmapView onOpenNotes={handleOpenNotes} />
         )}
 
         {activeNav === 'java-practice' && (
           <JavaPracticeView />
+        )}
+
+        {activeNav === 'dsa-practice' && (
+          <DSAPracticeSheetView />
+        )}
+
+        {(activeNav === 'progress-tracking' || activeNav === 'progress' || activeNav === 'roadmap') && (
+          <ProgressView onOpenNotes={handleOpenNotes} />
         )}
       </main>
 
@@ -413,63 +420,31 @@ export default function App() {
         style={{ backgroundColor: activeTheme.vars['--bg-header'] }}
       >
         <div className="flex items-center justify-between max-w-md mx-auto">
+          {/* 1. Lectures */}
           <button
             onClick={() => {
-              setActiveNav('dashboard');
+              setActiveNav('java-lectures');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl transition-all ${
-              activeNav === 'dashboard'
+            className={`flex flex-col items-center justify-center py-1 px-2 rounded-2xl transition-all ${
+              (activeNav === 'java-lectures' || activeNav === 'dashboard')
                 ? 'text-theme-accent font-bold scale-105'
                 : 'text-theme-muted hover:text-theme-text'
             }`}
           >
-            <div className={`p-1 rounded-xl ${activeNav === 'dashboard' ? 'bg-theme-accentSub text-theme-accent' : ''}`}>
-              <Target className="w-5 h-5" />
+            <div className={`p-1 rounded-xl ${(activeNav === 'java-lectures' || activeNav === 'dashboard') ? 'bg-theme-accentSub text-theme-accent' : ''}`}>
+              <BookOpen className="w-5 h-5" />
             </div>
-            <span className="text-[10px] mt-0.5 tracking-tight font-medium">Dashboard</span>
+            <span className="text-[10px] mt-0.5 tracking-tight font-medium">Lectures</span>
           </button>
 
-          <button
-            onClick={() => {
-              setActiveNav('progress');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl transition-all ${
-              activeNav === 'progress'
-                ? 'text-theme-accent font-bold scale-105'
-                : 'text-theme-muted hover:text-theme-text'
-            }`}
-          >
-            <div className={`p-1 rounded-xl ${activeNav === 'progress' ? 'bg-theme-accentSub text-theme-accent' : ''}`}>
-              <TrendingUp className="w-5 h-5" />
-            </div>
-            <span className="text-[10px] mt-0.5 tracking-tight font-medium">Progress</span>
-          </button>
-
-          <button
-            onClick={() => {
-              setActiveNav('roadmap');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl transition-all ${
-              activeNav === 'roadmap'
-                ? 'text-theme-accent font-bold scale-105'
-                : 'text-theme-muted hover:text-theme-text'
-            }`}
-          >
-            <div className={`p-1 rounded-xl ${activeNav === 'roadmap' ? 'bg-theme-accentSub text-theme-accent' : ''}`}>
-              <Map className="w-5 h-5" />
-            </div>
-            <span className="text-[10px] mt-0.5 tracking-tight font-medium">Roadmap</span>
-          </button>
-
+          {/* 2. Java Practice */}
           <button
             onClick={() => {
               setActiveNav('java-practice');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl transition-all ${
+            className={`flex flex-col items-center justify-center py-1 px-2 rounded-2xl transition-all ${
               activeNav === 'java-practice'
                 ? 'text-theme-accent font-bold scale-105'
                 : 'text-theme-muted hover:text-theme-text'
@@ -478,7 +453,43 @@ export default function App() {
             <div className={`p-1 rounded-xl ${activeNav === 'java-practice' ? 'bg-theme-accentSub text-theme-accent' : ''}`}>
               <Coffee className="w-5 h-5 text-amber-400" />
             </div>
-            <span className="text-[10px] mt-0.5 tracking-tight font-medium">Java</span>
+            <span className="text-[10px] mt-0.5 tracking-tight font-medium">Java Lab</span>
+          </button>
+
+          {/* 3. DSA Sheet */}
+          <button
+            onClick={() => {
+              setActiveNav('dsa-practice');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className={`flex flex-col items-center justify-center py-1 px-2 rounded-2xl transition-all ${
+              activeNav === 'dsa-practice'
+                ? 'text-cyan-400 font-bold scale-105'
+                : 'text-theme-muted hover:text-cyan-400'
+            }`}
+          >
+            <div className={`p-1 rounded-xl ${activeNav === 'dsa-practice' ? 'bg-cyan-500/20 text-cyan-400' : ''}`}>
+              <Brain className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] mt-0.5 tracking-tight font-medium">DSA Sheet</span>
+          </button>
+
+          {/* 4. Progress & Records */}
+          <button
+            onClick={() => {
+              setActiveNav('progress-tracking');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className={`flex flex-col items-center justify-center py-1 px-2 rounded-2xl transition-all ${
+              (activeNav === 'progress-tracking' || activeNav === 'progress' || activeNav === 'roadmap')
+                ? 'text-theme-accent font-bold scale-105'
+                : 'text-theme-muted hover:text-theme-text'
+            }`}
+          >
+            <div className={`p-1 rounded-xl ${(activeNav === 'progress-tracking' || activeNav === 'progress' || activeNav === 'roadmap') ? 'bg-theme-accentSub text-theme-accent' : ''}`}>
+              <TrendingUp className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] mt-0.5 tracking-tight font-medium">Records</span>
           </button>
         </div>
       </nav>

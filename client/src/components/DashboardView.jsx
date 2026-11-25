@@ -22,7 +22,7 @@ import DayNavigatorTimeline from './DayNavigatorTimeline';
 import DSAPracticeCard from './DSAPracticeCard';
 import LectureNotesAccordion from './LectureNotesAccordion';
 
-export default function DashboardView({ openAccordionTaskId, onClearOpenAccordionTaskId }) {
+export default function DashboardView({ openAccordionTaskId, onClearOpenAccordionTaskId, onNavigate }) {
   const { 
     activeDay, 
     activeDayNumber, 
@@ -295,8 +295,86 @@ export default function DashboardView({ openAccordionTaskId, onClearOpenAccordio
           </div>
         </div>
 
-        {/* Target 2: Daily LeetCode-Style DSA Problem in JavaScript */}
-        <DSAPracticeCard />
+        {/* Target 2: Daily RisingBrain Pattern-Wise DSA Problem */}
+        {activeDay.tasks.filter(t => t.type === 'dsa').map(dsaTask => (
+          <div key={dsaTask.id} className="space-y-3">
+            <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-cyan-400">
+              <div className="flex items-center space-x-2">
+                <Brain className="w-4 h-4 text-cyan-400" />
+                <span>Target 2: Daily RisingBrain DSA Challenge</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => onNavigate && onNavigate('dsa-practice')}
+                className="text-cyan-400 hover:text-cyan-300 font-semibold normal-case flex items-center space-x-1 transition-colors"
+              >
+                <span>Open Full DSA Sheet</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            <div className="p-4 sm:p-5 rounded-2xl border bg-theme-card border-theme-border hover:border-theme-borderSub transition-all shadow-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div
+                  className="flex items-start space-x-3.5 flex-1 cursor-pointer"
+                  onClick={() => toggleTask(activeDay.dayNumber, dsaTask.id)}
+                >
+                  <button type="button" className="mt-0.5 flex-shrink-0 transition-transform active:scale-95">
+                    {dsaTask.completed ? (
+                      <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                    ) : (
+                      <Circle className="w-5 h-5 text-theme-muted hover:text-cyan-400" />
+                    )}
+                  </button>
+
+                  <div className="space-y-1.5 flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-black/40 text-theme-muted border border-theme-border">
+                        Day {activeDay.dayNumber}
+                      </span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-400 border border-cyan-500/30">
+                        {dsaTask.pattern || 'Core Pattern'}
+                      </span>
+                      <span
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                          dsaTask.difficulty === 'Easy'
+                            ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                            : dsaTask.difficulty === 'Medium'
+                            ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
+                            : 'bg-rose-500/15 text-rose-400 border border-rose-500/30'
+                        }`}
+                      >
+                        {dsaTask.difficulty || 'Medium'}
+                      </span>
+                    </div>
+
+                    <h4 className={`text-base font-semibold leading-snug ${
+                      dsaTask.completed ? 'line-through text-theme-muted' : 'text-theme-text'
+                    }`}>
+                      {dsaTask.title}
+                    </h4>
+
+                    <p className="text-xs text-theme-muted line-clamp-2">
+                      {dsaTask.desc || 'Pattern-based problem curated for interview mastery.'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-2 pl-8 sm:pl-0 border-t sm:border-t-0 border-theme-border pt-3 sm:pt-0">
+                  <button
+                    type="button"
+                    onClick={() => onNavigate && onNavigate('dsa-practice')}
+                    className="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs flex items-center space-x-1.5 shadow-sm transition-all"
+                  >
+                    <Code2 className="w-3.5 h-3.5" />
+                    <span>Solve in DSA Sheet</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* 4. Bottom Grid: Tomorrow's Goal Sneak Peek + Study Consistency Tips */}
