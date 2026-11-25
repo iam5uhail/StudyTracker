@@ -17,6 +17,7 @@ import { useLearning } from '../context/LearningContext';
 import ProgressOverviewBars from './ProgressOverviewBars';
 import RisingBrainProgressCard from './RisingBrainProgressCard';
 import RoadmapView from './RoadmapView';
+import DayWiseProgressBarGraph from './DayWiseProgressBarGraph';
 
 export default function ProgressView({ onOpenNotes }) {
   const { progressStats, days } = useLearning();
@@ -155,7 +156,10 @@ export default function ProgressView({ onOpenNotes }) {
             </div>
           </div>
 
-          {/* 3. Detailed Progress Bars + Rising Brain Analytics */}
+          {/* 3. Day-Wise Activity & Work Accomplished Bar Graph */}
+          <DayWiseProgressBarGraph />
+
+          {/* 4. Detailed Progress Bars + Rising Brain Analytics */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
               <ProgressOverviewBars />

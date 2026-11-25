@@ -314,11 +314,11 @@ export default function JavaPracticeView() {
     return groups.filter(g => g.items.length > 0 || (selectedLevelId === 'all' && !searchQuery && selectedStatus === 'all'));
   }, [filteredQuestions, allQuestions, completedIds, selectedLevelId, searchQuery, selectedStatus]);
 
-  // Accordion collapsed state: { [levelId]: boolean }
-  const [collapsedLevels, setCollapsedLevels] = useState({});
+  // Accordion open state: { [levelId]: boolean } - ALL DEFAULT CLOSED!
+  const [openLevels, setOpenLevels] = useState({});
 
   const toggleLevelAccordion = (lvlId) => {
-    setCollapsedLevels(prev => ({
+    setOpenLevels(prev => ({
       ...prev,
       [lvlId]: !prev[lvlId]
     }));
@@ -593,7 +593,7 @@ export default function JavaPracticeView() {
             </div>
           ) : (
             groupedByLevel.map(group => {
-              const isCollapsed = Boolean(collapsedLevels[group.id]);
+              const isOpen = Boolean(openLevels[group.id]);
               const groupPct = group.allCount > 0 ? Math.round((group.doneCount / group.allCount) * 100) : 0;
 
               return (
@@ -641,14 +641,14 @@ export default function JavaPracticeView() {
 
                       <ChevronDown
                         className={`w-4 h-4 text-theme-muted transition-transform duration-300 ${
-                          isCollapsed ? '-rotate-90' : ''
+                          isOpen ? '' : '-rotate-90'
                         }`}
                       />
                     </div>
                   </div>
 
-                  {/* Level Problems List */}
-                  {!isCollapsed && (
+                  {/* Level Problems List (CLOSED BY DEFAULT) */}
+                  {isOpen && (
                     <div className="divide-y divide-theme-border">
                       {group.items.map(question => {
                         const isDone = completedIds.includes(question.id);

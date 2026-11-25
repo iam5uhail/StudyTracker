@@ -153,14 +153,14 @@ export default function JavaLecturesView({ openAccordionTaskId, onClearOpenAccor
   const [selectedModuleId, setSelectedModuleId] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all'); // 'all', 'pending', 'completed'
 
-  // Expanded notes state: { [taskId]: boolean }
+  // Expanded notes state: { [taskId]: boolean } - DEFAULT CLOSED
   const [expandedNotes, setExpandedNotes] = useState({});
 
-  // Accordion collapsed state for Level modules: { [moduleId]: boolean }
-  const [collapsedModules, setCollapsedModules] = useState({});
+  // Accordion open state for Level modules: { [moduleId]: boolean } - ALL DEFAULT CLOSED!
+  const [openModules, setOpenModules] = useState({});
 
   const toggleModuleAccordion = (modId) => {
-    setCollapsedModules(prev => ({
+    setOpenModules(prev => ({
       ...prev,
       [modId]: !prev[modId]
     }));
@@ -474,7 +474,7 @@ export default function JavaLecturesView({ openAccordionTaskId, onClearOpenAccor
             </div>
           ) : (
             groupedByModule.map(mod => {
-              const isCollapsed = Boolean(collapsedModules[mod.id]);
+              const isOpen = Boolean(openModules[mod.id]);
 
               return (
                 <div
@@ -525,14 +525,14 @@ export default function JavaLecturesView({ openAccordionTaskId, onClearOpenAccor
 
                       <ChevronDown
                         className={`w-4 h-4 text-theme-muted transition-transform duration-300 ${
-                          isCollapsed ? '-rotate-90' : ''
+                          isOpen ? '' : '-rotate-90'
                         }`}
                       />
                     </div>
                   </div>
 
-                  {/* Module Topics List */}
-                  {!isCollapsed && (
+                  {/* Module Topics List (CLOSED BY DEFAULT) */}
+                  {isOpen && (
                     <div className="divide-y divide-theme-border">
                       {mod.items.map(task => {
                         const isDone = Boolean(task.completed);

@@ -243,11 +243,11 @@ export default function DSAPracticeSheetView() {
     return Object.values(groups);
   }, [filteredProblems]);
 
-  // Accordion collapsed state for pattern groups
-  const [collapsedGroups, setCollapsedGroups] = useState({});
+  // Accordion open state for pattern groups - ALL DEFAULT CLOSED!
+  const [openGroups, setOpenGroups] = useState({});
 
   const toggleGroup = (patName) => {
-    setCollapsedGroups(prev => ({
+    setOpenGroups(prev => ({
       ...prev,
       [patName]: !prev[patName]
     }));
@@ -585,7 +585,7 @@ export default function DSAPracticeSheetView() {
             </div>
           ) : (
             groupedByPattern.map(group => {
-              const isCollapsed = Boolean(collapsedGroups[group.patternName]);
+              const isOpen = Boolean(openGroups[group.patternName]);
               const groupTotal = group.items.length;
               const groupSolved = group.items.filter(i => i.completed).length;
               const groupPct = groupTotal > 0 ? Math.round((groupSolved / groupTotal) * 100) : 0;
@@ -630,14 +630,14 @@ export default function DSAPracticeSheetView() {
 
                       <ChevronDown
                         className={`w-4 h-4 text-theme-muted transition-transform duration-300 ${
-                          isCollapsed ? '-rotate-90' : ''
+                          isOpen ? '' : '-rotate-90'
                         }`}
                       />
                     </div>
                   </div>
 
-                  {/* Pattern Problems List */}
-                  {!isCollapsed && (
+                  {/* Pattern Problems List (CLOSED BY DEFAULT) */}
+                  {isOpen && (
                     <div className="divide-y divide-theme-border">
                       {group.items.map(problem => {
                         const isSelected = activeProblemId === problem.id;

@@ -13,3 +13,4 @@ export { default as ProgressView } from './ProgressView';
 export { default as RoadmapView } from './RoadmapView';
 export { default as JavaPracticeView } from './JavaPracticeView';
 export { default as DSAPracticeSheetView } from './DSAPracticeSheetView';
+export { default as DayWiseProgressBarGraph } from './DayWiseProgressBarGraph';
