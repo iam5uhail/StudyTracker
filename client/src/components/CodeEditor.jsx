@@ -333,8 +333,10 @@ export default function CodeEditor({
   const preRef = useRef(null);
   const gutterRef = useRef(null);
   const selectedSuggestionRef = useRef(null);
+  const suggestionsListRef = useRef(null);
   const pendingSelectionRef = useRef(null);
   const lastPrefixRef = useRef('');
+  const selectedSuggestionIdxRef = useRef(0);
 
   // Caret position & cursor coordinates for bracket matching & auto-complete
   const [cursorPos, setCursorPos] = useState(0);
@@ -374,10 +376,21 @@ export default function CodeEditor({
     }
   }, [value]);
 
-  // Scroll active suggestion into view as user navigates with up/down arrows
+  // Scroll active suggestion into view within the dropdown container WITHOUT scrolling the parent window
   useEffect(() => {
-    if (selectedSuggestionRef.current) {
-      selectedSuggestionRef.current.scrollIntoView({ block: 'nearest' });
+    if (suggestionsListRef.current && selectedSuggestionRef.current) {
+      const container = suggestionsListRef.current;
+      const item = selectedSuggestionRef.current;
+      const itemTop = item.offsetTop;
+      const itemBottom = itemTop + item.offsetHeight;
+      const containerTop = container.scrollTop;
+      const containerBottom = containerTop + container.clientHeight;
+
+      if (itemTop < containerTop) {
+        container.scrollTop = itemTop;
+      } else if (itemBottom > containerBottom) {
+        container.scrollTop = itemBottom - container.clientHeight;
+      }
     }
   }, [selectedSuggestionIdx]);
 
@@ -388,7 +401,8 @@ export default function CodeEditor({
     const pos = textarea.selectionStart;
     setCursorPos(pos);
 
-    const textBefore = value.slice(0, pos);
+    const currentVal = textarea ? textarea.value : value;
+    const textBefore = currentVal.slice(0, pos);
     const lines = textBefore.split('\n');
     const line = lines.length;
     const col = lines[lines.length - 1].length + 1;
@@ -400,7 +414,7 @@ export default function CodeEditor({
       const prefix = prefixMatch[1];
 
       // Dynamic words from current code
-      const dynamicWords = Array.from(new Set(value.match(/\b[a-zA-Z_$][a-zA-Z0-9_$]{2,}\b/g) || []))
+      const dynamicWords = Array.from(new Set(currentVal.match(/\b[a-zA-Z_$][a-zA-Z0-9_$]{2,}\b/g) || []))
         .filter(w => !BASE_SUGGESTIONS.some(s => s.label === w))
         .map(w => ({ label: w, kind: 'variable', insert: w }));
 
@@ -413,9 +427,9 @@ export default function CodeEditor({
         setSuggestions(filtered);
 
         // ONLY reset index to 0 if the prefix changed or explicitly requested!
-        // This prevents keyUp from resetting the index when user presses ArrowDown!
         if (prefix !== lastPrefixRef.current || forceResetIndex) {
           lastPrefixRef.current = prefix;
+          selectedSuggestionIdxRef.current = 0;
           setSelectedSuggestionIdx(0);
         }
 
@@ -429,11 +443,15 @@ export default function CodeEditor({
         setSuggestions([]);
         setSuggestionMenuPos(null);
         lastPrefixRef.current = '';
+        selectedSuggestionIdxRef.current = 0;
+        setSelectedSuggestionIdx(0);
       }
     } else {
       setSuggestions([]);
       setSuggestionMenuPos(null);
       lastPrefixRef.current = '';
+      selectedSuggestionIdxRef.current = 0;
+      setSelectedSuggestionIdx(0);
     }
   }, [value, lineCount]);
 
@@ -496,6 +514,8 @@ export default function CodeEditor({
     setSuggestions([]);
     setSuggestionMenuPos(null);
     lastPrefixRef.current = '';
+    selectedSuggestionIdxRef.current = 0;
+    setSelectedSuggestionIdx(0);
 
     // Notify parent
     onChange(newVal);
@@ -509,9 +529,16 @@ export default function CodeEditor({
     });
   };
 
-  // KeyUp handler: do NOT recalculate suggestions or reset index on arrow keys or modifiers
+  // KeyUp handler: do NOT recalculate suggestions or reset index on arrow keys or navigation
   const handleKeyUp = (e) => {
-    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Tab', 'Enter', 'Escape', 'Shift', 'Alt', 'Control', 'Meta'].includes(e.key)) {
+    const ignored = [
+      'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+      'Up', 'Down', 'Left', 'Right',
+      'Tab', 'Enter', 'Escape', 'Esc',
+      'Shift', 'Alt', 'Control', 'Meta',
+      'PageUp', 'PageDown', 'Home', 'End'
+    ];
+    if (ignored.includes(e.key)) {
       const textarea = textareaRef.current;
       if (textarea) {
         setCursorPos(textarea.selectionStart);
@@ -537,30 +564,39 @@ export default function CodeEditor({
 
     // 1. Handle suggestion menu keyboard navigation first
     if (suggestions.length > 0 && suggestionMenuPos) {
-      if (e.key === 'ArrowDown') {
+      if (e.key === 'ArrowDown' || e.key === 'Down') {
         e.preventDefault();
         e.stopPropagation();
-        setSelectedSuggestionIdx((prev) => (prev + 1) % suggestions.length);
+        const nextIdx = (selectedSuggestionIdxRef.current + 1) % suggestions.length;
+        selectedSuggestionIdxRef.current = nextIdx;
+        setSelectedSuggestionIdx(nextIdx);
         return;
       }
-      if (e.key === 'ArrowUp') {
+      if (e.key === 'ArrowUp' || e.key === 'Up') {
         e.preventDefault();
         e.stopPropagation();
-        setSelectedSuggestionIdx((prev) => (prev - 1 + suggestions.length) % suggestions.length);
+        const prevIdx = (selectedSuggestionIdxRef.current - 1 + suggestions.length) % suggestions.length;
+        selectedSuggestionIdxRef.current = prevIdx;
+        setSelectedSuggestionIdx(prevIdx);
         return;
       }
       if (e.key === 'Tab' || e.key === 'Enter') {
         e.preventDefault();
         e.stopPropagation();
-        applySuggestion(suggestions[selectedSuggestionIdx]);
+        const chosen = suggestions[selectedSuggestionIdxRef.current] || suggestions[selectedSuggestionIdx] || suggestions[0];
+        if (chosen) {
+          applySuggestion(chosen);
+        }
         return;
       }
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' || e.key === 'Esc') {
         e.preventDefault();
         e.stopPropagation();
         setSuggestions([]);
         setSuggestionMenuPos(null);
         lastPrefixRef.current = '';
+        selectedSuggestionIdxRef.current = 0;
+        setSelectedSuggestionIdx(0);
         return;
       }
     }
@@ -790,6 +826,7 @@ export default function CodeEditor({
           {/* 3. Floating Auto-Suggestions / IntelliSense Dropdown */}
           {suggestions.length > 0 && suggestionMenuPos && (
             <div
+              ref={suggestionsListRef}
               className="absolute z-30 bg-[#161b22] border border-[#30363d] rounded-xl shadow-2xl overflow-hidden py-1 w-64 max-h-56 overflow-y-auto backdrop-blur-md"
               style={{
                 top: `${suggestionMenuPos.top}px`,
@@ -808,6 +845,10 @@ export default function CodeEditor({
                     e.preventDefault();
                     e.stopPropagation();
                     applySuggestion(item);
+                  }}
+                  onMouseEnter={() => {
+                    selectedSuggestionIdxRef.current = idx;
+                    setSelectedSuggestionIdx(idx);
                   }}
                   className={`px-3 py-1.5 flex items-center justify-between text-xs cursor-pointer transition-colors ${
                     idx === selectedSuggestionIdx
