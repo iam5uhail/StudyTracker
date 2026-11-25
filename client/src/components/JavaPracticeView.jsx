@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { JAVA_PRACTICE_LEVELS, JAVA_PRACTICE_QUESTIONS } from '../data/javaPracticeData';
 import CodeEditor from './CodeEditor';
+import { executeJavaProgram } from '../utils/javaRunner';
 
 const STORAGE_KEY_COMPLETED = 'study_tracker_java_completed_ids_v1';
 const STORAGE_KEY_SELECTED_ID = 'study_tracker_java_selected_id_v1';
@@ -100,6 +101,9 @@ export default function JavaPracticeView() {
     }
   });
 
+  // Custom standard input for Scanner
+  const [customStdin, setCustomStdin] = useState(() => currentQuestion?.sampleInput || '');
+
   // When selected question changes, load its saved code or starter code
   useEffect(() => {
     if (!currentQuestion) return;
@@ -109,6 +113,7 @@ export default function JavaPracticeView() {
     } catch (e) {
       setUserCode(currentQuestion.starterCode);
     }
+    setCustomStdin(currentQuestion.sampleInput || '');
     // Reset workbench tabs
     setActiveTab('description');
     setShowSolution(false);
@@ -414,10 +419,20 @@ export default function JavaPracticeView() {
     }
 
     if (errors.length === 0) {
-      setTerminalOutput({
-        success: true,
-        output: currentQuestion?.sampleOutput || 'Program executed successfully with 0 errors.'
-      });
+      const runResult = executeJavaProgram(code, customStdin);
+      if (runResult.success) {
+        setTerminalOutput({
+          success: true,
+          output: runResult.output,
+          warnings: warnings.length > 0 ? warnings : null
+        });
+      } else {
+        setTerminalOutput({
+          success: false,
+          message: 'Runtime Exception:',
+          errors: [runResult.error]
+        });
+      }
     } else {
       setTerminalOutput({
         success: false,
@@ -887,6 +902,33 @@ export default function JavaPracticeView() {
                 minRows={17}
               />
 
+              {/* Stdin Input Bar */}
+              <div className="px-4 py-2.5 bg-[#0d1117] border-t border-[#21262d] flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
+                <div className="flex items-center space-x-2 text-zinc-300 flex-1 min-w-[240px]">
+                  <span className="text-[11px] font-bold text-zinc-400 flex items-center space-x-1 flex-shrink-0">
+                    <Terminal className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Input (stdin):</span>
+                  </span>
+                  <input
+                    type="text"
+                    value={customStdin}
+                    onChange={(e) => setCustomStdin(e.target.value)}
+                    placeholder="Enter input for Scanner (e.g. 10 10 10 or 25.0)"
+                    className="flex-1 bg-[#161b22] border border-[#30363d] focus:border-emerald-500/60 rounded-lg px-2.5 py-1 text-xs text-zinc-200 placeholder:text-zinc-600 focus:outline-none transition-colors"
+                  />
+                </div>
+                {currentQuestion?.sampleInput && (
+                  <button
+                    type="button"
+                    onClick={() => setCustomStdin(currentQuestion.sampleInput)}
+                    className="text-[11px] text-zinc-500 hover:text-zinc-300 underline transition-colors"
+                    title="Reset input to sample input"
+                  >
+                    Reset to sample
+                  </button>
+                )}
+              </div>
+
               {/* Output / Verification Console Terminal */}
               {terminalOutput && (
                 <div className="border-t border-[#21262d] bg-[#070a0e] p-4 font-mono text-xs space-y-2">
@@ -911,9 +953,19 @@ export default function JavaPracticeView() {
                         <Check className="w-3.5 h-3.5" />
                         <span>Output:</span>
                       </div>
-                      <pre className="text-emerald-300 bg-black/60 p-3 rounded-xl border border-emerald-500/20 leading-relaxed overflow-x-auto whitespace-pre-wrap">
+                      <pre className="text-emerald-300 bg-black/60 p-3 rounded-xl border border-emerald-500/20 leading-relaxed overflow-x-auto whitespace-pre-wrap font-mono">
                         {terminalOutput.output}
                       </pre>
+                      {terminalOutput.warnings && terminalOutput.warnings.length > 0 && (
+                        <div className="mt-2 p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[11px] space-y-1">
+                          {terminalOutput.warnings.map((w, idx) => (
+                            <div key={idx} className="flex items-start space-x-1.5">
+                              <span className="text-amber-400 font-bold">ℹ</span>
+                              <span>{w}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="p-3 rounded-xl border bg-rose-950/20 border-rose-500/30 text-rose-300 space-y-1.5">
