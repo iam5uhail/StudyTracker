@@ -8,6 +8,7 @@ export { default as LectureNotesAccordion } from './LectureNotesAccordion';
 export { default as DSAPracticeCard } from './DSAPracticeCard';
 export { default as CodeEditor } from './CodeEditor';
 export { default as DashboardView } from './DashboardView';
+export { default as JavaLecturesView } from './JavaLecturesView';
 export { default as ProgressView } from './ProgressView';
 export { default as RoadmapView } from './RoadmapView';
 export { default as JavaPracticeView } from './JavaPracticeView';

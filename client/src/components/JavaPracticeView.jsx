@@ -19,13 +19,19 @@ import {
   Flame,
   ArrowRight,
   ExternalLink,
+  ChevronDown,
   ChevronRight,
   Layers,
-  X
+  X,
+  LayoutGrid,
+  List,
+  Target,
+  Trophy
 } from 'lucide-react';
 import { JAVA_PRACTICE_LEVELS, JAVA_PRACTICE_QUESTIONS } from '../data/javaPracticeData';
 import CodeEditor from './CodeEditor';
 import { executeJavaProgram } from '../utils/javaRunner';
+import confetti from 'canvas-confetti';
 
 const STORAGE_KEY_COMPLETED = 'study_tracker_java_completed_ids_v1';
 const STORAGE_KEY_SELECTED_ID = 'study_tracker_java_selected_id_v1';
@@ -47,9 +53,11 @@ export default function JavaPracticeView() {
     return [...JAVA_PRACTICE_QUESTIONS, ...customQuestions];
   }, [customQuestions]);
 
-  // 2. Active Level Filter ('all', 'level-1', 'level-2', etc.)
-  const [selectedLevelId, setSelectedLevelId] = useState('all');
+  // 2. Filters & View Mode
+  const [selectedLevelId, setSelectedLevelId] = useState('all'); // 'all', 'level-1', 'level-2', 'custom'
+  const [selectedStatus, setSelectedStatus] = useState('all'); // 'all', 'unsolved', 'solved'
   const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState('grouped'); // 'grouped' | 'table'
 
   // 3. Completed Problems Set
   const [completedIds, setCompletedIds] = useState(() => {
@@ -61,14 +69,31 @@ export default function JavaPracticeView() {
     }
   });
 
-  // Save completed IDs to localStorage
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY_COMPLETED, JSON.stringify(completedIds));
     } catch (e) {}
   }, [completedIds]);
 
-  // 4. Selected Question
+  const toggleProblemCompletion = (qId) => {
+    const isDone = completedIds.includes(qId);
+    let updated;
+    if (isDone) {
+      updated = completedIds.filter(id => id !== qId);
+    } else {
+      updated = [...completedIds, qId];
+      try {
+        confetti({
+          particleCount: 40,
+          spread: 60,
+          origin: { y: 0.8 }
+        });
+      } catch (err) {}
+    }
+    setCompletedIds(updated);
+  };
+
+  // 4. Selected Question & Active Workbench State
   const [selectedQuestionId, setSelectedQuestionId] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY_SELECTED_ID);
@@ -78,6 +103,12 @@ export default function JavaPracticeView() {
     } catch (e) {}
     return allQuestions[0]?.id || 'l1_q1';
   });
+
+  const [showWorkbench, setShowWorkbench] = useState(false);
+  const [workbenchTab, setWorkbenchTab] = useState('description'); // 'description' | 'hints' | 'solution'
+  const [showSolution, setShowSolution] = useState(false);
+  const [terminalOutput, setTerminalOutput] = useState(null);
+  const [copiedCode, setCopiedCode] = useState(false);
 
   useEffect(() => {
     try {
@@ -114,8 +145,7 @@ export default function JavaPracticeView() {
       setUserCode(currentQuestion.starterCode);
     }
     setCustomStdin(currentQuestion.sampleInput || '');
-    // Reset workbench tabs
-    setActiveTab('description');
+    setWorkbenchTab('description');
     setShowSolution(false);
     setTerminalOutput(null);
   }, [currentQuestion?.id]);
@@ -130,292 +160,64 @@ export default function JavaPracticeView() {
     }
   };
 
-  // 6. Workbench Tabs: 'description' | 'hints' | 'solution'
-  const [activeTab, setActiveTab] = useState('description');
-  const [showSolution, setShowSolution] = useState(false);
-  const [copiedCode, setCopiedCode] = useState(false);
-  const [copiedSolution, setCopiedSolution] = useState(false);
-  const [terminalOutput, setTerminalOutput] = useState(null);
-
-  // 7. Add Custom Question Modal
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [customTitle, setCustomTitle] = useState('');
-  const [customLevel, setCustomLevel] = useState('level-1');
-  const [customDesc, setCustomDesc] = useState('');
-  const [customStarter, setCustomStarter] = useState(`import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Write code here\n        \n    }\n}`);
-  const [customSolution, setCustomSolution] = useState('');
-
-  // Filtered questions based on level and search
-  const filteredQuestions = useMemo(() => {
-    return allQuestions.filter(q => {
-      const matchesLevel = selectedLevelId === 'all' || q.levelId === selectedLevelId;
-      const matchesSearch = !searchQuery || 
-        q.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        q.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (q.tags && q.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase())));
-      return matchesLevel && matchesSearch;
-    });
-  }, [allQuestions, selectedLevelId, searchQuery]);
-
-  // Total and completed metrics
-  const totalQuestionsCount = allQuestions.length;
-  const completedQuestionsCount = completedIds.filter(id => allQuestions.some(q => q.id === id)).length;
-  const completionPct = totalQuestionsCount > 0 ? Math.round((completedQuestionsCount / totalQuestionsCount) * 100) : 0;
-
-  // Toggle problem completion
-  const toggleComplete = (id) => {
-    setCompletedIds(prev => {
-      if (prev.includes(id)) {
-        return prev.filter(x => x !== id);
-      } else {
-        return [...prev, id];
-      }
-    });
-  };
-
-  // Reset current question code
+  // Reset code to starter template
   const handleResetCode = () => {
     if (!currentQuestion) return;
-    if (window.confirm('Reset this question back to the original starter template?')) {
-      handleCodeChange(currentQuestion.starterCode);
-    }
+    setUserCode(currentQuestion.starterCode);
+    try {
+      localStorage.setItem(`study_tracker_java_code_${currentQuestion.id}`, currentQuestion.starterCode);
+    } catch (e) {}
+    setTerminalOutput(null);
   };
 
-  // Copy code to clipboard
-  const handleCopyCode = (text, type = 'code') => {
+  // Copy code helper
+  const handleCopyCode = (text) => {
     navigator.clipboard.writeText(text);
-    if (type === 'code') {
-      setCopiedCode(true);
-      setTimeout(() => setCopiedCode(false), 2000);
-    } else {
-      setCopiedSolution(true);
-      setTimeout(() => setCopiedSolution(false), 2000);
-    }
+    setCopiedCode(true);
+    setTimeout(() => setCopiedCode(false), 2000);
   };
 
-  // Load solution directly into the IDE
-  const handleLoadSolutionToEditor = () => {
-    if (!currentQuestion) return;
-    if (window.confirm('Replace your editor code with the official model solution?')) {
-      handleCodeChange(currentQuestion.solutionCode);
-    }
-  };
-
-  // Run Comprehensive Java Syntax, Structure and Logic Verification
+  // Run Java Program dynamically via javaRunner
   const handleRunJavaCheck = () => {
-    const code = userCode || '';
+    const code = userCode;
     const errors = [];
     const warnings = [];
 
-    // 1. Basic emptiness check
-    if (!code.trim()) {
+    if (!code || !code.trim()) {
       setTerminalOutput({
         success: false,
-        message: 'Compilation Failed: Empty File',
-        details: ['error: File contains no code. Write your Java program first!']
+        message: 'Compilation Error: The editor is empty.',
+        errors: ['Please write your Java code before clicking Run.']
       });
       return;
     }
 
-    // 2. Class definition check
-    if (!/\bclass\s+\w+/.test(code)) {
-      errors.push('error: class, interface, or enum expected (e.g. public class Main { ... })');
+    // 1. Basic Java Syntax Verification (braces, class, main method)
+    const hasClass = /class\s+[A-Za-z0-9_$]+/.test(code);
+    if (!hasClass) {
+      errors.push("Missing Java Class: Every Java program must define a class (e.g., 'public class Main { ... }').");
     }
 
-    // 3. Main method check
-    if (!code.includes('public static void main') && !code.includes('static public void main')) {
-      errors.push('error: Main method not found in class. Please define: public static void main(String[] args)');
+    const hasMain = /public\s+static\s+void\s+main\s*\(\s*String\s*(\[\s*\]\s+[A-Za-z0-9_$]+|[A-Za-z0-9_$]+\s*\[\s*\]|\.\.\.\s*[A-Za-z0-9_$]+)\s*\)/.test(code);
+    if (!hasMain) {
+      errors.push("Missing main method: Java execution starts in 'public static void main(String[] args)'.");
     }
 
-    // 4. Balanced braces and brackets check
-    let openBraces = 0, openParens = 0, openBrackets = 0;
-    for (let c of code) {
-      if (c === '{') openBraces++;
-      else if (c === '}') openBraces--;
-      else if (c === '(') openParens++;
-      else if (c === ')') openParens--;
-      else if (c === '[') openBrackets++;
-      else if (c === ']') openBrackets--;
+    // Bracket balance check
+    let braceBalance = 0;
+    let parenBalance = 0;
+    let bracketBalance = 0;
+    for (let char of code) {
+      if (char === '{') braceBalance++;
+      else if (char === '}') braceBalance--;
+      else if (char === '(') parenBalance++;
+      else if (char === ')') parenBalance--;
+      else if (char === '[') bracketBalance++;
+      else if (char === ']') bracketBalance--;
+      if (braceBalance < 0 || parenBalance < 0 || bracketBalance < 0) break;
     }
-    if (openBraces !== 0) errors.push(`error: reached end of file while parsing (unclosed curly braces { }, difference: ${openBraces})`);
-    if (openParens !== 0) errors.push(`error: ')' expected (unbalanced parentheses, difference: ${openParens})`);
-    if (openBrackets !== 0) errors.push(`error: ']' expected (unbalanced square brackets, difference: ${openBrackets})`);
-
-    // 5. Line-by-line syntax check
-    const lines = code.split('\n');
-    lines.forEach((line, idx) => {
-      const lineNum = idx + 1;
-      const trimmed = line.trim();
-
-      // Check for unclosed string literals
-      const quoteMatches = trimmed.match(/"/g);
-      if (quoteMatches && (quoteMatches.length % 2 !== 0)) {
-        errors.push(`error: unclosed string literal at line ${lineNum}: ${trimmed}`);
-      }
-
-      // Check for illegal JavaScript / Python keywords
-      if (/\b(?:let|var|const)\s+[a-zA-Z_$]/.test(trimmed) && !trimmed.startsWith('//')) {
-        errors.push(`error: illegal keyword at line ${lineNum}: In Java, variables require explicit types like int, double, String, boolean.`);
-      }
-      if (/\bfunction\s+[a-zA-Z_$]/.test(trimmed) && !trimmed.startsWith('//')) {
-        errors.push(`error: illegal keyword 'function' at line ${lineNum}: In Java, define methods with return type, e.g. void methodName()`);
-      }
-      if (trimmed.includes('console.log') && !trimmed.startsWith('//')) {
-        errors.push(`error: cannot find symbol 'console.log' at line ${lineNum}: Use System.out.println() in Java.`);
-      }
-
-      // Check Scanner method case sensitivity
-      if (/\bsc\.nextint\(\)/i.test(trimmed) && !trimmed.includes('sc.nextInt()') && !trimmed.startsWith('//')) {
-        errors.push(`error: cannot find symbol method nextint() at line ${lineNum} (Java is case-sensitive! Use sc.nextInt())`);
-      }
-      if (/\bsc\.nextdouble\(\)/i.test(trimmed) && !trimmed.includes('sc.nextDouble()') && !trimmed.startsWith('//')) {
-        errors.push(`error: cannot find symbol method nextdouble() at line ${lineNum} (Java is case-sensitive! Use sc.nextDouble())`);
-      }
-      if (/\bsc\.nextline\(\)/i.test(trimmed) && !trimmed.includes('sc.nextLine()') && !trimmed.startsWith('//')) {
-        errors.push(`error: cannot find symbol method nextline() at line ${lineNum} (Java is case-sensitive! Use sc.nextLine())`);
-      }
-      if (trimmed.includes('sc.nextChar(') && !trimmed.startsWith('//')) {
-        errors.push(`error: cannot find symbol method nextChar() at line ${lineNum}: Scanner has no nextChar(). Use sc.next().charAt(0)`);
-      }
-      if (/\bsystem\.out\b/.test(trimmed) && !trimmed.startsWith('//')) {
-        errors.push(`error: package system does not exist at line ${lineNum}: Use capital 'System.out.println'`);
-      }
-      if (/\bSystem\.out\.(?:printLn|PrintLn)\b/.test(trimmed) && !trimmed.startsWith('//')) {
-        errors.push(`error: cannot find symbol at line ${lineNum}: method name is println (all lowercase)`);
-      }
-
-      // Check missing semicolon on statements
-      if (
-        trimmed &&
-        !trimmed.startsWith('//') &&
-        !trimmed.startsWith('/*') &&
-        !trimmed.startsWith('*') &&
-        !trimmed.endsWith('{') &&
-        !trimmed.endsWith('}') &&
-        !trimmed.endsWith(';') &&
-        !trimmed.endsWith(':') &&
-        !trimmed.startsWith('if') &&
-        !trimmed.startsWith('for') &&
-        !trimmed.startsWith('while') &&
-        !trimmed.startsWith('switch') &&
-        !trimmed.startsWith('else') &&
-        !trimmed.startsWith('class') &&
-        !trimmed.startsWith('public') &&
-        !trimmed.startsWith('private') &&
-        !trimmed.startsWith('static') &&
-        !trimmed.startsWith('import') &&
-        !trimmed.startsWith('@')
-      ) {
-        if (/\b(?:int|double|String|boolean|char|float|long|return|sc\.|System\.out|break|continue|=)\b/.test(trimmed)) {
-          errors.push(`error: ';' expected at line ${lineNum}: "${trimmed}"`);
-        }
-      }
-    });
-
-    // 6. Scanner import check
-    if (code.includes('new Scanner') && !code.includes('import java.util.Scanner') && !code.includes('import java.util.*')) {
-      errors.push("error: cannot find symbol class Scanner: Add 'import java.util.Scanner;' at the top of the file.");
-    }
-
-    if (code.includes('Scanner') && !code.includes('.close()')) {
-      warnings.push("Resource warning: Scanner is never closed. Add 'sc.close();' before exiting main().");
-    }
-
-    // 7. Output existence check
-    const hasPrint = code.includes('System.out.println') || code.includes('System.out.print');
-    if (!hasPrint) {
-      warnings.push("Warning: No System.out.println() output statement found. Your program will produce no output on the screen!");
-    }
-
-    // 8. Question-specific requirement / logic checks
-    if (currentQuestion) {
-      const qId = currentQuestion.id;
-      const cleanCode = code.replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '');
-
-      if (qId === 'l1_q1') {
-        const printlnCount = (cleanCode.match(/System\.out\.println/g) || []).length;
-        if (printlnCount < 3) {
-          errors.push("Logic error: You must print your name, city, and favourite language on THREE separate lines using System.out.println().");
-        }
-      } else if (qId === 'l1_q2') {
-        const hasAllOps = ['+', '-', '*', '/'].every(op => cleanCode.includes(op));
-        if (!hasAllOps) {
-          errors.push("Logic error: Must compute all 4 operations: Sum (+), Difference (-), Product (*), and Quotient (/).");
-        }
-      } else if (qId === 'l1_q3') {
-        if (!cleanCode.includes('*')) {
-          errors.push("Logic error: Rectangle Area calculation requires length * width.");
-        }
-        if (!cleanCode.includes('+')) {
-          errors.push("Logic error: Rectangle Perimeter calculation requires 2 * (length + width).");
-        }
-      } else if (qId === 'l1_q4') {
-        // Celsius to Fahrenheit
-        const hasFahrenheitFormula = cleanCode.includes('32') && (cleanCode.includes('9.0') || cleanCode.includes('1.8') || cleanCode.includes('9'));
-        if (!hasFahrenheitFormula) {
-          errors.push("Logic error: Missing Celsius to Fahrenheit conversion formula! Formula: (celsius * 9.0 / 5.0) + 32;");
-        }
-        if (cleanCode.includes('9 / 5')) {
-          errors.push("Warning: You wrote '9 / 5' which equals 1 in integer division! Use '9.0 / 5.0' or '1.8' instead.");
-        }
-      } else if (qId === 'l1_q5') {
-        if (!cleanCode.includes('/ 7') && !cleanCode.includes('/7')) {
-          errors.push("Logic error: Weeks calculation requires dividing total days by 7 (days / 7).");
-        }
-        if (!cleanCode.includes('% 7') && !cleanCode.includes('%7')) {
-          errors.push("Logic error: Remaining days calculation requires modulus by 7 (days % 7).");
-        }
-      } else if (qId === 'l1_q6') {
-        if (!cleanCode.includes('temp') && !cleanCode.includes('+') && !cleanCode.includes('-')) {
-          errors.push("Logic error: Variables must be swapped using either a temp variable or arithmetic operations.");
-        }
-      } else if (qId === 'l1_q7') {
-        if (!cleanCode.includes('% 10') && !cleanCode.includes('%10')) {
-          errors.push("Logic error: Extracting digits of a 3-digit number requires modulus by 10 (num % 10).");
-        }
-        if (!cleanCode.includes('/ 10') && !cleanCode.includes('/10') && !cleanCode.includes('/ 100') && !cleanCode.includes('/100')) {
-          errors.push("Logic error: Truncating digits requires division by 10 or 100.");
-        }
-      } else if (qId === 'l1_q8') {
-        if (!cleanCode.includes('100') || !cleanCode.includes('*')) {
-          errors.push("Logic error: Simple interest formula is missing: (P * R * T) / 100.0");
-        }
-      } else if (qId === 'l2_q1') {
-        if (!cleanCode.includes('>') || !cleanCode.includes('<')) {
-          errors.push("Logic error: Must check if number is positive (> 0) and negative (< 0) with if-else.");
-        }
-      } else if (qId === 'l2_q2') {
-        if (!cleanCode.includes('% 2') && !cleanCode.includes('%2') && !cleanCode.includes('& 1')) {
-          errors.push("Logic error: Even/Odd check requires checking remainder with 2: (n % 2 == 0).");
-        }
-      } else if (qId === 'l2_q3') {
-        if (!cleanCode.includes('if') || (!cleanCode.includes('>=') && !cleanCode.includes('>'))) {
-          errors.push("Logic error: Must find largest of three numbers using if/else if comparisons.");
-        }
-      } else if (qId === 'l2_q4') {
-        if (!cleanCode.includes('4') || !cleanCode.includes('100')) {
-          errors.push("Logic error: Leap year check requires checking divisibility by 4, 100, and 400.");
-        }
-      } else if (qId === 'l2_q5') {
-        if (!cleanCode.includes('90') || !cleanCode.includes('75') || !cleanCode.includes('50')) {
-          errors.push("Logic error: Grade calculation must check boundaries for Grade A (>= 90), B (>= 75), C (>= 50).");
-        }
-      } else if (qId === 'l2_q7') {
-        if (!cleanCode.includes('switch')) {
-          errors.push("Logic error: Question requires using a 'switch' statement to map numbers 1-7 to day names.");
-        }
-      } else if (qId === 'l2_q8') {
-        if (!cleanCode.includes('switch') && !cleanCode.includes('if')) {
-          errors.push("Logic error: Calculator requires switch or if-else branching on operators (+, -, *, /).");
-        }
-        if (!cleanCode.includes('0') || !cleanCode.includes('/')) {
-          warnings.push("Defensive warning: Remember to handle division by zero when operator is '/'!");
-        }
-      } else if (qId === 'l2_q9') {
-        if (!cleanCode.includes('+') || !cleanCode.includes('>')) {
-          errors.push("Logic error: Triangle inequality theorem check is missing: (a + b > c && a + c > b && b + c > a).");
-        }
-      }
+    if (braceBalance !== 0 || parenBalance !== 0 || bracketBalance !== 0) {
+      errors.push("Bracket Mismatch: Ensure all '{ }', '( )', and '[ ]' are properly balanced and closed.");
     }
 
     if (errors.length === 0) {
@@ -442,7 +244,111 @@ export default function JavaPracticeView() {
     }
   };
 
-  // Add custom question handler
+  // 6. Metrics Calculations
+  const totalCount = allQuestions.length;
+  const completedCount = completedIds.filter(id => allQuestions.some(q => q.id === id)).length;
+  const completionPct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+  const l1Total = allQuestions.filter(q => q.levelId === 'level-1').length;
+  const l1Completed = allQuestions.filter(q => q.levelId === 'level-1' && completedIds.includes(q.id)).length;
+
+  const l2Total = allQuestions.filter(q => q.levelId === 'level-2').length;
+  const l2Completed = allQuestions.filter(q => q.levelId === 'level-2' && completedIds.includes(q.id)).length;
+
+  // 7. Filtered Questions
+  const filteredQuestions = useMemo(() => {
+    return allQuestions.filter(q => {
+      if (selectedLevelId === 'custom' && !q.id.startsWith('custom_')) return false;
+      if (selectedLevelId !== 'all' && selectedLevelId !== 'custom' && q.levelId !== selectedLevelId) return false;
+
+      if (selectedStatus === 'solved' && !completedIds.includes(q.id)) return false;
+      if (selectedStatus === 'unsolved' && completedIds.includes(q.id)) return false;
+
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase();
+        const matchTitle = q.title.toLowerCase().includes(query);
+        const matchDesc = q.description.toLowerCase().includes(query);
+        const matchConcept = (q.concepts || '').toLowerCase().includes(query);
+        const matchTags = (q.tags || []).some(t => t.toLowerCase().includes(query));
+        if (!matchTitle && !matchDesc && !matchConcept && !matchTags) return false;
+      }
+
+      return true;
+    });
+  }, [allQuestions, selectedLevelId, selectedStatus, searchQuery, completedIds]);
+
+  // Group filtered questions by Level (Level-wise accordions just like DSA page)
+  const groupedByLevel = useMemo(() => {
+    const groups = [
+      {
+        id: 'level-1',
+        title: 'Level 1: Start Here — Basics, I/O & Types',
+        subtitle: 'Standalone .java programs using Scanner, arithmetic, types & division differences',
+        items: filteredQuestions.filter(q => q.levelId === 'level-1'),
+        allCount: allQuestions.filter(q => q.levelId === 'level-1').length,
+        doneCount: allQuestions.filter(q => q.levelId === 'level-1' && completedIds.includes(q.id)).length
+      },
+      {
+        id: 'level-2',
+        title: 'Level 2: Conditions, Logic & Switch Statements',
+        subtitle: 'Scanner input with if/else if branching, triangle validity, leap year, and switch calculator',
+        items: filteredQuestions.filter(q => q.levelId === 'level-2'),
+        allCount: allQuestions.filter(q => q.levelId === 'level-2').length,
+        doneCount: allQuestions.filter(q => q.levelId === 'level-2' && completedIds.includes(q.id)).length
+      }
+    ];
+
+    const customItems = filteredQuestions.filter(q => q.id.startsWith('custom_'));
+    if (customItems.length > 0 || selectedLevelId === 'custom') {
+      const allCustom = allQuestions.filter(q => q.id.startsWith('custom_'));
+      groups.push({
+        id: 'custom',
+        title: 'Custom Practice Drills',
+        subtitle: 'User-added problem drills from Claude / Online compiler',
+        items: customItems,
+        allCount: allCustom.length,
+        doneCount: allCustom.filter(q => completedIds.includes(q.id)).length
+      });
+    }
+
+    return groups.filter(g => g.items.length > 0 || (selectedLevelId === 'all' && !searchQuery && selectedStatus === 'all'));
+  }, [filteredQuestions, allQuestions, completedIds, selectedLevelId, searchQuery, selectedStatus]);
+
+  // Accordion collapsed state: { [levelId]: boolean }
+  const [collapsedLevels, setCollapsedLevels] = useState({});
+
+  const toggleLevelAccordion = (lvlId) => {
+    setCollapsedLevels(prev => ({
+      ...prev,
+      [lvlId]: !prev[lvlId]
+    }));
+  };
+
+  // Open IDE workbench for problem
+  const handleOpenWorkbench = (q) => {
+    setSelectedQuestionId(q.id);
+    setShowWorkbench(true);
+    setWorkbenchTab('description');
+    setTerminalOutput(null);
+    setTimeout(() => {
+      const el = document.getElementById('java-workbench-section');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+  };
+
+  // 8. Custom Question Modal state
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [customTitle, setCustomTitle] = useState('');
+  const [customLevel, setCustomLevel] = useState('level-1');
+  const [customDesc, setCustomDesc] = useState('');
+  const [customStarter, setCustomStarter] = useState(`public class Main {
+    public static void main(String[] args) {
+        // Write your solution here
+        
+    }
+}`);
+  const [customSolution, setCustomSolution] = useState('');
+
   const handleSaveCustomQuestion = (e) => {
     e.preventDefault();
     if (!customTitle.trim()) return;
@@ -453,7 +359,7 @@ export default function JavaPracticeView() {
       levelTitle: customLevel === 'level-1' ? 'Level 1: Start Here' : 'Level 2: Conditions',
       index: allQuestions.length + 1,
       title: customTitle.trim(),
-      badge: 'Custom Practice',
+      badge: 'Custom Drill',
       tags: ['Custom', 'User Added'],
       description: customDesc.trim() || 'Custom practice question added by user.',
       sampleInput: 'Provided by user',
@@ -479,247 +385,522 @@ export default function JavaPracticeView() {
 
   return (
     <div className="space-y-6">
-      {/* 1. Header Overview & Progress Banner */}
-      <div className="bg-theme-card border border-theme-border rounded-3xl p-5 sm:p-7 shadow-sm">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-1.5">
-            <div className="flex items-center space-x-2.5">
-              <span className="p-2 rounded-2xl bg-amber-500/10 text-amber-500 border border-amber-500/20">
-                <Coffee className="w-5 h-5" />
+      {/* 1. Header Banner & Progress Analytics (Matching DSA Page) */}
+      <div className="relative overflow-hidden rounded-3xl border border-theme-border bg-theme-card p-6 sm:p-8 shadow-sm">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none -mr-28 -mt-28" />
+
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="space-y-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-500/15 text-amber-500 dark:text-amber-400 border border-amber-500/30">
+                <Coffee className="w-3.5 h-3.5 text-amber-500" />
+                <span>Core Java Practice Lab</span>
               </span>
-              <h1 className="text-xl sm:text-2xl font-black text-theme-text tracking-tight flex items-center gap-2">
-                Core Java Practice Lab
-              </h1>
-              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                Step-by-Step
+
+              <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-theme-cardSub text-theme-secondary border border-theme-border">
+                <Target className="w-3.5 h-3.5 text-amber-400" />
+                <span>20 Drills • Level 1 & Level 2</span>
               </span>
+
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 border border-amber-500/40 transition-all"
+              >
+                <Plus className="w-3 h-3" />
+                <span>Add Question</span>
+              </button>
             </div>
-            <p className="text-xs sm:text-sm text-theme-muted max-w-2xl">
-              Write each program in clean Java. Master <code className="text-amber-400">Scanner</code> input, arithmetic operators, type casting, and conditionals with interactive code verification.
+
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-theme-text tracking-tight">
+              Java Syntax & Core Practice
+            </h1>
+
+            <p className="text-sm text-theme-muted max-w-2xl leading-relaxed">
+              Step through progressive Core Java problem levels curated by Claude. Write standalone programs with Scanner input, run real code live in the in-browser Java 17 IDE, and master Java fundamentals.
             </p>
           </div>
 
-          {/* Right Action: Overall Progress Badge & Add Custom Question */}
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="bg-theme-cardSub border border-theme-border px-4 py-2 rounded-2xl flex items-center space-x-3">
-              <div className="text-right">
-                <div className="text-[10px] uppercase font-bold text-theme-muted tracking-wider">Progress</div>
-                <div className="text-sm font-black text-theme-text font-mono">
-                  <span className="text-emerald-400">{completedQuestionsCount}</span> / {totalQuestionsCount}
-                  <span className="text-xs font-normal text-theme-muted ml-1">({completionPct}%)</span>
-                </div>
-              </div>
-              <div className="w-12 h-2.5 bg-theme-border rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-emerald-500 transition-all duration-500"
-                  style={{ width: `${completionPct}%` }}
+          {/* Aggregate Progress Ring Card */}
+          <div className="flex flex-col sm:flex-row items-center gap-4 bg-theme-cardSub border border-theme-border rounded-2xl p-4 sm:p-5 flex-shrink-0 shadow-sm">
+            <div className="relative w-16 h-16 flex-shrink-0">
+              <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 64 64">
+                <circle
+                  cx="32"
+                  cy="32"
+                  r="26"
+                  stroke="var(--border-sub)"
+                  strokeWidth="6"
+                  fill="transparent"
                 />
+                <circle
+                  cx="32"
+                  cy="32"
+                  r="26"
+                  stroke="#f59e0b"
+                  strokeWidth="6"
+                  strokeDasharray={2 * Math.PI * 26}
+                  strokeDashoffset={2 * Math.PI * 26 - (completionPct / 100) * (2 * Math.PI * 26)}
+                  strokeLinecap="round"
+                  fill="transparent"
+                  className="transition-all duration-700 ease-out"
+                />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center font-bold text-sm font-mono text-amber-500 dark:text-amber-400">
+                {completionPct}%
               </div>
             </div>
 
-            <button
-              onClick={() => setShowAddModal(true)}
-              className="flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-theme-accent text-theme-accentBtnText font-bold text-xs hover:opacity-90 shadow-theme-glow transition-all"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Add Question</span>
-            </button>
+            <div className="space-y-1.5 text-center sm:text-left">
+              <div className="flex items-center space-x-2">
+                <span className="text-xs text-theme-muted font-medium">Practice Solved:</span>
+                <span className="text-base font-extrabold font-mono text-theme-text">
+                  {completedCount} / {totalCount}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-1.5 text-[11px] font-mono">
+                <span className="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                  L1: {l1Completed}/{l1Total}
+                </span>
+                <span className="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-amber-400">
+                  L2: {l2Completed}/{l2Total}
+                </span>
+                {customQuestions.length > 0 && (
+                  <span className="px-2 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
+                    Custom: {customQuestions.filter(q => completedIds.includes(q.id)).length}/{customQuestions.length}
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Level Navigation Filter Tabs */}
+        {/* Level Filter Tabs (Matching DSA Topic Pills) */}
         <div className="mt-6 pt-5 border-t border-theme-border flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              onClick={() => setSelectedLevelId('all')}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                selectedLevelId === 'all'
-                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-sm'
-                  : 'bg-theme-cardSub text-theme-muted hover:text-theme-text border border-theme-border'
-              }`}
-            >
-              All Levels ({allQuestions.length})
-            </button>
-
-            {JAVA_PRACTICE_LEVELS.map(lvl => {
-              const count = allQuestions.filter(q => q.levelId === lvl.id).length;
-              const isSelected = selectedLevelId === lvl.id;
-              return (
-                <button
-                  key={lvl.id}
-                  disabled={lvl.upcoming && count === 0}
-                  onClick={() => setSelectedLevelId(lvl.id)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 ${
-                    isSelected
-                      ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40 shadow-sm'
-                      : lvl.upcoming && count === 0
-                      ? 'bg-theme-cardSub/40 text-theme-muted/40 border border-theme-border/40 cursor-not-allowed'
-                      : 'bg-theme-cardSub text-theme-muted hover:text-theme-text border border-theme-border'
-                  }`}
-                >
-                  <span>{lvl.title}</span>
-                  {count > 0 ? (
-                    <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-black/30">
-                      {count}
-                    </span>
-                  ) : (
-                    <span className="text-[9px] uppercase tracking-wider font-semibold opacity-60">
-                      Soon
-                    </span>
-                  )}
-                </button>
-              );
-            })}
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+            {[
+              { id: 'all', label: 'All Levels', count: allQuestions.length },
+              { id: 'level-1', label: 'Level 1: Start Here', count: l1Total },
+              { id: 'level-2', label: 'Level 2: Conditions', count: l2Total },
+              ...(customQuestions.length > 0 ? [{ id: 'custom', label: 'Custom Drills', count: customQuestions.length }] : [])
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setSelectedLevelId(tab.id)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 ${
+                  selectedLevelId === tab.id
+                    ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40 shadow-sm'
+                    : 'bg-theme-cardSub text-theme-muted hover:text-theme-text border border-theme-border'
+                }`}
+              >
+                <span>{tab.label}</span>
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-black/30">
+                  {tab.count}
+                </span>
+              </button>
+            ))}
           </div>
 
-          {/* Quick Search */}
-          <div className="relative w-full sm:w-60">
-            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-theme-muted" />
-            <input
-              type="text"
-              placeholder="Search Java questions..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-theme-cardSub border border-theme-border rounded-xl pl-8 pr-3 py-1.5 text-xs text-theme-text placeholder:text-theme-muted focus:outline-none focus:border-theme-accent"
-            />
+          {/* View Mode Toggle */}
+          <div className="flex items-center space-x-1 bg-theme-cardSub border border-theme-border p-1 rounded-xl text-xs">
+            <button
+              onClick={() => setViewMode('grouped')}
+              className={`p-1.5 rounded-lg flex items-center space-x-1 transition-colors ${
+                viewMode === 'grouped'
+                  ? 'bg-amber-500/20 text-amber-400 font-bold'
+                  : 'text-theme-muted hover:text-theme-text'
+              }`}
+              title="Level-wise Accordion View"
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
+              <span className="text-[11px] hidden sm:inline">Level Groups</span>
+            </button>
+            <button
+              onClick={() => setViewMode('table')}
+              className={`p-1.5 rounded-lg flex items-center space-x-1 transition-colors ${
+                viewMode === 'table'
+                  ? 'bg-amber-500/20 text-amber-400 font-bold'
+                  : 'text-theme-muted hover:text-theme-text'
+              }`}
+              title="Table List View"
+            >
+              <List className="w-3.5 h-3.5" />
+              <span className="text-[11px] hidden sm:inline">Table List</span>
+            </button>
           </div>
         </div>
       </div>
 
-      {/* 2. Main Practice Workspace: Left Question Directory + Right Workbench */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left Side: Question List (Directory) */}
-        <div className="lg:col-span-4 space-y-2.5">
-          <div className="flex items-center justify-between text-xs font-bold text-theme-muted px-1">
-            <span>Problems ({filteredQuestions.length})</span>
-            <span className="text-emerald-400 font-mono">
-              {filteredQuestions.filter(q => completedIds.includes(q.id)).length} Completed
-            </span>
-          </div>
+      {/* 2. Secondary Filter Toolbar (Search + Status + Add Modal Trigger) */}
+      <div className="bg-theme-card border border-theme-border rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-sm">
+        {/* Search Input */}
+        <div className="relative flex-1 min-w-[220px] max-w-md">
+          <Search className="w-4 h-4 text-theme-muted absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search Java questions, concepts, tags..."
+            className="w-full bg-theme-cardSub border border-theme-border focus:border-amber-500/60 rounded-xl pl-9 pr-3 py-1.5 text-xs text-theme-text placeholder-theme-muted focus:outline-none transition-colors"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-theme-muted hover:text-theme-text"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
 
-          <div className="space-y-2 max-h-[720px] overflow-y-auto pr-1">
-            {filteredQuestions.map((q, idx) => {
-              const isSelected = q.id === selectedQuestionId;
-              const isDone = completedIds.includes(q.id);
+        {/* Filter Controls */}
+        <div className="flex flex-wrap items-center gap-2 text-xs">
+          {/* Status select */}
+          <select
+            value={selectedStatus}
+            onChange={(e) => setSelectedStatus(e.target.value)}
+            className="bg-theme-cardSub border border-theme-border rounded-xl px-2.5 py-1.5 text-xs text-theme-text focus:outline-none focus:border-amber-500"
+          >
+            <option value="all">All Status</option>
+            <option value="unsolved">Unsolved Only</option>
+            <option value="solved">Solved Only</option>
+          </select>
+
+          {/* Reset Filters */}
+          {(searchQuery || selectedLevelId !== 'all' || selectedStatus !== 'all') && (
+            <button
+              onClick={() => {
+                setSearchQuery('');
+                setSelectedLevelId('all');
+                setSelectedStatus('all');
+              }}
+              className="text-xs text-theme-muted hover:text-theme-text underline px-1"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* 3. Main Problem List Area: Level-Grouped Accordions or Table Matrix */}
+      {viewMode === 'grouped' ? (
+        /* LEVEL-WISE ACCORDION VIEW (Matching DSA page) */
+        <div className="space-y-4">
+          {groupedByLevel.length === 0 ? (
+            <div className="bg-theme-card border border-theme-border rounded-3xl p-10 text-center text-xs text-theme-muted space-y-2">
+              <Coffee className="w-8 h-8 mx-auto text-theme-muted/50" />
+              <div>No Java practice questions match the current filter selection.</div>
+            </div>
+          ) : (
+            groupedByLevel.map(group => {
+              const isCollapsed = Boolean(collapsedLevels[group.id]);
+              const groupPct = group.allCount > 0 ? Math.round((group.doneCount / group.allCount) * 100) : 0;
 
               return (
                 <div
-                  key={q.id}
-                  onClick={() => setSelectedQuestionId(q.id)}
-                  className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
-                    isSelected
-                      ? 'bg-theme-card border-theme-accent shadow-md ring-1 ring-theme-accent/20'
-                      : 'bg-theme-card/60 hover:bg-theme-card border-theme-border hover:border-theme-border/80'
-                  }`}
+                  key={group.id}
+                  className="bg-theme-card border border-theme-border rounded-3xl overflow-hidden shadow-sm"
                 >
-                  <div className="flex items-center space-x-3 min-w-0">
-                    {/* Checkbox toggle */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleComplete(q.id);
-                      }}
-                      title={isDone ? "Mark as Incomplete" : "Mark as Completed"}
-                      className="flex-shrink-0 text-emerald-400 hover:scale-110 transition-transform"
-                    >
-                      {isDone ? (
-                        <CheckCircle2 className="w-5 h-5 fill-emerald-500/20 text-emerald-400" />
-                      ) : (
-                        <Circle className="w-5 h-5 text-theme-muted hover:text-emerald-400 transition-colors" />
-                      )}
-                    </button>
-
-                    <div className="min-w-0">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-[10px] font-mono text-theme-muted">
-                          #{idx + 1 < 10 ? `0${idx + 1}` : idx + 1}
-                        </span>
-                        <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-theme-cardSub text-theme-muted border border-theme-border uppercase tracking-tight">
-                          {q.badge || 'Practice'}
-                        </span>
+                  {/* Level Header Accordion Trigger */}
+                  <div
+                    onClick={() => toggleLevelAccordion(group.id)}
+                    className="p-4 sm:p-5 bg-theme-cardSub/60 hover:bg-theme-cardSub border-b border-theme-border cursor-pointer transition-colors flex items-center justify-between gap-3"
+                  >
+                    <div className="flex items-center space-x-3 min-w-0">
+                      <div className="w-9 h-9 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-500 flex-shrink-0">
+                        <Coffee className="w-4 h-4" />
                       </div>
-                      <h4 className={`text-xs font-bold truncate mt-0.5 ${isSelected ? 'text-theme-text' : 'text-theme-text/80'}`}>
-                        {q.title}
-                      </h4>
+                      <div className="min-w-0">
+                        <div className="flex items-center space-x-2">
+                          <h3 className="text-sm sm:text-base font-bold text-theme-text truncate">
+                            {group.title}
+                          </h3>
+                        </div>
+                        <div className="text-xs text-theme-muted truncate mt-0.5">
+                          {group.subtitle}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-3 flex-shrink-0">
+                      <div className="text-right hidden sm:block">
+                        <div className="text-xs font-mono font-bold text-theme-text">
+                          {group.doneCount} / {group.allCount}
+                        </div>
+                        <div className="text-[10px] text-theme-muted font-mono">
+                          {groupPct}% solved
+                        </div>
+                      </div>
+
+                      <div className="w-20 sm:w-28 bg-theme-border h-2 rounded-full overflow-hidden hidden xs:block">
+                        <div
+                          className="bg-amber-500 h-full rounded-full transition-all duration-500"
+                          style={{ width: `${groupPct}%` }}
+                        />
+                      </div>
+
+                      <ChevronDown
+                        className={`w-4 h-4 text-theme-muted transition-transform duration-300 ${
+                          isCollapsed ? '-rotate-90' : ''
+                        }`}
+                      />
                     </div>
                   </div>
 
-                  <ChevronRight className={`w-4 h-4 flex-shrink-0 transition-transform ${isSelected ? 'text-theme-accent translate-x-0.5' : 'text-theme-muted'}`} />
+                  {/* Level Problems List */}
+                  {!isCollapsed && (
+                    <div className="divide-y divide-theme-border">
+                      {group.items.map(question => {
+                        const isDone = completedIds.includes(question.id);
+                        const isSelected = selectedQuestionId === question.id;
+
+                        return (
+                          <div
+                            key={question.id}
+                            className={`p-3.5 sm:p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 transition-colors ${
+                              isSelected
+                                ? 'bg-amber-500/5 dark:bg-amber-950/15'
+                                : 'hover:bg-theme-cardSub/40'
+                            }`}
+                          >
+                            {/* Left: Checkbox + Title + Badges */}
+                            <div className="flex items-start space-x-3 flex-1 min-w-0">
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleProblemCompletion(question.id);
+                                }}
+                                className="mt-0.5 flex-shrink-0 transition-transform active:scale-95"
+                                title={isDone ? 'Mark uncompleted' : 'Mark completed'}
+                              >
+                                {isDone ? (
+                                  <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                                ) : (
+                                  <Circle className="w-5 h-5 text-theme-muted hover:text-amber-400" />
+                                )}
+                              </button>
+
+                              <div className="space-y-1 min-w-0 flex-1">
+                                <div className="flex flex-wrap items-center gap-1.5">
+                                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-black/40 text-theme-muted border border-theme-border font-bold">
+                                    #{question.index < 10 ? `0${question.index}` : question.index}
+                                  </span>
+
+                                  <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                                    {question.badge}
+                                  </span>
+
+                                  {(question.tags || []).slice(0, 3).map((tag, idx) => (
+                                    <span
+                                      key={idx}
+                                      className="text-[10px] px-1.5 py-0.2 rounded bg-theme-cardSub text-theme-muted border border-theme-border"
+                                    >
+                                      {tag}
+                                    </span>
+                                  ))}
+                                </div>
+
+                                <div className="flex items-center space-x-2">
+                                  <h4
+                                    className={`text-sm font-semibold transition-colors ${
+                                      isDone ? 'line-through text-theme-muted' : 'text-theme-text'
+                                    }`}
+                                  >
+                                    {question.title}
+                                  </h4>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Right: Solve in IDE Action */}
+                            <div className="flex items-center space-x-2 pl-8 md:pl-0">
+                              <button
+                                onClick={() => handleOpenWorkbench(question)}
+                                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 ${
+                                  isSelected && showWorkbench
+                                    ? 'bg-amber-500 text-black shadow-md'
+                                    : 'bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 border border-amber-500/30'
+                                }`}
+                              >
+                                <Code2 className="w-3.5 h-3.5" />
+                                <span>Solve in IDE</span>
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               );
-            })}
+            })
+          )}
+        </div>
+      ) : (
+        /* TABLE LIST VIEW */
+        <div className="bg-theme-card border border-theme-border rounded-3xl overflow-hidden shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-theme-cardSub/70 text-theme-muted uppercase tracking-wider text-[10px] border-b border-theme-border">
+                <tr>
+                  <th className="py-3 px-4 w-12 text-center">Status</th>
+                  <th className="py-3 px-3 w-16">No.</th>
+                  <th className="py-3 px-4">Problem Drill</th>
+                  <th className="py-3 px-3">Level</th>
+                  <th className="py-3 px-4">Category</th>
+                  <th className="py-3 px-3">Key Concepts</th>
+                  <th className="py-3 px-4 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-theme-border font-mono text-xs">
+                {filteredQuestions.map(q => {
+                  const isDone = completedIds.includes(q.id);
 
-            {filteredQuestions.length === 0 && (
-              <div className="text-center py-8 text-xs text-theme-muted bg-theme-card/30 rounded-2xl border border-dashed border-theme-border">
-                No questions found matching your filter.
-              </div>
-            )}
+                  return (
+                    <tr
+                      key={q.id}
+                      className="hover:bg-theme-cardSub/40 transition-colors font-sans"
+                    >
+                      <td className="py-3 px-4 text-center">
+                        <button
+                          type="button"
+                          onClick={() => toggleProblemCompletion(q.id)}
+                          className="transition-transform active:scale-95"
+                        >
+                          {isDone ? (
+                            <CheckCircle2 className="w-4 h-4 text-emerald-500 mx-auto" />
+                          ) : (
+                            <Circle className="w-4 h-4 text-theme-muted hover:text-amber-400 mx-auto" />
+                          )}
+                        </button>
+                      </td>
+
+                      <td className="py-3 px-3 font-mono text-theme-muted">
+                        #{q.index < 10 ? `0${q.index}` : q.index}
+                      </td>
+
+                      <td className="py-3 px-4 font-semibold text-theme-text">
+                        <span className={isDone ? 'line-through text-theme-muted' : ''}>
+                          {q.title}
+                        </span>
+                      </td>
+
+                      <td className="py-3 px-3 text-amber-400">
+                        {q.levelTitle.split(':')[0]}
+                      </td>
+
+                      <td className="py-3 px-4">
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                          {q.badge}
+                        </span>
+                      </td>
+
+                      <td className="py-3 px-3 text-theme-muted text-[11px] truncate max-w-xs">
+                        {(q.tags || []).join(', ')}
+                      </td>
+
+                      <td className="py-3 px-4 text-right">
+                        <button
+                          onClick={() => handleOpenWorkbench(q)}
+                          className="px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 border border-amber-500/30 font-bold text-xs"
+                        >
+                          Solve
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </div>
+      )}
 
-        {/* Right Side: Interactive IDE & Problem Workbench */}
-        {currentQuestion && (
-          <div className="lg:col-span-8 space-y-4">
-            {/* Problem Header Card */}
-            <div className="bg-theme-card border border-theme-border rounded-3xl p-5 shadow-sm space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-theme-border">
-                <div className="space-y-1">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-xs font-bold px-2 py-0.5 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                      {currentQuestion.levelTitle}
-                    </span>
-                    <span className="text-xs text-theme-muted font-mono">
-                      Problem #{currentQuestion.index}
-                    </span>
-                  </div>
-                  <h2 className="text-lg sm:text-xl font-black text-theme-text">
-                    {currentQuestion.title}
-                  </h2>
-                </div>
-
-                {/* Mark as Solved Button */}
-                <button
-                  onClick={() => toggleComplete(currentQuestion.id)}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm ${
-                    completedIds.includes(currentQuestion.id)
-                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 hover:bg-emerald-500/30'
-                      : 'bg-theme-cardSub text-theme-muted hover:text-theme-text border border-theme-border hover:border-emerald-500/50'
-                  }`}
-                >
-                  {completedIds.includes(currentQuestion.id) ? (
-                    <>
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                      <span>Completed ✓</span>
-                    </>
-                  ) : (
-                    <>
-                      <Circle className="w-4 h-4" />
-                      <span>Mark as Solved</span>
-                    </>
-                  )}
-                </button>
+      {/* 4. Interactive Java IDE Workbench (Opens on problem click) */}
+      {showWorkbench && currentQuestion && (
+        <div id="java-workbench-section" className="space-y-4 pt-4 border-t border-theme-border">
+          {/* Workbench Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-theme-card border border-theme-border rounded-3xl p-5 shadow-sm">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-500 flex-shrink-0">
+                <Code2 className="w-5 h-5" />
               </div>
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-black/40 text-theme-muted border border-theme-border">
+                    #{currentQuestion.index < 10 ? `0${currentQuestion.index}` : currentQuestion.index}
+                  </span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                    {currentQuestion.levelTitle}
+                  </span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700">
+                    {currentQuestion.badge}
+                  </span>
+                </div>
+                <h2 className="text-lg font-bold text-theme-text mt-1">
+                  {currentQuestion.title}
+                </h2>
+              </div>
+            </div>
 
-              {/* Workbench Tab Navigation */}
-              <div className="flex items-center space-x-2 border-b border-theme-border pb-2 text-xs">
+            <div className="flex items-center space-x-2">
+              <button
+                type="button"
+                onClick={() => toggleProblemCompletion(currentQuestion.id)}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 ${
+                  completedIds.includes(currentQuestion.id)
+                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+                    : 'bg-theme-cardSub text-theme-muted hover:text-theme-text border border-theme-border'
+                }`}
+              >
+                {completedIds.includes(currentQuestion.id) ? (
+                  <>
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <span>Solved ✓</span>
+                  </>
+                ) : (
+                  <>
+                    <Circle className="w-4 h-4" />
+                    <span>Mark as Solved</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                onClick={() => setShowWorkbench(false)}
+                className="p-1.5 rounded-xl bg-theme-cardSub hover:bg-theme-cardSub/80 text-theme-muted hover:text-theme-text border border-theme-border"
+                title="Close Workbench"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Workbench Grid: Left Description + Right Java IDE */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* Left Col: Problem Description, Sample I/O, Hints, Solution (lg:col-span-5) */}
+            <div className="lg:col-span-5 bg-theme-card border border-theme-border rounded-3xl p-5 sm:p-6 space-y-4 shadow-sm">
+              {/* Tab Navigation */}
+              <div className="flex items-center space-x-1 border-b border-theme-border pb-3 text-xs">
                 <button
-                  onClick={() => setActiveTab('description')}
-                  className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl font-bold transition-all ${
-                    activeTab === 'description'
-                      ? 'bg-theme-accent text-theme-accentBtnText shadow-sm'
-                      : 'text-theme-muted hover:text-theme-text hover:bg-theme-cardSub'
+                  onClick={() => setWorkbenchTab('description')}
+                  className={`px-3 py-1.5 rounded-xl font-bold transition-all flex items-center space-x-1.5 ${
+                    workbenchTab === 'description'
+                      ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                      : 'text-theme-muted hover:text-theme-text'
                   }`}
                 >
                   <BookOpen className="w-3.5 h-3.5" />
-                  <span>Problem Statement</span>
+                  <span>Problem</span>
                 </button>
 
                 <button
-                  onClick={() => setActiveTab('hints')}
-                  className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl font-bold transition-all ${
-                    activeTab === 'hints'
-                      ? 'bg-theme-accent text-theme-accentBtnText shadow-sm'
-                      : 'text-theme-muted hover:text-theme-text hover:bg-theme-cardSub'
+                  onClick={() => setWorkbenchTab('hints')}
+                  className={`px-3 py-1.5 rounded-xl font-bold transition-all flex items-center space-x-1.5 ${
+                    workbenchTab === 'hints'
+                      ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                      : 'text-theme-muted hover:text-theme-text'
                   }`}
                 >
                   <HelpCircle className="w-3.5 h-3.5" />
@@ -727,11 +908,11 @@ export default function JavaPracticeView() {
                 </button>
 
                 <button
-                  onClick={() => setActiveTab('solution')}
-                  className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl font-bold transition-all ${
-                    activeTab === 'solution'
-                      ? 'bg-theme-accent text-theme-accentBtnText shadow-sm'
-                      : 'text-theme-muted hover:text-theme-text hover:bg-theme-cardSub'
+                  onClick={() => setWorkbenchTab('solution')}
+                  className={`px-3 py-1.5 rounded-xl font-bold transition-all flex items-center space-x-1.5 ${
+                    workbenchTab === 'solution'
+                      ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                      : 'text-theme-muted hover:text-theme-text'
                   }`}
                 >
                   <Sparkles className="w-3.5 h-3.5 text-amber-400" />
@@ -739,31 +920,31 @@ export default function JavaPracticeView() {
                 </button>
               </div>
 
-              {/* Tab 1: Problem Description */}
-              {activeTab === 'description' && (
-                <div className="space-y-4 pt-1 text-xs sm:text-sm text-theme-text leading-relaxed">
-                  <div className="whitespace-pre-line font-normal text-theme-text/90">
+              {/* Tab 1: Description */}
+              {workbenchTab === 'description' && (
+                <div className="space-y-4 text-xs sm:text-sm text-theme-text leading-relaxed">
+                  <div className="whitespace-pre-line text-theme-text/90">
                     {currentQuestion.description}
                   </div>
 
                   {/* Sample I/O */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                     <div className="bg-[#090d13] border border-[#21262d] rounded-2xl p-3 font-mono text-xs">
-                      <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1.5 flex items-center justify-between">
-                        <span>Sample Input</span>
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 mb-1">
+                        Sample Input
                       </div>
                       <pre className="text-zinc-300 whitespace-pre-wrap">{currentQuestion.sampleInput}</pre>
                     </div>
 
                     <div className="bg-[#090d13] border border-[#21262d] rounded-2xl p-3 font-mono text-xs">
-                      <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 mb-1.5 flex items-center justify-between">
-                        <span>Expected Output</span>
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 mb-1">
+                        Expected Output
                       </div>
                       <pre className="text-emerald-300 whitespace-pre-wrap">{currentQuestion.sampleOutput}</pre>
                     </div>
                   </div>
 
-                  {/* Key Concepts Alert */}
+                  {/* Core Concepts */}
                   {currentQuestion.concepts && (
                     <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-3 text-xs text-amber-300 flex items-start space-x-2">
                       <Sparkles className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
@@ -777,13 +958,10 @@ export default function JavaPracticeView() {
               )}
 
               {/* Tab 2: Hints */}
-              {activeTab === 'hints' && (
-                <div className="space-y-3 pt-1">
-                  <div className="text-xs text-theme-muted mb-2">
-                    Read hints one by one if you get stuck before looking at the complete solution:
-                  </div>
+              {workbenchTab === 'hints' && (
+                <div className="space-y-3 text-xs sm:text-sm">
                   {currentQuestion.hints?.map((h, i) => (
-                    <div key={i} className="bg-theme-cardSub border border-theme-border rounded-2xl p-3 text-xs sm:text-sm text-theme-text flex items-start space-x-2.5">
+                    <div key={i} className="bg-theme-cardSub border border-theme-border rounded-2xl p-3 text-theme-text flex items-start space-x-2.5">
                       <span className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 font-bold text-xs flex items-center justify-center flex-shrink-0">
                         {i + 1}
                       </span>
@@ -794,12 +972,12 @@ export default function JavaPracticeView() {
               )}
 
               {/* Tab 3: Model Solution */}
-              {activeTab === 'solution' && (
-                <div className="space-y-3 pt-1">
+              {workbenchTab === 'solution' && (
+                <div className="space-y-3">
                   {!showSolution ? (
                     <div className="text-center py-6 bg-theme-cardSub border border-dashed border-theme-border rounded-2xl space-y-3">
                       <div className="text-xs text-theme-muted max-w-sm mx-auto">
-                        Give it your best shot first in the IDE below! If you're finished or stuck, reveal the official Java solution.
+                        Try writing your own solution in the IDE first! If you are stuck or want to cross-check, reveal the model solution.
                       </div>
                       <button
                         onClick={() => setShowSolution(true)}
@@ -813,35 +991,16 @@ export default function JavaPracticeView() {
                     <div className="space-y-2">
                       <div className="flex items-center justify-between text-xs">
                         <span className="font-bold text-amber-400 flex items-center space-x-1.5">
-                          <Check className="w-4 h-4 text-emerald-400" />
-                          <span>Official Solution (Clean Java 17)</span>
+                          <Check className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>Official Solution</span>
                         </span>
-                        <div className="flex items-center space-x-2">
-                          <button
-                            onClick={handleLoadSolutionToEditor}
-                            className="px-2.5 py-1 rounded-lg bg-theme-cardSub hover:bg-theme-card border border-theme-border text-xs text-theme-text font-medium flex items-center space-x-1 transition-all"
-                            title="Replace editor code with this solution"
-                          >
-                            <ArrowRight className="w-3.5 h-3.5 text-theme-accent" />
-                            <span>Load into Editor</span>
-                          </button>
-                          <button
-                            onClick={() => handleCopyCode(currentQuestion.solutionCode, 'solution')}
-                            className="px-2.5 py-1 rounded-lg bg-theme-cardSub hover:bg-theme-card border border-theme-border text-xs text-theme-text font-medium flex items-center space-x-1 transition-all"
-                          >
-                            {copiedSolution ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-theme-muted" />}
-                            <span>{copiedSolution ? 'Copied!' : 'Copy Code'}</span>
-                          </button>
-                          <button
-                            onClick={() => setShowSolution(false)}
-                            className="p-1 rounded-lg hover:bg-theme-cardSub text-theme-muted hover:text-theme-text"
-                            title="Hide solution"
-                          >
-                            <EyeOff className="w-4 h-4" />
-                          </button>
-                        </div>
+                        <button
+                          onClick={() => handleCopyCode(currentQuestion.solutionCode)}
+                          className="text-theme-muted hover:text-theme-text text-[11px] underline"
+                        >
+                          Copy solution
+                        </button>
                       </div>
-
                       <div className="bg-[#0d1117] border border-[#21262d] rounded-2xl p-4 font-mono text-xs overflow-x-auto text-zinc-200">
                         <pre className="whitespace-pre">{currentQuestion.solutionCode}</pre>
                       </div>
@@ -851,9 +1010,9 @@ export default function JavaPracticeView() {
               )}
             </div>
 
-            {/* Interactive Java IDE Canvas */}
-            <div className="bg-theme-card border border-theme-border rounded-3xl overflow-hidden shadow-md">
-              {/* IDE Action Bar */}
+            {/* Right Col: Interactive Java IDE Canvas (lg:col-span-7) */}
+            <div className="lg:col-span-7 bg-theme-card border border-theme-border rounded-3xl overflow-hidden shadow-md">
+              {/* IDE Top Action Bar */}
               <div className="px-4 py-2.5 bg-[#090d13] border-b border-[#21262d] flex items-center justify-between gap-2 text-xs font-mono">
                 <div className="flex items-center space-x-2 truncate">
                   <span className="w-2.5 h-2.5 rounded-full bg-red-500/80 inline-block" />
@@ -867,7 +1026,7 @@ export default function JavaPracticeView() {
 
                 <div className="flex items-center space-x-2">
                   <button
-                    onClick={() => handleCopyCode(userCode, 'code')}
+                    onClick={() => handleCopyCode(userCode)}
                     className="px-2.5 py-1 rounded-lg bg-[#161b22] hover:bg-[#21262d] text-zinc-300 text-xs font-mono flex items-center space-x-1.5 transition-colors border border-[#30363d]"
                     title="Copy Java code"
                   >
@@ -886,7 +1045,7 @@ export default function JavaPracticeView() {
 
                   <button
                     onClick={handleRunJavaCheck}
-                    className="px-3.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 font-mono font-bold text-xs flex items-center space-x-1.5 border border-emerald-500/40 transition-all shadow-sm"
+                    className="px-3.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-mono font-bold text-xs flex items-center space-x-1.5 border border-amber-400 transition-all shadow-sm"
                   >
                     <Play className="w-3.5 h-3.5 fill-current" />
                     <span>Run Java</span>
@@ -894,19 +1053,19 @@ export default function JavaPracticeView() {
                 </div>
               </div>
 
-              {/* CodeEditor component */}
+              {/* CodeEditor */}
               <CodeEditor
                 value={userCode}
                 onChange={handleCodeChange}
                 placeholder="// Write your Java solution here..."
-                minRows={17}
+                minRows={16}
               />
 
               {/* Stdin Input Bar */}
               <div className="px-4 py-2.5 bg-[#0d1117] border-t border-[#21262d] flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
                 <div className="flex items-center space-x-2 text-zinc-300 flex-1 min-w-[240px]">
                   <span className="text-[11px] font-bold text-zinc-400 flex items-center space-x-1 flex-shrink-0">
-                    <Terminal className="w-3.5 h-3.5 text-emerald-400" />
+                    <Terminal className="w-3.5 h-3.5 text-amber-400" />
                     <span>Input (stdin):</span>
                   </span>
                   <input
@@ -914,7 +1073,7 @@ export default function JavaPracticeView() {
                     value={customStdin}
                     onChange={(e) => setCustomStdin(e.target.value)}
                     placeholder="Enter input for Scanner (e.g. 10 10 10 or 25.0)"
-                    className="flex-1 bg-[#161b22] border border-[#30363d] focus:border-emerald-500/60 rounded-lg px-2.5 py-1 text-xs text-zinc-200 placeholder:text-zinc-600 focus:outline-none transition-colors"
+                    className="flex-1 bg-[#161b22] border border-[#30363d] focus:border-amber-500/60 rounded-lg px-2.5 py-1 text-xs text-zinc-200 placeholder:text-zinc-600 focus:outline-none transition-colors"
                   />
                 </div>
                 {currentQuestion?.sampleInput && (
@@ -929,7 +1088,7 @@ export default function JavaPracticeView() {
                 )}
               </div>
 
-              {/* Output / Verification Console Terminal */}
+              {/* Console Output Terminal */}
               {terminalOutput && (
                 <div className="border-t border-[#21262d] bg-[#070a0e] p-4 font-mono text-xs space-y-2">
                   <div className="flex items-center justify-between">
@@ -956,16 +1115,6 @@ export default function JavaPracticeView() {
                       <pre className="text-emerald-300 bg-black/60 p-3 rounded-xl border border-emerald-500/20 leading-relaxed overflow-x-auto whitespace-pre-wrap font-mono">
                         {terminalOutput.output}
                       </pre>
-                      {terminalOutput.warnings && terminalOutput.warnings.length > 0 && (
-                        <div className="mt-2 p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[11px] space-y-1">
-                          {terminalOutput.warnings.map((w, idx) => (
-                            <div key={idx} className="flex items-start space-x-1.5">
-                              <span className="text-amber-400 font-bold">ℹ</span>
-                              <span>{w}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
                     </div>
                   ) : (
                     <div className="p-3 rounded-xl border bg-rose-950/20 border-rose-500/30 text-rose-300 space-y-1.5">
@@ -974,7 +1123,7 @@ export default function JavaPracticeView() {
                         <span>{terminalOutput.message}</span>
                       </div>
                       <ul className="space-y-1 text-[11px]">
-                        {terminalOutput.errors.map((err, idx) => (
+                        {terminalOutput.errors?.map((err, idx) => (
                           <li key={idx} className="flex items-start space-x-1.5">
                             <span className="text-rose-500 font-bold">•</span>
                             <span>{err}</span>
@@ -987,99 +1136,85 @@ export default function JavaPracticeView() {
               )}
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
-      {/* 3. Add Custom Question Modal (from Claude or elsewhere) */}
+      {/* 5. Add Custom Question Modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-theme-card border border-theme-border rounded-3xl p-6 max-w-xl w-full shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-theme-border pb-3">
-              <div className="flex items-center space-x-2">
-                <Plus className="w-5 h-5 text-theme-accent" />
-                <h3 className="font-bold text-theme-text text-base">Add Custom Java Question</h3>
+          <div className="bg-[#0d1117] border border-[#21262d] rounded-3xl p-6 max-w-xl w-full shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-[#21262d] pb-3">
+              <div className="flex items-center space-x-2 text-amber-400 font-bold text-sm">
+                <Plus className="w-4 h-4" />
+                <span>Add Custom Java Practice Question</span>
               </div>
               <button
                 onClick={() => setShowAddModal(false)}
-                className="p-1 rounded-xl hover:bg-theme-cardSub text-theme-muted hover:text-theme-text"
+                className="text-zinc-500 hover:text-zinc-300"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <form onSubmit={handleSaveCustomQuestion} className="space-y-3.5 text-xs">
+            <form onSubmit={handleSaveCustomQuestion} className="space-y-3.5 text-xs font-sans">
               <div>
-                <label className="block font-bold text-theme-text mb-1">Question Title *</label>
+                <label className="block text-zinc-400 font-semibold mb-1">Problem Title *</label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g., Check if a number is an Armstrong number"
+                  placeholder="e.g. Reverse a number or Check Palindrome"
                   value={customTitle}
                   onChange={(e) => setCustomTitle(e.target.value)}
-                  className="w-full bg-theme-cardSub border border-theme-border rounded-xl px-3 py-2 text-theme-text placeholder:text-theme-muted focus:outline-none focus:border-theme-accent"
+                  className="w-full bg-[#161b22] border border-[#30363d] rounded-xl px-3 py-2 text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-amber-500 text-xs"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-theme-text mb-1">Level Category</label>
+                <label className="block text-zinc-400 font-semibold mb-1">Level Group</label>
                 <select
                   value={customLevel}
                   onChange={(e) => setCustomLevel(e.target.value)}
-                  className="w-full bg-theme-cardSub border border-theme-border rounded-xl px-3 py-2 text-theme-text focus:outline-none focus:border-theme-accent"
+                  className="w-full bg-[#161b22] border border-[#30363d] rounded-xl px-3 py-2 text-zinc-200 focus:outline-none focus:border-amber-500 text-xs"
                 >
-                  <option value="level-1">Level 1: Start Here (Basics & I/O)</option>
-                  <option value="level-2">Level 2: Conditions (if/else & switch)</option>
-                  <option value="level-3">Level 3: Loops & Patterns</option>
-                  <option value="level-4">Level 4: Methods & Arrays</option>
-                  <option value="level-5">Level 5: OOPs & Projects</option>
+                  <option value="level-1">Level 1: Start Here</option>
+                  <option value="level-2">Level 2: Conditions</option>
                 </select>
               </div>
 
               <div>
-                <label className="block font-bold text-theme-text mb-1">Problem Description</label>
+                <label className="block text-zinc-400 font-semibold mb-1">Problem Description</label>
                 <textarea
-                  rows={4}
-                  placeholder="Paste question details, input/output requirements here..."
+                  rows={3}
+                  placeholder="Describe requirements, inputs, outputs, etc."
                   value={customDesc}
                   onChange={(e) => setCustomDesc(e.target.value)}
-                  className="w-full bg-theme-cardSub border border-theme-border rounded-xl px-3 py-2 text-theme-text placeholder:text-theme-muted focus:outline-none focus:border-theme-accent resize-none font-sans"
+                  className="w-full bg-[#161b22] border border-[#30363d] rounded-xl px-3 py-2 text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-amber-500 text-xs"
                 />
               </div>
 
               <div>
-                <label className="block font-bold text-theme-text mb-1">Starter Template Code</label>
+                <label className="block text-zinc-400 font-semibold mb-1">Starter Template Code</label>
                 <textarea
-                  rows={5}
+                  rows={4}
                   value={customStarter}
                   onChange={(e) => setCustomStarter(e.target.value)}
-                  className="w-full bg-[#0d1117] text-zinc-200 font-mono border border-theme-border rounded-xl px-3 py-2 focus:outline-none focus:border-theme-accent resize-none"
+                  className="w-full bg-[#161b22] border border-[#30363d] rounded-xl px-3 py-2 text-zinc-200 font-mono text-xs focus:outline-none focus:border-amber-500"
                 />
               </div>
 
-              <div>
-                <label className="block font-bold text-theme-text mb-1">Model Solution Code (Optional)</label>
-                <textarea
-                  rows={5}
-                  placeholder="Paste Claude's verified solution code here..."
-                  value={customSolution}
-                  onChange={(e) => setCustomSolution(e.target.value)}
-                  className="w-full bg-[#0d1117] text-zinc-200 font-mono border border-theme-border rounded-xl px-3 py-2 focus:outline-none focus:border-theme-accent resize-none"
-                />
-              </div>
-
-              <div className="flex items-center justify-end space-x-2 pt-2 border-t border-theme-border">
+              <div className="flex items-center justify-end space-x-2 pt-2 border-t border-[#21262d]">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 rounded-xl text-theme-muted hover:text-theme-text font-bold"
+                  className="px-4 py-2 rounded-xl text-zinc-400 hover:text-zinc-200 text-xs"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-theme-accent text-theme-accentBtnText font-bold shadow-theme-glow hover:opacity-90"
+                  className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs shadow-sm transition-all"
                 >
-                  Save to Practice Lab
+                  Save Question
                 </button>
               </div>
             </form>
