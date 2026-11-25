@@ -3,6 +3,7 @@ import {
   DashboardView,
   ProgressView,
   RoadmapView,
+  JavaPracticeView,
   SimpleNotesModal
 } from './components';
 import { 
@@ -17,7 +18,8 @@ import {
   Smartphone,
   Share2,
   Check,
-  X
+  X,
+  Coffee
 } from 'lucide-react';
 import { useLearning } from './context/LearningContext';
 import { useTheme } from './context/ThemeContext';
@@ -28,11 +30,11 @@ export default function App() {
   const [activeNav, setActiveNav] = useState(() => {
     try {
       const saved = localStorage.getItem(ACTIVE_NAV_STORAGE_KEY);
-      if (saved && ['dashboard', 'progress', 'roadmap'].includes(saved)) {
+      if (saved && ['dashboard', 'progress', 'roadmap', 'java-practice'].includes(saved)) {
         return saved;
       }
     } catch (e) {}
-    return 'dashboard'; // 'dashboard', 'progress', 'roadmap'
+    return 'dashboard'; // 'dashboard', 'progress', 'roadmap', 'java-practice'
   });
 
   useEffect(() => {
@@ -188,6 +190,18 @@ export default function App() {
             >
               <Map className="w-4 h-4" />
               <span>Roadmap</span>
+            </button>
+
+            <button
+              onClick={() => setActiveNav('java-practice')}
+              className={`flex items-center space-x-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl font-bold transition-all whitespace-nowrap ${
+                activeNav === 'java-practice'
+                  ? 'bg-theme-accent text-theme-accentBtnText shadow-theme-glow'
+                  : 'text-theme-muted hover:text-theme-text hover:bg-theme-cardSub'
+              }`}
+            >
+              <Coffee className="w-4 h-4 text-amber-400" />
+              <span>Java Practice</span>
             </button>
           </nav>
 
@@ -375,6 +389,10 @@ export default function App() {
         {activeNav === 'roadmap' && (
           <RoadmapView onOpenNotes={handleOpenNotes} />
         )}
+
+        {activeNav === 'java-practice' && (
+          <JavaPracticeView />
+        )}
       </main>
 
       {/* Modern Footer (Desktop only) */}
@@ -391,16 +409,16 @@ export default function App() {
       {/* Mobile Bottom Navigation Dock (Like a Native Mobile App) */}
       <nav 
         aria-label="Mobile Navigation"
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-theme-border shadow-2xl backdrop-blur-md px-3 py-2 transition-colors duration-200"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-theme-border shadow-2xl backdrop-blur-md px-2 py-2 transition-colors duration-200"
         style={{ backgroundColor: activeTheme.vars['--bg-header'] }}
       >
-        <div className="flex items-center justify-around max-w-md mx-auto">
+        <div className="flex items-center justify-between max-w-md mx-auto">
           <button
             onClick={() => {
               setActiveNav('dashboard');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className={`flex flex-col items-center justify-center py-1 px-4 rounded-2xl transition-all ${
+            className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl transition-all ${
               activeNav === 'dashboard'
                 ? 'text-theme-accent font-bold scale-105'
                 : 'text-theme-muted hover:text-theme-text'
@@ -417,7 +435,7 @@ export default function App() {
               setActiveNav('progress');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className={`flex flex-col items-center justify-center py-1 px-4 rounded-2xl transition-all ${
+            className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl transition-all ${
               activeNav === 'progress'
                 ? 'text-theme-accent font-bold scale-105'
                 : 'text-theme-muted hover:text-theme-text'
@@ -434,7 +452,7 @@ export default function App() {
               setActiveNav('roadmap');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className={`flex flex-col items-center justify-center py-1 px-4 rounded-2xl transition-all ${
+            className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl transition-all ${
               activeNav === 'roadmap'
                 ? 'text-theme-accent font-bold scale-105'
                 : 'text-theme-muted hover:text-theme-text'
@@ -444,6 +462,23 @@ export default function App() {
               <Map className="w-5 h-5" />
             </div>
             <span className="text-[10px] mt-0.5 tracking-tight font-medium">Roadmap</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setActiveNav('java-practice');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-2xl transition-all ${
+              activeNav === 'java-practice'
+                ? 'text-theme-accent font-bold scale-105'
+                : 'text-theme-muted hover:text-theme-text'
+            }`}
+          >
+            <div className={`p-1 rounded-xl ${activeNav === 'java-practice' ? 'bg-theme-accentSub text-theme-accent' : ''}`}>
+              <Coffee className="w-5 h-5 text-amber-400" />
+            </div>
+            <span className="text-[10px] mt-0.5 tracking-tight font-medium">Java</span>
           </button>
         </div>
       </nav>
