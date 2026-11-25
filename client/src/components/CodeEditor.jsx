@@ -281,22 +281,11 @@ function moveLines(text, selStart, selEnd, direction) {
   }
 }
 
-// Highlight syntax with bracket match illumination
-function highlightSyntaxWithBrackets(code, bracketInfo) {
+// Clean, exact-width syntax highlighting (ZERO padding or font-weight shifts to guarantee 100% pixel-perfect caret alignment)
+function highlightSyntaxWithBrackets(code) {
   if (!code) return '';
 
-  const matchedSet = new Set();
-  if (bracketInfo) {
-    if (bracketInfo.targetIdx !== undefined && bracketInfo.targetIdx >= 0) {
-      matchedSet.add(bracketInfo.targetIdx);
-    }
-    if (bracketInfo.matchIdx !== undefined && bracketInfo.matchIdx >= 0) {
-      matchedSet.add(bracketInfo.matchIdx);
-    }
-  }
-
   return code.replace(TOKEN_REGEX, (match, ...args) => {
-    const offset = args[args.length - 3];
     const groups = args[args.length - 1] || {};
 
     const safe = match
@@ -304,20 +293,14 @@ function highlightSyntaxWithBrackets(code, bracketInfo) {
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
 
-    if (groups.bracket) {
-      const isMatched = matchedSet.has(offset);
-      if (isMatched) {
-        return `<span class="bg-amber-400/35 text-amber-300 ring-1 ring-amber-400 rounded-sm font-extrabold shadow-[0_0_10px_rgba(251,191,36,0.8)] px-0.5">${safe}</span>`;
-      }
-      return `<span class="text-yellow-300 font-bold">${safe}</span>`;
-    }
-
+    // Brackets: clean text color with ZERO padding or background so characters never shift
+    if (groups.bracket) return `<span class="text-zinc-400 font-normal">${safe}</span>`;
     if (groups.comment) return `<span class="text-zinc-500 italic font-normal">${safe}</span>`;
-    if (groups.string) return `<span class="text-emerald-400 font-medium">${safe}</span>`;
-    if (groups.keyword) return `<span class="text-purple-400 font-semibold">${safe}</span>`;
-    if (groups.number) return `<span class="text-amber-400 font-medium">${safe}</span>`;
-    if (groups.fn) return `<span class="text-sky-400 font-semibold">${safe}</span>`;
-    if (groups.op) return `<span class="text-pink-400">${safe}</span>`;
+    if (groups.string) return `<span class="text-emerald-400 font-normal">${safe}</span>`;
+    if (groups.keyword) return `<span class="text-purple-400 font-normal">${safe}</span>`;
+    if (groups.number) return `<span class="text-amber-400 font-normal">${safe}</span>`;
+    if (groups.fn) return `<span class="text-sky-400 font-normal">${safe}</span>`;
+    if (groups.op) return `<span class="text-pink-400 font-normal">${safe}</span>`;
     return safe;
   });
 }
@@ -601,7 +584,47 @@ export default function CodeEditor({
       }
     }
 
-    // 2. Shift + Alt + F -> Format document
+    // 2. Ctrl + / or Cmd + / -> Toggle Line Comment (//)
+    if ((e.ctrlKey || e.metaKey) && e.key === '/') {
+      e.preventDefault();
+      const firstLineStart = value.lastIndexOf('\n', start - 1) + 1;
+      const lastLineEnd = value.indexOf('\n', end);
+      const actualEnd = lastLineEnd === -1 ? value.length : lastLineEnd;
+
+      const selectedBlock = value.substring(firstLineStart, actualEnd);
+      const lines = selectedBlock.split('\n');
+
+      // If all lines are commented with //, uncomment them; otherwise, comment them
+      const allCommented = lines.every(line => /^\s*\/\//.test(line));
+
+      let delta = 0;
+      const modifiedLines = lines.map(line => {
+        if (allCommented) {
+          const match = line.match(/^(\s*)\/\/\s?/);
+          if (match) {
+            delta -= match[0].length - match[1].length;
+            return line.replace(/^(\s*)\/\/\s?/, '$1');
+          }
+          return line;
+        } else {
+          delta += 3;
+          const match = line.match(/^(\s*)/);
+          const indent = match ? match[1] : '';
+          return indent + '// ' + line.slice(indent.length);
+        }
+      });
+
+      const newBlock = modifiedLines.join('\n');
+      const newVal = value.substring(0, firstLineStart) + newBlock + value.substring(actualEnd);
+      pendingSelectionRef.current = {
+        start: firstLineStart,
+        end: actualEnd + delta
+      };
+      onChange(newVal);
+      return;
+    }
+
+    // 3. Shift + Alt + F -> Format document
     if (e.shiftKey && e.altKey && e.key.toLowerCase() === 'f') {
       e.preventDefault();
       handleFormatDocument();
@@ -763,10 +786,10 @@ export default function CodeEditor({
     }
   };
 
-  // Highlight syntax with bracket match illumination
+  // Highlight syntax with clean, exact-width tokens
   const highlightedHtml = useMemo(() => {
-    return highlightSyntaxWithBrackets(value, bracketInfo);
-  }, [value, bracketInfo]);
+    return highlightSyntaxWithBrackets(value);
+  }, [value]);
 
   return (
     <div className={`relative flex flex-col rounded-b-2xl overflow-hidden font-mono text-xs sm:text-sm bg-[#0d1117] border border-[#21262d] ${className}`}>
@@ -776,7 +799,7 @@ export default function CodeEditor({
         <div
           ref={gutterRef}
           aria-hidden="true"
-          className="select-none py-3 px-3 bg-[#090d13] border-r border-[#21262d] text-zinc-500/50 text-right font-mono text-xs leading-[22px] overflow-hidden flex-shrink-0"
+          className="select-none py-3 px-3 bg-[#090d13] border-r border-[#21262d] text-zinc-500/50 text-right font-mono text-xs leading-[22px] tracking-normal overflow-hidden flex-shrink-0"
           style={{ minWidth: '42px' }}
         >
           {Array.from({ length: lineCount }).map((_, i) => (
@@ -797,7 +820,13 @@ export default function CodeEditor({
           <pre
             ref={preRef}
             aria-hidden="true"
-            className="absolute inset-0 m-0 py-3 px-4 font-mono text-xs sm:text-sm leading-[22px] whitespace-pre overflow-hidden pointer-events-none text-zinc-200 select-none z-10"
+            className="absolute inset-0 m-0 py-3 px-4 font-mono text-xs sm:text-sm leading-[22px] tracking-normal whitespace-pre overflow-hidden pointer-events-none text-zinc-200 select-none z-10"
+            style={{
+              tabSize: 2,
+              MozTabSize: 2,
+              fontFeatureSettings: 'normal',
+              fontVariantLigatures: 'none'
+            }}
             dangerouslySetInnerHTML={{ __html: highlightedHtml + (value.endsWith('\n') ? ' ' : '') }}
           />
 
@@ -819,8 +848,14 @@ export default function CodeEditor({
             autoCorrect="off"
             autoCapitalize="off"
             rows={minRows}
-            className="relative z-20 w-full h-full m-0 py-3 px-4 font-mono text-xs sm:text-sm leading-[22px] whitespace-pre bg-transparent text-transparent caret-theme-accent placeholder:text-zinc-600 focus:outline-none resize-none overflow-auto"
-            style={{ minHeight: `${minRows * 22 + 24}px` }}
+            className="relative z-20 w-full h-full m-0 py-3 px-4 font-mono text-xs sm:text-sm leading-[22px] tracking-normal whitespace-pre bg-transparent text-transparent caret-theme-accent placeholder:text-zinc-600 focus:outline-none resize-none overflow-auto"
+            style={{
+              minHeight: `${minRows * 22 + 24}px`,
+              tabSize: 2,
+              MozTabSize: 2,
+              fontFeatureSettings: 'normal',
+              fontVariantLigatures: 'none'
+            }}
           />
 
           {/* 3. Floating Auto-Suggestions / IntelliSense Dropdown */}
@@ -883,34 +918,14 @@ export default function CodeEditor({
 
       {/* 2. Professional IDE Status Bar & Action Toolbar */}
       <div className="px-3 py-1.5 bg-[#090d13] border-t border-[#21262d] flex flex-wrap items-center justify-between gap-2 text-[11px] text-zinc-400 font-mono select-none">
-        {/* Left: Position & Matching Bracket info */}
+        {/* Left: Position info */}
         <div className="flex items-center space-x-3">
           <span className="text-zinc-400 font-medium">
             Ln <strong className="text-zinc-200">{cursorCoords.line}</strong>, Col <strong className="text-zinc-200">{cursorCoords.col}</strong>
           </span>
-
-          <span className="text-zinc-600">|</span>
-
-          {/* Bracket Matching Indicator */}
-          {bracketInfo ? (
-            bracketInfo.found ? (
-              <span className="inline-flex items-center space-x-1 text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/20 text-[10px] font-semibold">
-                <span>Bracket</span>
-                <span>{bracketInfo.targetChar} (Ln {bracketInfo.targetLine}) ↔ {bracketInfo.matchChar} (Ln {bracketInfo.matchLine})</span>
-              </span>
-            ) : (
-              <span className="inline-flex items-center space-x-1 text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/30 text-[10px] font-bold animate-pulse">
-                <span>Unmatched: {bracketInfo.targetChar}</span>
-              </span>
-            )
-          ) : (
-            <span className="text-zinc-500 hidden sm:inline text-[10px]">
-              Brackets matched
-            </span>
-          )}
         </div>
 
-        {/* Right: Format Document & Keyboard shortcut helpers */}
+        {/* Right: Format Document, Commenting & Keyboard shortcut helpers */}
         <div className="flex items-center space-x-2 text-[10px]">
           {/* Format Code button */}
           <button
@@ -933,7 +948,7 @@ export default function CodeEditor({
           </button>
 
           <span className="hidden md:inline text-zinc-500">
-            <span className="text-zinc-400 font-semibold">Alt+↑/↓</span> Move Line • <span className="text-zinc-400 font-semibold">Tab</span> Indent
+            <span className="text-zinc-400 font-semibold">Ctrl+/</span> Comment • <span className="text-zinc-400 font-semibold">Alt+↑/↓</span> Move • <span className="text-zinc-400 font-semibold">Tab</span> Indent
           </span>
         </div>
       </div>

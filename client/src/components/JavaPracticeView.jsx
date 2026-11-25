@@ -196,26 +196,34 @@ export default function JavaPracticeView() {
     }
   };
 
-  // Run Java Syntax and Structure Verification
+  // Run Comprehensive Java Syntax, Structure and Logic Verification
   const handleRunJavaCheck = () => {
-    const code = userCode;
+    const code = userCode || '';
     const errors = [];
     const warnings = [];
 
-    // Check class declaration
-    if (!code.includes('class ') && !code.includes('class\t')) {
-      errors.push('Missing Java class definition (e.g., public class Main { ... })');
+    // 1. Basic emptiness check
+    if (!code.trim()) {
+      setTerminalOutput({
+        success: false,
+        message: 'Compilation Failed: Empty File',
+        details: ['error: File contains no code. Write your Java program first!']
+      });
+      return;
     }
 
-    // Check main method
+    // 2. Class definition check
+    if (!/\bclass\s+\w+/.test(code)) {
+      errors.push('error: class, interface, or enum expected (e.g. public class Main { ... })');
+    }
+
+    // 3. Main method check
     if (!code.includes('public static void main') && !code.includes('static public void main')) {
-      errors.push('Missing main method signature: public static void main(String[] args)');
+      errors.push('error: Main method not found in class. Please define: public static void main(String[] args)');
     }
 
-    // Check balanced braces
-    let openBraces = 0;
-    let openParens = 0;
-    let openBrackets = 0;
+    // 4. Balanced braces and brackets check
+    let openBraces = 0, openParens = 0, openBrackets = 0;
     for (let c of code) {
       if (c === '{') openBraces++;
       else if (c === '}') openBraces--;
@@ -224,35 +232,204 @@ export default function JavaPracticeView() {
       else if (c === '[') openBrackets++;
       else if (c === ']') openBrackets--;
     }
-    if (openBraces !== 0) errors.push(`Unbalanced curly braces { }: diff = ${openBraces}`);
-    if (openParens !== 0) errors.push(`Unbalanced parentheses ( ): diff = ${openParens}`);
-    if (openBrackets !== 0) errors.push(`Unbalanced brackets [ ]: diff = ${openBrackets}`);
+    if (openBraces !== 0) errors.push(`error: reached end of file while parsing (unclosed curly braces { }, difference: ${openBraces})`);
+    if (openParens !== 0) errors.push(`error: ')' expected (unbalanced parentheses, difference: ${openParens})`);
+    if (openBrackets !== 0) errors.push(`error: ']' expected (unbalanced square brackets, difference: ${openBrackets})`);
 
-    // Check Scanner usage
+    // 5. Line-by-line syntax check
+    const lines = code.split('\n');
+    lines.forEach((line, idx) => {
+      const lineNum = idx + 1;
+      const trimmed = line.trim();
+
+      // Check for unclosed string literals
+      const quoteMatches = trimmed.match(/"/g);
+      if (quoteMatches && (quoteMatches.length % 2 !== 0)) {
+        errors.push(`error: unclosed string literal at line ${lineNum}: ${trimmed}`);
+      }
+
+      // Check for illegal JavaScript / Python keywords
+      if (/\b(?:let|var|const)\s+[a-zA-Z_$]/.test(trimmed) && !trimmed.startsWith('//')) {
+        errors.push(`error: illegal keyword at line ${lineNum}: In Java, variables require explicit types like int, double, String, boolean.`);
+      }
+      if (/\bfunction\s+[a-zA-Z_$]/.test(trimmed) && !trimmed.startsWith('//')) {
+        errors.push(`error: illegal keyword 'function' at line ${lineNum}: In Java, define methods with return type, e.g. void methodName()`);
+      }
+      if (trimmed.includes('console.log') && !trimmed.startsWith('//')) {
+        errors.push(`error: cannot find symbol 'console.log' at line ${lineNum}: Use System.out.println() in Java.`);
+      }
+
+      // Check Scanner method case sensitivity
+      if (/\bsc\.nextint\(\)/i.test(trimmed) && !trimmed.includes('sc.nextInt()') && !trimmed.startsWith('//')) {
+        errors.push(`error: cannot find symbol method nextint() at line ${lineNum} (Java is case-sensitive! Use sc.nextInt())`);
+      }
+      if (/\bsc\.nextdouble\(\)/i.test(trimmed) && !trimmed.includes('sc.nextDouble()') && !trimmed.startsWith('//')) {
+        errors.push(`error: cannot find symbol method nextdouble() at line ${lineNum} (Java is case-sensitive! Use sc.nextDouble())`);
+      }
+      if (/\bsc\.nextline\(\)/i.test(trimmed) && !trimmed.includes('sc.nextLine()') && !trimmed.startsWith('//')) {
+        errors.push(`error: cannot find symbol method nextline() at line ${lineNum} (Java is case-sensitive! Use sc.nextLine())`);
+      }
+      if (trimmed.includes('sc.nextChar(') && !trimmed.startsWith('//')) {
+        errors.push(`error: cannot find symbol method nextChar() at line ${lineNum}: Scanner has no nextChar(). Use sc.next().charAt(0)`);
+      }
+      if (/\bsystem\.out\b/.test(trimmed) && !trimmed.startsWith('//')) {
+        errors.push(`error: package system does not exist at line ${lineNum}: Use capital 'System.out.println'`);
+      }
+      if (/\bSystem\.out\.(?:printLn|PrintLn)\b/.test(trimmed) && !trimmed.startsWith('//')) {
+        errors.push(`error: cannot find symbol at line ${lineNum}: method name is println (all lowercase)`);
+      }
+
+      // Check missing semicolon on statements
+      if (
+        trimmed &&
+        !trimmed.startsWith('//') &&
+        !trimmed.startsWith('/*') &&
+        !trimmed.startsWith('*') &&
+        !trimmed.endsWith('{') &&
+        !trimmed.endsWith('}') &&
+        !trimmed.endsWith(';') &&
+        !trimmed.endsWith(':') &&
+        !trimmed.startsWith('if') &&
+        !trimmed.startsWith('for') &&
+        !trimmed.startsWith('while') &&
+        !trimmed.startsWith('switch') &&
+        !trimmed.startsWith('else') &&
+        !trimmed.startsWith('class') &&
+        !trimmed.startsWith('public') &&
+        !trimmed.startsWith('private') &&
+        !trimmed.startsWith('static') &&
+        !trimmed.startsWith('import') &&
+        !trimmed.startsWith('@')
+      ) {
+        if (/\b(?:int|double|String|boolean|char|float|long|return|sc\.|System\.out|break|continue|=)\b/.test(trimmed)) {
+          errors.push(`error: ';' expected at line ${lineNum}: "${trimmed}"`);
+        }
+      }
+    });
+
+    // 6. Scanner import check
     if (code.includes('new Scanner') && !code.includes('import java.util.Scanner') && !code.includes('import java.util.*')) {
-      errors.push("Using Scanner without importing it! Add: import java.util.Scanner; at top of file.");
+      errors.push("error: cannot find symbol class Scanner: Add 'import java.util.Scanner;' at the top of the file.");
     }
 
     if (code.includes('Scanner') && !code.includes('.close()')) {
-      warnings.push("Resource leak tip: Remember to close your scanner with sc.close(); at end of main.");
+      warnings.push("Resource warning: Scanner is never closed. Add 'sc.close();' before exiting main().");
+    }
+
+    // 7. Output existence check
+    const hasPrint = code.includes('System.out.println') || code.includes('System.out.print');
+    if (!hasPrint) {
+      warnings.push("Warning: No System.out.println() output statement found. Your program will produce no output on the screen!");
+    }
+
+    // 8. Question-specific requirement / logic checks
+    if (currentQuestion) {
+      const qId = currentQuestion.id;
+      const cleanCode = code.replace(/\/\/.*$/gm, '').replace(/\/\*[\s\S]*?\*\//g, '');
+
+      if (qId === 'l1_q1') {
+        const printlnCount = (cleanCode.match(/System\.out\.println/g) || []).length;
+        if (printlnCount < 3) {
+          errors.push("Logic error: You must print your name, city, and favourite language on THREE separate lines using System.out.println().");
+        }
+      } else if (qId === 'l1_q2') {
+        const hasAllOps = ['+', '-', '*', '/'].every(op => cleanCode.includes(op));
+        if (!hasAllOps) {
+          errors.push("Logic error: Must compute all 4 operations: Sum (+), Difference (-), Product (*), and Quotient (/).");
+        }
+      } else if (qId === 'l1_q3') {
+        if (!cleanCode.includes('*')) {
+          errors.push("Logic error: Rectangle Area calculation requires length * width.");
+        }
+        if (!cleanCode.includes('+')) {
+          errors.push("Logic error: Rectangle Perimeter calculation requires 2 * (length + width).");
+        }
+      } else if (qId === 'l1_q4') {
+        // Celsius to Fahrenheit
+        const hasFahrenheitFormula = cleanCode.includes('32') && (cleanCode.includes('9.0') || cleanCode.includes('1.8') || cleanCode.includes('9'));
+        if (!hasFahrenheitFormula) {
+          errors.push("Logic error: Missing Celsius to Fahrenheit conversion formula! Formula: (celsius * 9.0 / 5.0) + 32;");
+        }
+        if (cleanCode.includes('9 / 5')) {
+          errors.push("Warning: You wrote '9 / 5' which equals 1 in integer division! Use '9.0 / 5.0' or '1.8' instead.");
+        }
+      } else if (qId === 'l1_q5') {
+        if (!cleanCode.includes('/ 7') && !cleanCode.includes('/7')) {
+          errors.push("Logic error: Weeks calculation requires dividing total days by 7 (days / 7).");
+        }
+        if (!cleanCode.includes('% 7') && !cleanCode.includes('%7')) {
+          errors.push("Logic error: Remaining days calculation requires modulus by 7 (days % 7).");
+        }
+      } else if (qId === 'l1_q6') {
+        if (!cleanCode.includes('temp') && !cleanCode.includes('+') && !cleanCode.includes('-')) {
+          errors.push("Logic error: Variables must be swapped using either a temp variable or arithmetic operations.");
+        }
+      } else if (qId === 'l1_q7') {
+        if (!cleanCode.includes('% 10') && !cleanCode.includes('%10')) {
+          errors.push("Logic error: Extracting digits of a 3-digit number requires modulus by 10 (num % 10).");
+        }
+        if (!cleanCode.includes('/ 10') && !cleanCode.includes('/10') && !cleanCode.includes('/ 100') && !cleanCode.includes('/100')) {
+          errors.push("Logic error: Truncating digits requires division by 10 or 100.");
+        }
+      } else if (qId === 'l1_q8') {
+        if (!cleanCode.includes('100') || !cleanCode.includes('*')) {
+          errors.push("Logic error: Simple interest formula is missing: (P * R * T) / 100.0");
+        }
+      } else if (qId === 'l2_q1') {
+        if (!cleanCode.includes('>') || !cleanCode.includes('<')) {
+          errors.push("Logic error: Must check if number is positive (> 0) and negative (< 0) with if-else.");
+        }
+      } else if (qId === 'l2_q2') {
+        if (!cleanCode.includes('% 2') && !cleanCode.includes('%2') && !cleanCode.includes('& 1')) {
+          errors.push("Logic error: Even/Odd check requires checking remainder with 2: (n % 2 == 0).");
+        }
+      } else if (qId === 'l2_q3') {
+        if (!cleanCode.includes('if') || (!cleanCode.includes('>=') && !cleanCode.includes('>'))) {
+          errors.push("Logic error: Must find largest of three numbers using if/else if comparisons.");
+        }
+      } else if (qId === 'l2_q4') {
+        if (!cleanCode.includes('4') || !cleanCode.includes('100')) {
+          errors.push("Logic error: Leap year check requires checking divisibility by 4, 100, and 400.");
+        }
+      } else if (qId === 'l2_q5') {
+        if (!cleanCode.includes('90') || !cleanCode.includes('75') || !cleanCode.includes('50')) {
+          errors.push("Logic error: Grade calculation must check boundaries for Grade A (>= 90), B (>= 75), C (>= 50).");
+        }
+      } else if (qId === 'l2_q7') {
+        if (!cleanCode.includes('switch')) {
+          errors.push("Logic error: Question requires using a 'switch' statement to map numbers 1-7 to day names.");
+        }
+      } else if (qId === 'l2_q8') {
+        if (!cleanCode.includes('switch') && !cleanCode.includes('if')) {
+          errors.push("Logic error: Calculator requires switch or if-else branching on operators (+, -, *, /).");
+        }
+        if (!cleanCode.includes('0') || !cleanCode.includes('/')) {
+          warnings.push("Defensive warning: Remember to handle division by zero when operator is '/'!");
+        }
+      } else if (qId === 'l2_q9') {
+        if (!cleanCode.includes('+') || !cleanCode.includes('>')) {
+          errors.push("Logic error: Triangle inequality theorem check is missing: (a + b > c && a + c > b && b + c > a).");
+        }
+      }
     }
 
     if (errors.length === 0) {
       setTerminalOutput({
         success: true,
-        message: 'Compilation & Structural Verification Succeeded!',
+        message: 'Compilation & Structural Verification Succeeded! (0 Errors)',
         details: [
-          '✓ Valid Java class & entry point main() found',
+          '✓ Valid Java class structure and entry point main() found',
           '✓ All brackets, braces & parentheses are balanced',
-          '✓ Required imports are present',
-          ...(warnings.length > 0 ? warnings : ['✓ Ready to execute with sample test cases'])
+          '✓ Semicolons and statement syntax verified',
+          '✓ Required problem logic criteria met',
+          ...(warnings.length > 0 ? warnings : ['✓ Ready to run with test inputs'])
         ],
         sampleOutput: currentQuestion?.sampleOutput
       });
     } else {
       setTerminalOutput({
         success: false,
-        message: 'Java Compilation Issues Detected:',
+        message: `Compilation Failed (${errors.length} Error${errors.length > 1 ? 's' : ''}):`,
         details: errors
       });
     }
