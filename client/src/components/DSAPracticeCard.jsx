@@ -130,76 +130,62 @@ export default function DSAPracticeCard() {
     if (!code || !code.trim()) {
       setConsoleOutput(c => ({
         ...c,
-        [taskId]: "[Java 17 Check] Code canvas is empty. Write your Java solution first!"
+        [taskId]: "Code canvas is empty. Write your solution first!"
       }));
       return;
     }
 
-    const issues = [];
-    const notes = [];
+    try {
+      const logs = [];
+      const customConsole = {
+        log: (...args) => {
+          logs.push(
+            args.map(a => {
+              if (a === null) return 'null';
+              if (a === undefined) return 'undefined';
+              if (typeof a === 'object') {
+                try {
+                  return JSON.stringify(a);
+                } catch (e) {
+                  return String(a);
+                }
+              }
+              return String(a);
+            }).join(' ')
+          );
+        },
+        warn: (...args) => logs.push('[WARN] ' + args.join(' ')),
+        error: (...args) => logs.push('[ERROR] ' + args.join(' '))
+      };
 
-    // 1. Bracket & parentheses matching check
-    let braces = 0, parens = 0, brackets = 0;
-    for (let char of code) {
-      if (char === '{') braces++;
-      else if (char === '}') braces--;
-      else if (char === '(') parens++;
-      else if (char === ')') parens--;
-      else if (char === '[') brackets++;
-      else if (char === ']') brackets--;
-    }
-    if (braces !== 0) issues.push(`Braces mismatch { }: difference = ${braces}`);
-    if (parens !== 0) issues.push(`Parentheses mismatch ( ): difference = ${parens}`);
-    if (brackets !== 0) issues.push(`Square brackets mismatch [ ]: difference = ${brackets}`);
+      // Safely evaluate the JavaScript code
+      const runner = new Function('console', `
+        "use strict";
+        ${code}
+      `);
 
-    // 2. Java class or method check
-    const hasClass = /\bclass\s+\w+/.test(code);
-    const hasMethod = /(?:public|private|static|void|int|boolean|double|String|char|long|float)\s+\w+\s*\(/.test(code);
+      const result = runner(customConsole);
 
-    if (hasClass) {
-      notes.push("✓ Java class structure detected");
-    }
-    if (hasMethod) {
-      notes.push("✓ Java method signature found");
-    }
-
-    // 3. Semicolon check on simple statements
-    const lines = code.split('\n');
-    lines.forEach((line, idx) => {
-      const trimmed = line.trim();
-      if (
-        trimmed &&
-        !trimmed.startsWith('//') &&
-        !trimmed.startsWith('/*') &&
-        !trimmed.startsWith('*') &&
-        !trimmed.endsWith('{') &&
-        !trimmed.endsWith('}') &&
-        !trimmed.startsWith('if') &&
-        !trimmed.startsWith('for') &&
-        !trimmed.startsWith('while') &&
-        !trimmed.startsWith('switch') &&
-        !trimmed.startsWith('class') &&
-        !trimmed.startsWith('interface') &&
-        !trimmed.startsWith('else') &&
-        !trimmed.startsWith('@')
-      ) {
-        if (!trimmed.endsWith(';') && !trimmed.endsWith(':')) {
-          if (/\b(?:int|double|String|boolean|char|return|System\.out|sc\.|break|continue)\b/.test(trimmed)) {
-            issues.push(`Line ${idx + 1}: Possible missing semicolon ';' at end of "${trimmed.slice(0, 30)}..."`);
-          }
-        }
+      if (logs.length > 0) {
+        setConsoleOutput(c => ({
+          ...c,
+          [taskId]: logs.join('\n')
+        }));
+      } else if (result !== undefined) {
+        setConsoleOutput(c => ({
+          ...c,
+          [taskId]: typeof result === 'object' ? JSON.stringify(result) : String(result)
+        }));
+      } else {
+        setConsoleOutput(c => ({
+          ...c,
+          [taskId]: "Code executed successfully with 0 errors.\n(Tip: Use console.log(...) to print values to this console output)"
+        }));
       }
-    });
-
-    if (issues.length === 0) {
+    } catch (err) {
       setConsoleOutput(c => ({
         ...c,
-        [taskId]: `[Java 17 Compiler Check]\n✓ Syntax verification passed!\n✓ All brackets, braces, and semicolons are properly closed.\n${notes.join('\n')}\n\nReady for LeetCode submission!`
-      }));
-    } else {
-      setConsoleOutput(c => ({
-        ...c,
-        [taskId]: `[Java 17 Compiler Check]\nIssues Detected:\n${issues.map(i => `• ${i}`).join('\n')}`
+        [taskId]: `Execution Error: ${err.message}`
       }));
     }
   };
@@ -210,10 +196,10 @@ export default function DSAPracticeCard() {
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-theme-accentText">
           <Brain className="w-4 h-4 text-theme-accent" />
-          <span>Target 2: Daily LeetCode-Style DSA Problem (Java)</span>
+          <span>Target 2: Daily LeetCode-Style DSA Problem (JavaScript)</span>
         </div>
         <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-theme-accentSub border border-theme-accentBorder text-theme-accentText font-semibold">
-          LeetCode Two-Pane Layout • Java Canvas
+          LeetCode Two-Pane Layout • JS Canvas
         </span>
       </div>
 
@@ -443,8 +429,8 @@ export default function DSAPracticeCard() {
                 <div className="px-4 py-2.5 bg-theme-cardSub border-b border-theme-border flex items-center justify-between text-xs font-mono">
                   <div className="flex items-center space-x-2">
                     <Code2 className="w-4 h-4 text-theme-accent" />
-                    <span className="font-semibold text-theme-text">{task.title.replace(/\s+/g, '')}.java</span>
-                    <span className="text-[10px] text-theme-muted uppercase px-1.5 py-0.5 rounded bg-theme-card border border-theme-border font-bold">Java 17</span>
+                    <span className="font-semibold text-theme-text">{task.title.replace(/\s+/g, '')}.js</span>
+                    <span className="text-[10px] text-theme-muted uppercase px-1.5 py-0.5 rounded bg-theme-card border border-theme-border font-bold">JavaScript</span>
                   </div>
 
                   <div className="flex items-center space-x-2">
@@ -475,7 +461,7 @@ export default function DSAPracticeCard() {
                 <CodeEditor
                   value={userCode}
                   onChange={val => handleCodeChange(task.id, val)}
-                  placeholder={`// Write your Java solution here...\n// class Solution {\n//     public int solve(...) {\n//         // code here\n//     }\n// }`}
+                  placeholder={`// Write your JavaScript solution here...\n// (Start typing to write your solution - this canvas is completely blank)`}
                   minRows={16}
                   className="flex-1"
                 />
@@ -491,7 +477,7 @@ export default function DSAPracticeCard() {
                     className="flex items-center space-x-1.5 px-4 py-1.5 rounded-xl font-bold text-xs bg-theme-accent text-theme-accentBtnText shadow-theme-glow hover:opacity-90 transition-all active:scale-95"
                   >
                     <Play className="w-3.5 h-3.5 fill-current" />
-                    <span>Check Java Code</span>
+                    <span>Run Code</span>
                   </button>
                 </div>
 

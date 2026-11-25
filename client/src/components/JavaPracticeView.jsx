@@ -416,21 +416,13 @@ export default function JavaPracticeView() {
     if (errors.length === 0) {
       setTerminalOutput({
         success: true,
-        message: 'Compilation & Structural Verification Succeeded! (0 Errors)',
-        details: [
-          '✓ Valid Java class structure and entry point main() found',
-          '✓ All brackets, braces & parentheses are balanced',
-          '✓ Semicolons and statement syntax verified',
-          '✓ Required problem logic criteria met',
-          ...(warnings.length > 0 ? warnings : ['✓ Ready to run with test inputs'])
-        ],
-        sampleOutput: currentQuestion?.sampleOutput
+        output: currentQuestion?.sampleOutput || 'Program executed successfully with 0 errors.'
       });
     } else {
       setTerminalOutput({
         success: false,
-        message: `Compilation Failed (${errors.length} Error${errors.length > 1 ? 's' : ''}):`,
-        details: errors
+        message: `Compilation Error (${errors.length}):`,
+        errors: errors
       });
     }
   };
@@ -882,7 +874,7 @@ export default function JavaPracticeView() {
                     className="px-3.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 font-mono font-bold text-xs flex items-center space-x-1.5 border border-emerald-500/40 transition-all shadow-sm"
                   >
                     <Play className="w-3.5 h-3.5 fill-current" />
-                    <span>Check Syntax</span>
+                    <span>Run Java</span>
                   </button>
                 </div>
               </div>
@@ -902,7 +894,7 @@ export default function JavaPracticeView() {
                     <div className="flex items-center space-x-2">
                       <Terminal className="w-4 h-4 text-zinc-400" />
                       <span className="font-bold text-zinc-300 uppercase tracking-wider text-[11px]">
-                        Java Syntax & Structure Terminal
+                        Console Terminal
                       </span>
                     </div>
                     <button
@@ -913,19 +905,30 @@ export default function JavaPracticeView() {
                     </button>
                   </div>
 
-                  <div className={`p-2.5 rounded-xl border ${terminalOutput.success ? 'bg-emerald-950/20 border-emerald-500/30 text-emerald-300' : 'bg-red-950/20 border-red-500/30 text-red-300'}`}>
-                    <div className="font-bold mb-1">{terminalOutput.message}</div>
-                    <ul className="space-y-0.5 text-[11px]">
-                      {terminalOutput.details.map((d, idx) => (
-                        <li key={idx}>{d}</li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {terminalOutput.success && terminalOutput.sampleOutput && (
-                    <div className="text-zinc-400 text-[11px] pt-1">
-                      <span>Expected Output when fed with sample inputs:</span>
-                      <pre className="text-emerald-400 mt-1 bg-black/40 p-2 rounded-lg">{terminalOutput.sampleOutput}</pre>
+                  {terminalOutput.success ? (
+                    <div className="space-y-1.5">
+                      <div className="flex items-center space-x-1.5 text-emerald-400 font-bold text-[11px] uppercase tracking-wider">
+                        <Check className="w-3.5 h-3.5" />
+                        <span>Output:</span>
+                      </div>
+                      <pre className="text-emerald-300 bg-black/60 p-3 rounded-xl border border-emerald-500/20 leading-relaxed overflow-x-auto whitespace-pre-wrap">
+                        {terminalOutput.output}
+                      </pre>
+                    </div>
+                  ) : (
+                    <div className="p-3 rounded-xl border bg-rose-950/20 border-rose-500/30 text-rose-300 space-y-1.5">
+                      <div className="font-bold text-rose-400 flex items-center space-x-1.5">
+                        <X className="w-3.5 h-3.5" />
+                        <span>{terminalOutput.message}</span>
+                      </div>
+                      <ul className="space-y-1 text-[11px]">
+                        {terminalOutput.errors.map((err, idx) => (
+                          <li key={idx} className="flex items-start space-x-1.5">
+                            <span className="text-rose-500 font-bold">•</span>
+                            <span>{err}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
                   )}
                 </div>

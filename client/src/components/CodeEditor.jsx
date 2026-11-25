@@ -16,10 +16,14 @@ const TOKEN_REGEX = new RegExp(
   'gm'
 );
 
-// Built-in intelligent auto-suggestions tailored specifically for Java coding & DSA
+// Built-in intelligent auto-suggestions tailored for JavaScript (DSA) and Java coding
 const BASE_SUGGESTIONS = [
+  { label: 'console.log', kind: 'method', insert: 'console.log()' },
   { label: 'System.out.println', kind: 'method', insert: 'System.out.println();' },
   { label: 'System.out.print', kind: 'method', insert: 'System.out.print();' },
+  { label: 'let', kind: 'keyword', insert: 'let ' },
+  { label: 'const', kind: 'keyword', insert: 'const ' },
+  { label: 'function', kind: 'keyword', insert: 'function ' },
   { label: 'Scanner sc = new Scanner(System.in);', kind: 'snippet', insert: 'Scanner sc = new Scanner(System.in);' },
   { label: 'public static void main', kind: 'snippet', insert: 'public static void main(String[] args) {\n    \n}' },
   { label: 'public class', kind: 'snippet', insert: 'public class Solution {\n    \n}' },
@@ -36,9 +40,14 @@ const BASE_SUGGESTIONS = [
   { label: 'long', kind: 'type', insert: 'long ' },
   { label: 'if', kind: 'snippet', insert: 'if () {\n    \n}' },
   { label: 'if...else', kind: 'snippet', insert: 'if () {\n    \n} else {\n    \n}' },
+  { label: 'for (let i = 0; i < n; i++)', kind: 'snippet', insert: 'for (let i = 0; i < ; i++) {\n    \n}' },
   { label: 'for (int i = 0; i < n; i++)', kind: 'snippet', insert: 'for (int i = 0; i < ; i++) {\n    \n}' },
   { label: 'for (int x : arr)', kind: 'snippet', insert: 'for (int x : ) {\n    \n}' },
   { label: 'while', kind: 'snippet', insert: 'while () {\n    \n}' },
+  { label: 'push', kind: 'method', insert: 'push()' },
+  { label: 'pop', kind: 'method', insert: 'pop()' },
+  { label: 'shift', kind: 'method', insert: 'shift()' },
+  { label: 'unshift', kind: 'method', insert: 'unshift()' },
   { label: 'sc.nextInt()', kind: 'method', insert: 'sc.nextInt()' },
   { label: 'sc.nextDouble()', kind: 'method', insert: 'sc.nextDouble()' },
   { label: 'sc.nextLine()', kind: 'method', insert: 'sc.nextLine()' },
@@ -48,6 +57,7 @@ const BASE_SUGGESTIONS = [
   { label: 'Character.isLetter', kind: 'method', insert: 'Character.isLetter()' },
   { label: 'Character.toLowerCase', kind: 'method', insert: 'Character.toLowerCase()' },
   { label: 'Character.toUpperCase', kind: 'method', insert: 'Character.toUpperCase()' },
+  { label: 'length', kind: 'property', insert: 'length' },
   { label: 'length()', kind: 'method', insert: 'length()' },
   { label: 'charAt()', kind: 'method', insert: 'charAt()' },
   { label: 'substring()', kind: 'method', insert: 'substring()' },
