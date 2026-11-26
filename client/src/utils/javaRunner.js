@@ -72,31 +72,26 @@ function transpileJavaToJS(javaCode) {
     .replace(/\/\*[\s\S]*?\*\//g, '')
     .replace(/\/\/.*$/gm, '');
 
-  // 2. Extract code inside main method if present
-  const mainMatch = code.match(/public\s+static\s+void\s+main\s*\([^)]*\)\s*\{([\s\S]*)\}/);
-  let body = mainMatch ? mainMatch[1] : code;
+  // 2. Extract code inside class or main method
+  const hasMain = /public\s+static\s+void\s+main\s*\([^)]*\)\s*\{/.test(code);
+  const classMatch = code.match(/class\s+\w+\s*\{([\s\S]*)\}/);
 
-  // If there's an outer class, take the inner content
-  const classMatch = body.match(/class\s+\w+\s*\{([\s\S]*)\}/);
-  if (classMatch && !mainMatch) {
+  let body = code;
+  let hasTranspiledMain = false;
+
+  if (classMatch && hasMain) {
     body = classMatch[1];
-  }
-
-  // Trim trailing closing brace if it closed the class
-  if (mainMatch) {
-    // If the body ends with extra closing braces for the class, balance them
-    let depth = 0;
-    let cleanBody = '';
-    for (let i = 0; i < body.length; i++) {
-      const ch = body[i];
-      if (ch === '{') depth++;
-      else if (ch === '}') {
-        if (depth === 0) break;
-        depth--;
-      }
-      cleanBody += ch;
-    }
-    body = cleanBody;
+    // Transform all static methods into functions
+    body = body.replace(/(?:public\s+|private\s+|protected\s+)?static\s+(?:int|double|float|long|short|byte|boolean|void|String|char|int\[\]|String\[\])\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(([^)]*)\)\s*\{/g, (match, fnName, params) => {
+      const cleanParams = params.replace(/\b(?:int|double|float|long|short|byte|boolean|String|char)(?:\[\s*\])?\s+/g, '');
+      return `function ${fnName}(${cleanParams}) {`;
+    });
+    hasTranspiledMain = true;
+  } else if (hasMain) {
+    const mainMatch = code.match(/public\s+static\s+void\s+main\s*\([^)]*\)\s*\{([\s\S]*)\}/);
+    body = mainMatch[1];
+  } else if (classMatch) {
+    body = classMatch[1];
   }
 
   // 3. Shelter string literals from modifications
@@ -152,14 +147,20 @@ function transpileJavaToJS(javaCode) {
     return `Math.trunc(${left} / ${right})`;
   });
 
-  // 8. Java integer division for variables and integer literals: left / right
-  // e.g. n / 10, a / b, 10 / 3, days / 7, num / 100
-  body = body.replace(/(?<![.\w$])\b([a-zA-Z_$][a-zA-Z0-9_$]*|\d+)\s*\/\s*([a-zA-Z_$][a-zA-Z0-9_$]*|\d+)\b(?!\s*[.\w$])/g, (match, left, right) => {
+  // 8. Multiplication chain before division: e.g. price * 20 / 100 or a * b * c / d
+  body = body.replace(/(?<![.*\/%\w$]\s*)((?:[a-zA-Z_$][a-zA-Z0-9_$]*|\d+)(?:\s*[*]\s*(?:[a-zA-Z_$][a-zA-Z0-9_$]*|\d+))+)\s*\/\s*([a-zA-Z_$][a-zA-Z0-9_$]*|\d+)\b(?!\s*\.)/g, (match, leftChain, right) => {
+    if (hasFloat(leftChain) || hasFloat(right)) return match;
+    return `Math.trunc((${leftChain}) / ${right})`;
+  });
+
+  // 9. Java integer division for standalone variables and integer literals: left / right
+  // e.g. n / 10, a / b, 10 / 3, days / 7, num / 100 (NOT preceded by *, /, or %)
+  body = body.replace(/(?<![.*\/%\w$]\s*)\b([a-zA-Z_$][a-zA-Z0-9_$]*|\d+)\s*\/\s*([a-zA-Z_$][a-zA-Z0-9_$]*|\d+)\b(?!\s*[.\w$])/g, (match, left, right) => {
     if (hasFloat(left) || hasFloat(right)) return match;
     return `Math.trunc(${left} / ${right})`;
   });
 
-  // 9. Transform Java types and variable declarations to let
+  // 10. Transform Java types and variable declarations to let
   body = body.replace(
     /\b(?:int|double|float|long|short|byte|boolean|String|char)\s+(?=[a-zA-Z_$])/g,
     'let '
@@ -189,6 +190,10 @@ function transpileJavaToJS(javaCode) {
 
   // 10. Restore string literals
   body = body.replace(/__STR_(\d+)__/g, (_, idx) => stringLiterals[Number(idx)]);
+
+  if (hasTranspiledMain) {
+    body += '\nif (typeof main === "function") { main([]); }\n';
+  }
 
   return body;
 }
