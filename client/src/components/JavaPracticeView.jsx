@@ -393,7 +393,7 @@ export default function JavaPracticeView() {
         <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none -mr-28 -mt-28" />
 
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="space-y-3">
+          <div className="space-y-3 flex-1 min-w-0 max-w-2xl">
             <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-500/15 text-amber-500 dark:text-amber-400 border border-amber-500/30">
                 <Coffee className="w-3.5 h-3.5 text-amber-500" />
@@ -453,7 +453,7 @@ export default function JavaPracticeView() {
               </div>
             </div>
 
-            <div className="space-y-1.5 text-center sm:text-left">
+            <div className="space-y-1.5 text-center sm:text-left min-w-[180px]">
               <div className="flex items-center space-x-2">
                 <span className="text-xs text-theme-muted font-medium">Practice Solved:</span>
                 <span className="text-base font-extrabold font-mono text-theme-text">
@@ -461,37 +461,27 @@ export default function JavaPracticeView() {
                 </span>
               </div>
 
-              <div className="flex flex-wrap items-center gap-1.5 text-[11px] font-mono">
-                {activeLevels.map((lvl, idx) => {
-                  const total = allQuestions.filter(q => q.levelId === lvl.id).length;
-                  const done = allQuestions.filter(q => q.levelId === lvl.id && completedIds.includes(q.id)).length;
-                  const colorClasses = [
-                    'bg-emerald-500/10 border-emerald-500/20 text-emerald-400',
-                    'bg-amber-500/10 border-amber-500/20 text-amber-400',
-                    'bg-sky-500/10 border-sky-500/20 text-sky-400',
-                    'bg-purple-500/10 border-purple-500/20 text-purple-400',
-                    'bg-pink-500/10 border-pink-500/20 text-pink-400'
-                  ];
-                  const badgeColor = colorClasses[idx % colorClasses.length];
-                  return (
-                    <span key={lvl.id} className={`px-2 py-0.5 rounded border ${badgeColor}`}>
-                      L{idx + 1}: {done}/{total}
-                    </span>
-                  );
-                })}
-                {customQuestions.length > 0 && (
-                  <span className="px-2 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
-                    Custom: {customQuestions.filter(q => completedIds.includes(q.id)).length}/{customQuestions.length}
-                  </span>
-                )}
+              {/* Progress bar */}
+              <div className="w-full h-2 bg-theme-border rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-amber-500 rounded-full transition-all duration-500"
+                  style={{ width: `${completionPct}%` }}
+                />
+              </div>
+
+              <div className="flex items-center justify-between text-[11px] text-theme-muted font-mono">
+                <span>{completedCount === totalCount ? 'All Completed! 🎉' : `${totalCount - completedCount} drills left`}</span>
+                <span className="text-amber-500 font-semibold">
+                  {activeLevels.filter(lvl => allQuestions.filter(q => q.levelId === lvl.id && completedIds.includes(q.id)).length === allQuestions.filter(q => q.levelId === lvl.id).length && allQuestions.filter(q => q.levelId === lvl.id).length > 0).length} / {activeLevels.length} Lvls
+                </span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Level Filter Tabs (Matching DSA Topic Pills) */}
-        <div className="mt-6 pt-5 border-t border-theme-border flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+        <div className="mt-6 pt-5 border-t border-theme-border flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 max-w-full scrollbar-thin">
             {[
               { id: 'all', label: 'All Levels', count: allQuestions.length },
               ...activeLevels.map(lvl => ({
@@ -504,7 +494,7 @@ export default function JavaPracticeView() {
               <button
                 key={tab.id}
                 onClick={() => setSelectedLevelId(tab.id)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 ${
+                className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 whitespace-nowrap ${
                   selectedLevelId === tab.id
                     ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40 shadow-sm'
                     : 'bg-theme-cardSub text-theme-muted hover:text-theme-text border border-theme-border'
@@ -519,7 +509,7 @@ export default function JavaPracticeView() {
           </div>
 
           {/* View Mode Toggle */}
-          <div className="flex items-center space-x-1 bg-theme-cardSub border border-theme-border p-1 rounded-xl text-xs">
+          <div className="flex items-center space-x-1 bg-theme-cardSub border border-theme-border p-1 rounded-xl text-xs flex-shrink-0 self-end md:self-auto">
             <button
               onClick={() => setViewMode('grouped')}
               className={`p-1.5 rounded-lg flex items-center space-x-1 transition-colors ${
