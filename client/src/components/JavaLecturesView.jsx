@@ -278,7 +278,7 @@ export default function JavaLecturesView({ openAccordionTaskId, onClearOpenAccor
 
               <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-theme-cardSub text-theme-secondary border border-theme-border">
                 <Calendar className="w-3.5 h-3.5 text-theme-accent" />
-                <span>Day {activeDay.dayNumber} of 70</span>
+                <span>Day {activeDay.dayNumber} of {days?.length || 47}</span>
               </span>
             </div>
 

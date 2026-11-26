@@ -55,12 +55,11 @@ export default function DayWiseProgressBarGraph() {
 
   // Filter days based on selected range
   const displayedDays = useMemo(() => {
-    if (selectedRange === 'chunk-1') return dailyData.slice(0, 14);
-    if (selectedRange === 'chunk-2') return dailyData.slice(14, 28);
-    if (selectedRange === 'chunk-3') return dailyData.slice(28, 42);
-    if (selectedRange === 'chunk-4') return dailyData.slice(42, 56);
-    if (selectedRange === 'chunk-5') return dailyData.slice(56, 70);
-    return dailyData; // 'all' 70 days
+    if (selectedRange === 'chunk-1') return dailyData.slice(0, 12);
+    if (selectedRange === 'chunk-2') return dailyData.slice(12, 24);
+    if (selectedRange === 'chunk-3') return dailyData.slice(24, 36);
+    if (selectedRange === 'chunk-4') return dailyData.slice(36, 47);
+    return dailyData; // 'all' 47 days
   }, [dailyData, selectedRange]);
 
   // Active or hovered day preview details
@@ -79,19 +78,18 @@ export default function DayWiseProgressBarGraph() {
             Day-Wise Learning Progress Bar Graph
           </h2>
           <p className="text-xs text-theme-muted mt-0.5">
-            Visual breakdown of completed Core Java lectures and Java practice drills across each of the 70 days (4 daily goals).
+            Visual breakdown of completed Core Java lectures and Java practice drills across each of the 47 sprint days (6 daily goals).
           </p>
         </div>
 
         {/* Range Selector Pills */}
         <div className="flex flex-wrap items-center gap-1.5 bg-theme-cardSub border border-theme-border p-1 rounded-2xl text-xs">
           {[
-            { id: 'all', label: 'All 70 Days' },
-            { id: 'chunk-1', label: 'Days 1-14' },
-            { id: 'chunk-2', label: 'Days 15-28' },
-            { id: 'chunk-3', label: 'Days 29-42' },
-            { id: 'chunk-4', label: 'Days 43-56' },
-            { id: 'chunk-5', label: 'Days 57-70' }
+            { id: 'all', label: 'All 47 Days' },
+            { id: 'chunk-1', label: 'Days 1-12' },
+            { id: 'chunk-2', label: 'Days 13-24' },
+            { id: 'chunk-3', label: 'Days 25-36' },
+            { id: 'chunk-4', label: 'Days 37-47' }
           ].map(r => (
             <button
               key={r.id}
@@ -143,7 +141,7 @@ export default function DayWiseProgressBarGraph() {
         <div className="bg-theme-cardSub border border-theme-border rounded-2xl p-3 flex items-center justify-between">
           <div>
             <div className="text-[11px] text-theme-muted font-medium">Curriculum Target</div>
-            <div className="text-lg font-bold font-mono text-theme-accentText">70 <span className="text-xs text-theme-muted font-normal">Days</span></div>
+            <div className="text-lg font-bold font-mono text-theme-accentText">47 <span className="text-xs text-theme-muted font-normal">Days</span></div>
           </div>
           <div className="w-8 h-8 rounded-xl bg-theme-accentSub border border-theme-accentBorder flex items-center justify-center text-theme-accentText">
             <Target className="w-4 h-4 text-theme-accent" />

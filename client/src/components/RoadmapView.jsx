@@ -295,7 +295,7 @@ export default function RoadmapView({ onOpenNotes }) {
             Master Learning Roadmap
           </h1>
           <p className="text-sm text-theme-muted mt-1 max-w-2xl">
-            Explore the complete syllabus: <strong>140 Core Java Topics</strong> (9 modules) and <strong>140 Core Java Practice Drills</strong> spanning 70 dedicated days.
+            Explore the complete syllabus: <strong>140 Core Java Topics</strong> (9 modules) and <strong>140 Core Java Practice Drills</strong> across a focused 47-day sprint (3 lectures + 3 drills daily).
           </p>
         </div>
 
@@ -309,7 +309,7 @@ export default function RoadmapView({ onOpenNotes }) {
                 : 'text-theme-muted hover:text-theme-text hover:bg-theme-cardHover'
             }`}
           >
-            70-Day Schedule
+            47-Day Schedule
           </button>
 
           <button

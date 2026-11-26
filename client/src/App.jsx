@@ -153,7 +153,7 @@ export default function App() {
                 </span>
               </div>
               <p className="text-[11px] text-theme-muted hidden lg:block truncate">
-                140 Java Lectures + 140 Practice Drills • Starts 21 Nov 2026
+                140 Java Lectures + 140 Practice Drills • 3+3 Goal / Day • Starts 21 Nov 2026
               </p>
             </div>
           </div>

@@ -36,7 +36,7 @@ export default function DayNavigatorTimeline() {
         <div className="flex items-center space-x-2">
           <div className="w-2 h-2 rounded-full bg-theme-accent animate-pulse" />
           <span className="font-bold uppercase tracking-wider text-xs text-theme-accentText">
-            70-Day Schedule Timeline
+            47-Day Sprint Timeline
           </span>
           <span className="hidden sm:inline text-xs text-theme-muted">
             • Starts 21 Nov 2026

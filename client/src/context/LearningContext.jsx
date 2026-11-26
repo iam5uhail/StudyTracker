@@ -21,15 +21,21 @@ export function LearningProvider({ children }) {
 
       if (saved) {
         const parsed = JSON.parse(saved);
-        return initialPlanDays.map(initDay => {
-          const savedDay = parsed.find(d => d.dayNumber === initDay.dayNumber);
-          if (!savedDay) return initDay;
+        // Flatten all saved tasks across all saved days for seamless topic matching
+        const allSavedTasks = Array.isArray(parsed) ? parsed.flatMap(d => d.tasks || []) : [];
 
+        return initialPlanDays.map(initDay => {
           return {
             ...initDay,
             tasks: initDay.tasks.map(initTask => {
               if (initTask.type === 'java') {
-                const sTask = (savedDay.tasks || []).find(t => t.id === initTask.id);
+                const sTask = allSavedTasks.find(t => 
+                  t.type === 'java' && (
+                    (t.num && initTask.num && t.num === initTask.num) ||
+                    t.title === initTask.title ||
+                    t.id === initTask.id
+                  )
+                );
                 if (sTask) {
                   return {
                     ...initTask,
@@ -39,7 +45,13 @@ export function LearningProvider({ children }) {
                 }
               }
               if (initTask.type === 'practice') {
-                const sTask = (savedDay.tasks || []).find(t => t.id === initTask.id || (initTask.questionId && t.questionId === initTask.questionId));
+                const sTask = allSavedTasks.find(t => 
+                  t.type === 'practice' && (
+                    (initTask.questionId && t.questionId === initTask.questionId) ||
+                    t.id === initTask.id ||
+                    t.title === initTask.title
+                  )
+                );
                 const isDoneViaPracticeView = initTask.questionId && practiceCompletedIds.includes(initTask.questionId);
                 const isDone = Boolean(sTask?.completed || isDoneViaPracticeView);
                 return {
@@ -68,12 +80,12 @@ export function LearningProvider({ children }) {
 
   const ACTIVE_DAY_STORAGE_KEY = 'study_tracker_active_day_v1';
 
-  // Selected Day number (1 to 70) with localStorage persistence across refreshes
+  // Selected Day number (1 to 47) with localStorage persistence across refreshes
   const [activeDayNumber, setActiveDayNumber] = useState(() => {
     try {
       const saved = localStorage.getItem(ACTIVE_DAY_STORAGE_KEY);
       const parsed = parseInt(saved, 10);
-      if (!isNaN(parsed) && parsed >= 1 && parsed <= 70) {
+      if (!isNaN(parsed) && parsed >= 1 && parsed <= 47) {
         return parsed;
       }
     } catch (e) {}

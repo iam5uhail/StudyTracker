@@ -92,11 +92,11 @@ export default function DayTargetCard() {
         </div>
       </div>
 
-      {/* 1. Target: 2 Java Topics */}
+      {/* 1. Target: Core Java Topics */}
       <div className="space-y-3">
         <div className="flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-amber-300">
           <Code2 className="w-4 h-4 text-amber-400" />
-          <span>Target 1: 2 Core Java Topics (From Video Course)</span>
+          <span>Target 1: {javaTasks.length} Core Java Topics (From Video Course)</span>
         </div>
 
         <div className="grid grid-cols-1 gap-3">
@@ -171,11 +171,11 @@ export default function DayTargetCard() {
         </div>
       </div>
 
-      {/* Target 2: 2 Core Java Practice Drills */}
+      {/* Target 2: Core Java Practice Drills */}
       <div className="space-y-3 pt-4 border-t border-[#16241D]">
         <div className="flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-emerald-400">
           <Coffee className="w-4 h-4 text-emerald-400" />
-          <span>Target 2: 2 Core Java Practice Drills (Hands-on Java Lab)</span>
+          <span>Target 2: {practiceTasks.length} Core Java Practice Drills (Hands-on Java Lab)</span>
         </div>
 
         <div className="space-y-2.5">

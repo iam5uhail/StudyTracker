@@ -2317,81 +2317,58 @@ const rawPlanDays = [
   }
 ];
 
-export const initialPlanDays = rawPlanDays.map(day => {
-  const q1Index = (day.dayNumber - 1) * 2;
-  const q2Index = (day.dayNumber - 1) * 2 + 1;
+// Extract all 140 Core Java Topics from rawPlanDays in exact order (Topic 1 to 140)
+const allCoreJavaTopics = rawPlanDays.flatMap(day => 
+  (day.tasks || []).filter(t => t.type === 'java').map(t => ({
+    ...t,
+    notes: lectureNotesData[t.id] || t.notes || ""
+  }))
+);
 
-  const pq1 = JAVA_PRACTICE_QUESTIONS[q1Index] || {
-    id: `p_${day.dayNumber}_1`,
-    title: `Day ${day.dayNumber} Practice Drill 1`,
-    levelTitle: `Day ${day.dayNumber} Practice`,
-    badge: 'Practice Drill',
-    tags: ['Core Java', 'Practice'],
-    description: `Core Java practice drill for Day ${day.dayNumber}.`
-  };
+// 47-Day Target Plan: Exactly 3 Core Java Topics + 3 Java Practice Drills per Day
+// (Day 47 has remaining 2 Core Java Topics + 2 Practice Drills = 140 Total Topics + 140 Practice Drills)
+export const initialPlanDays = Array.from({ length: 47 }, (_, i) => {
+  const dayNumber = i + 1;
+  const startIdx = i * 3;
 
-  const pq2 = JAVA_PRACTICE_QUESTIONS[q2Index] || {
-    id: `p_${day.dayNumber}_2`,
-    title: `Day ${day.dayNumber} Practice Drill 2`,
-    levelTitle: `Day ${day.dayNumber} Practice`,
-    badge: 'Practice Drill',
-    tags: ['Core Java', 'Practice'],
-    description: `Core Java practice drill for Day ${day.dayNumber}.`
-  };
+  // 3 Java Lectures for this day (2 on day 47)
+  const dayJavaTasks = allCoreJavaTopics.slice(startIdx, startIdx + 3).map((t, idx) => ({
+    ...t,
+    id: `d${dayNumber}-j${idx + 1}`,
+    dayNumber,
+    notes: lectureNotesData[t.id] || lectureNotesData[`d${dayNumber}-j${idx + 1}`] || t.notes || ""
+  }));
 
-  const pTask1 = {
-    id: `d${day.dayNumber}-p1`,
+  // 3 Java Practice Drills for this day (2 on day 47)
+  const dayPracticeQuestions = JAVA_PRACTICE_QUESTIONS.slice(startIdx, startIdx + 3).map((pq, idx) => ({
+    id: `d${dayNumber}-p${idx + 1}`,
+    dayNumber,
     type: 'practice',
-    questionId: pq1.id,
-    levelId: pq1.levelId,
-    title: pq1.title,
-    levelTitle: pq1.levelTitle,
-    badge: pq1.badge || 'Practice Drill',
-    tags: pq1.tags || ['Core Java', 'Practice'],
-    description: pq1.description,
-    sampleInput: pq1.sampleInput || '',
-    sampleOutput: pq1.sampleOutput || '',
-    starterCode: pq1.starterCode || '',
-    solutionCode: pq1.solutionCode || '',
-    hints: pq1.hints || [],
-    concepts: pq1.concepts || '',
+    questionId: pq.id,
+    levelId: pq.levelId,
+    title: pq.title,
+    levelTitle: pq.levelTitle,
+    badge: pq.badge || 'Practice Drill',
+    tags: pq.tags || ['Core Java', 'Practice'],
+    description: pq.description,
+    sampleInput: pq.sampleInput || '',
+    sampleOutput: pq.sampleOutput || '',
+    starterCode: pq.starterCode || '',
+    solutionCode: pq.solutionCode || '',
+    hints: pq.hints || [],
+    concepts: pq.concepts || '',
     completed: false,
     notes: ""
-  };
+  }));
 
-  const pTask2 = {
-    id: `d${day.dayNumber}-p2`,
-    type: 'practice',
-    questionId: pq2.id,
-    levelId: pq2.levelId,
-    title: pq2.title,
-    levelTitle: pq2.levelTitle,
-    badge: pq2.badge || 'Practice Drill',
-    tags: pq2.tags || ['Core Java', 'Practice'],
-    description: pq2.description,
-    sampleInput: pq2.sampleInput || '',
-    sampleOutput: pq2.sampleOutput || '',
-    starterCode: pq2.starterCode || '',
-    solutionCode: pq2.solutionCode || '',
-    hints: pq2.hints || [],
-    concepts: pq2.concepts || '',
-    completed: false,
-    notes: ""
-  };
-
-  const javaTasks = (day.tasks || [])
-    .filter(t => t.type === 'java')
-    .map(t => ({
-      ...t,
-      notes: lectureNotesData[t.id] || t.notes || ""
-    }));
+  const title = dayJavaTasks.map(t => t.title).join(' & ');
 
   return {
-    ...day,
+    dayNumber,
+    title,
     tasks: [
-      ...javaTasks,
-      pTask1,
-      pTask2
+      ...dayJavaTasks,
+      ...dayPracticeQuestions
     ]
   };
 });
