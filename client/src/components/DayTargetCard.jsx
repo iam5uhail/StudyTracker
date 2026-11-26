@@ -5,7 +5,7 @@ import {
   ExternalLink, 
   FileText, 
   Code2, 
-  Brain, 
+  Coffee, 
   ChevronRight, 
   ChevronLeft, 
   ChevronDown,
@@ -13,7 +13,6 @@ import {
   Video 
 } from 'lucide-react';
 import { useLearning } from '../context/LearningContext';
-import DSAPracticeCard from './DSAPracticeCard';
 import LectureNotesAccordion from './LectureNotesAccordion';
 
 export default function DayTargetCard() {
@@ -30,7 +29,7 @@ export default function DayTargetCard() {
   };
 
   const javaTasks = activeDay.tasks.filter(t => t.type === 'java');
-  const dsaTasks = activeDay.tasks.filter(t => t.type === 'dsa');
+  const practiceTasks = activeDay.tasks.filter(t => t.type === 'practice');
   const isAllComplete = activeDay.isDayComplete;
 
   return (
@@ -172,8 +171,72 @@ export default function DayTargetCard() {
         </div>
       </div>
 
-      {/* Target 2: Daily LeetCode-Style DSA Problem in JavaScript */}
-      <DSAPracticeCard />
+      {/* Target 2: 2 Core Java Practice Drills */}
+      <div className="space-y-3 pt-4 border-t border-[#16241D]">
+        <div className="flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-emerald-400">
+          <Coffee className="w-4 h-4 text-emerald-400" />
+          <span>Target 2: 2 Core Java Practice Drills (Hands-on Java Lab)</span>
+        </div>
+
+        <div className="space-y-2.5">
+          {practiceTasks.map((task, idx) => {
+            const isDone = Boolean(task.completed);
+            return (
+              <div
+                key={task.id}
+                className={`p-3.5 rounded-xl border transition-all ${
+                  isDone 
+                    ? 'bg-[#101914] border-[#1C2C22]' 
+                    : 'bg-[#080D0A] border-[#16241D] hover:border-emerald-500/30'
+                }`}
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-start space-x-3 flex-1 min-w-0">
+                    <button
+                      type="button"
+                      onClick={() => toggleTask(activeDay.dayNumber, task.id)}
+                      className="mt-0.5 flex-shrink-0 transition-transform active:scale-95"
+                    >
+                      {isDone ? (
+                        <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                      ) : (
+                        <Circle className="w-5 h-5 text-gray-500 hover:text-emerald-400" />
+                      )}
+                    </button>
+
+                    <div className="space-y-1 min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-bold">
+                          Drill #{idx + 1}
+                        </span>
+                        {task.badge && (
+                          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-black/40 text-gray-400 border border-[#16241D]">
+                            {task.badge}
+                          </span>
+                        )}
+                        {task.levelTitle && (
+                          <span className="text-[10px] text-gray-400">
+                            {task.levelTitle}
+                          </span>
+                        )}
+                      </div>
+
+                      <h4 className={`text-xs sm:text-sm font-semibold ${isDone ? 'line-through text-gray-500' : 'text-gray-100'}`}>
+                        {task.title}
+                      </h4>
+                      {task.description && (
+                        <p className="text-[11px] text-gray-400 line-clamp-2">
+                          {task.description.split('\n')[0]}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }

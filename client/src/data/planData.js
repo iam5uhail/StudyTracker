@@ -1,8 +1,8 @@
-import { lectureNotesData } from './lectureNotesData';
-import { dsaGuideByTitle } from './practiceHelper';
+import { lectureNotesData } from './lectureNotesData.js';
+import { JAVA_PRACTICE_QUESTIONS } from './javaPracticeData.js';
 
-// Complete 70-Day Target Plan: All 140 Java Core Topics + Exactly 70 Rising Brain DSA Questions
-// Array (24) -> Strings (11) -> Binary Search (23) -> Stack (12)
+// Complete 70-Day Target Plan: All 140 Core Java Topics + 140 Core Java Practice Drills
+// Daily Target: Exactly 2 Core Java Lectures + 2 Java Practice Drills per Day
 export const DEFAULT_START_DATE = "2026-11-21";
 const rawPlanDays = [
   {
@@ -2318,34 +2318,78 @@ const rawPlanDays = [
 ];
 
 export const initialPlanDays = rawPlanDays.map(day => {
-  const enrichedTasks = day.tasks.map(t => {
-    if (t.type === 'dsa') {
-      const guide = dsaGuideByTitle[t.title] || {
-        desc: `Solve ${t.title} using the ${t.pattern || 'standard'} pattern. Focus on logic and time complexity.`,
-        example: `Input: [example test data]\nOutput: [expected result]`,
-        hint: `Approach Guide:\n1. Understand input boundaries.\n2. Consider ${t.pattern || 'optimal'} technique.\n3. Implement in JavaScript first to verify logic before converting to Java.`
-      };
-      return {
-        ...t,
-        desc: t.desc || guide.desc,
-        example: t.example || guide.example,
-        hint: t.hint || guide.hint,
-        theory: lectureNotesData[t.id] || "",
-        codeSolution: "",
-        notes: ""
-      };
-    }
-    return {
+  const q1Index = (day.dayNumber - 1) * 2;
+  const q2Index = (day.dayNumber - 1) * 2 + 1;
+
+  const pq1 = JAVA_PRACTICE_QUESTIONS[q1Index] || {
+    id: `p_${day.dayNumber}_1`,
+    title: `Day ${day.dayNumber} Practice Drill 1`,
+    levelTitle: `Day ${day.dayNumber} Practice`,
+    badge: 'Practice Drill',
+    tags: ['Core Java', 'Practice'],
+    description: `Core Java practice drill for Day ${day.dayNumber}.`
+  };
+
+  const pq2 = JAVA_PRACTICE_QUESTIONS[q2Index] || {
+    id: `p_${day.dayNumber}_2`,
+    title: `Day ${day.dayNumber} Practice Drill 2`,
+    levelTitle: `Day ${day.dayNumber} Practice`,
+    badge: 'Practice Drill',
+    tags: ['Core Java', 'Practice'],
+    description: `Core Java practice drill for Day ${day.dayNumber}.`
+  };
+
+  const pTask1 = {
+    id: `d${day.dayNumber}-p1`,
+    type: 'practice',
+    questionId: pq1.id,
+    title: pq1.title,
+    levelTitle: pq1.levelTitle,
+    badge: pq1.badge || 'Practice Drill',
+    tags: pq1.tags || ['Core Java', 'Practice'],
+    description: pq1.description,
+    sampleInput: pq1.sampleInput || '',
+    sampleOutput: pq1.sampleOutput || '',
+    starterCode: pq1.starterCode || '',
+    solutionCode: pq1.solutionCode || '',
+    hints: pq1.hints || [],
+    concepts: pq1.concepts || '',
+    completed: false,
+    notes: ""
+  };
+
+  const pTask2 = {
+    id: `d${day.dayNumber}-p2`,
+    type: 'practice',
+    questionId: pq2.id,
+    title: pq2.title,
+    levelTitle: pq2.levelTitle,
+    badge: pq2.badge || 'Practice Drill',
+    tags: pq2.tags || ['Core Java', 'Practice'],
+    description: pq2.description,
+    sampleInput: pq2.sampleInput || '',
+    sampleOutput: pq2.sampleOutput || '',
+    starterCode: pq2.starterCode || '',
+    solutionCode: pq2.solutionCode || '',
+    hints: pq2.hints || [],
+    concepts: pq2.concepts || '',
+    completed: false,
+    notes: ""
+  };
+
+  const javaTasks = (day.tasks || [])
+    .filter(t => t.type === 'java')
+    .map(t => ({
       ...t,
       notes: lectureNotesData[t.id] || t.notes || ""
-    };
-  });
+    }));
 
   return {
     ...day,
     tasks: [
-      ...enrichedTasks.filter(t => t.type === 'java'),
-      ...enrichedTasks.filter(t => t.type === 'dsa')
+      ...javaTasks,
+      pTask1,
+      pTask2
     ]
   };
 });

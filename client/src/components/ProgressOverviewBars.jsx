@@ -2,7 +2,7 @@ import React from 'react';
 import { 
   CheckCircle2, 
   Code2, 
-  Brain, 
+  Coffee, 
   Calendar, 
   RotateCcw,
   Sparkles,
@@ -25,7 +25,7 @@ export default function ProgressOverviewBars() {
             </h2>
           </div>
           <p className="text-xs text-theme-muted mt-1">
-            Daily Goal: <strong>2 Core Java Topics</strong> (from Video Course) + <strong>1 DSA Pattern Question</strong> (from Rising Brain)
+            Daily Goal: <strong>2 Core Java Topics</strong> (from Video Course) + <strong>2 Java Practice Drills</strong> (from Hands-on Lab)
           </p>
         </div>
 
@@ -104,27 +104,27 @@ export default function ProgressOverviewBars() {
           </div>
         </div>
 
-        {/* 3. Rising Brain DSA (70 Patterns) - Electric Cyan */}
+        {/* 3. Java Practice Drills (140 Drills) - Warm Amber / Orange */}
         <div className="bg-theme-cardSub border border-theme-border rounded-2xl p-4 flex flex-col justify-between shadow-sm">
           <div>
             <div className="flex justify-between items-center mb-1">
-              <span className="text-xs font-semibold text-cyan-500 dark:text-cyan-400 flex items-center space-x-1.5">
-                <Brain className="w-3.5 h-3.5 text-cyan-500 dark:text-cyan-400" />
-                <span>Rising Brain DSA</span>
+              <span className="text-xs font-semibold text-amber-500 flex items-center space-x-1.5">
+                <Coffee className="w-3.5 h-3.5 text-amber-500" />
+                <span>Java Practice Drills</span>
               </span>
-              <span className="text-sm font-extrabold text-cyan-500 dark:text-cyan-400 font-mono">
-                {progressStats.dsaPercent}%
+              <span className="text-sm font-extrabold text-amber-500 font-mono">
+                {progressStats.practicePercent || 0}%
               </span>
             </div>
             <div className="flex justify-between text-[11px] text-theme-muted mb-2 font-mono">
-              <span>{progressStats.dsaCompleted} / {progressStats.dsaTotal} problems</span>
-              <span>{progressStats.dsaRemaining} left</span>
+              <span>{progressStats.practiceCompleted || 0} / {progressStats.practiceTotal || 140} drills</span>
+              <span>{progressStats.practiceRemaining || 0} left</span>
             </div>
           </div>
           <div className="w-full h-2.5 bg-theme-border rounded-full overflow-hidden">
             <div 
-              className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(6,182,212,0.3)]" 
-              style={{ width: `${progressStats.dsaPercent}%` }}
+              className="h-full bg-gradient-to-r from-amber-500 to-orange-400 rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(245,158,11,0.3)]" 
+              style={{ width: `${progressStats.practicePercent || 0}%` }}
             />
           </div>
         </div>

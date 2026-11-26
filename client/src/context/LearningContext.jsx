@@ -3,32 +3,51 @@ import confetti from 'canvas-confetti';
 import { initialPlanDays, DEFAULT_START_DATE } from '../data/planData';
 
 const LearningContext = createContext(null);
-const PLAN_STORAGE_KEY = 'study_daywise_plan_v13_namaste_black';
+const PLAN_STORAGE_KEY = 'study_daywise_plan_v14_java_focus';
+const LEGACY_STORAGE_KEY = 'study_daywise_plan_v13_namaste_black';
 const START_DATE_KEY = 'study_plan_start_date_v13_namaste_black';
+const JAVA_PRACTICE_COMPLETED_KEY = 'java_practice_completed_ids_v1';
 
 export function LearningProvider({ children }) {
-  // Plan days
+  // Plan days: 70 Days with 2 Core Java Lectures + 2 Java Practice Drills per Day
   const [days, setDays] = useState(() => {
     try {
-      const saved = localStorage.getItem(PLAN_STORAGE_KEY);
+      const saved = localStorage.getItem(PLAN_STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY);
+      let practiceCompletedIds = [];
+      try {
+        const rawP = localStorage.getItem('study_tracker_java_completed_ids_v1') || localStorage.getItem(JAVA_PRACTICE_COMPLETED_KEY);
+        if (rawP) practiceCompletedIds = JSON.parse(rawP);
+      } catch (e) {}
+
       if (saved) {
         const parsed = JSON.parse(saved);
-        // Automatically inject lecture notes for tasks where default notes exist and current note is empty
-        return parsed.map(day => {
-          const initDay = initialPlanDays.find(d => d.dayNumber === day.dayNumber);
-          const cleanTasks = (day.tasks || []).filter(t => t.type !== 'practice');
-          if (!initDay) return { ...day, tasks: cleanTasks };
+        return initialPlanDays.map(initDay => {
+          const savedDay = parsed.find(d => d.dayNumber === initDay.dayNumber);
+          if (!savedDay) return initDay;
+
           return {
-            ...day,
-            tasks: cleanTasks.map(t => {
-              if (t.type === 'dsa') {
-                return { ...t, notes: "", codeSolution: t.codeSolution || "" };
+            ...initDay,
+            tasks: initDay.tasks.map(initTask => {
+              if (initTask.type === 'java') {
+                const sTask = (savedDay.tasks || []).find(t => t.id === initTask.id);
+                if (sTask) {
+                  return {
+                    ...initTask,
+                    completed: Boolean(sTask.completed),
+                    notes: (sTask.notes && sTask.notes.trim()) ? sTask.notes : initTask.notes
+                  };
+                }
               }
-              const initTask = initDay.tasks.find(it => it.id === t.id);
-              if (initTask && initTask.notes && (!t.notes || t.notes.trim() === '')) {
-                return { ...t, notes: initTask.notes };
+              if (initTask.type === 'practice') {
+                const sTask = (savedDay.tasks || []).find(t => t.id === initTask.id || (initTask.questionId && t.questionId === initTask.questionId));
+                const isDoneViaPracticeView = initTask.questionId && practiceCompletedIds.includes(initTask.questionId);
+                const isDone = Boolean(sTask?.completed || isDoneViaPracticeView);
+                return {
+                  ...initTask,
+                  completed: isDone
+                };
               }
-              return t;
+              return initTask;
             })
           };
         });
@@ -94,10 +113,9 @@ export function LearningProvider({ children }) {
               return prevDays.map(d => {
                 const mDay = mongo.days.find(md => md.dayNumber === d.dayNumber);
                 if (!mDay) return d;
-                const cleanTasks = (d.tasks || []).filter(t => t.type !== 'practice');
                 return {
                   ...d,
-                  tasks: cleanTasks.map(t => {
+                  tasks: d.tasks.map(t => {
                     const mTask = mDay.tasks ? mDay.tasks.find(mt => mt.id === t.id) : null;
                     if (!mTask) return t;
                     // Safely preserve completed status, code solution, and notes (never overwrite with blank)
@@ -215,7 +233,7 @@ export function LearningProvider({ children }) {
     });
   }, [days, startDateStr]);
 
-  // Overall Statistics & Progress Bar metrics (Matching Rising Brain Card)
+  // Overall Statistics & Progress Bar metrics (Core Java Lectures & Java Practice Drills)
   const progressStats = useMemo(() => {
     let totalTasks = 0;
     let completedTasks = 0;
@@ -223,24 +241,8 @@ export function LearningProvider({ children }) {
     let javaTotal = 0;
     let javaCompleted = 0;
 
-    let dsaTotal = 0;
-    let dsaCompleted = 0;
-
-    let easyTotal = 0;
-    let easySolved = 0;
-    let medTotal = 0;
-    let medSolved = 0;
-    let hardTotal = 0;
-    let hardSolved = 0;
-
-    let arrayTotal = 0;
-    let arraySolved = 0;
-    let stringsTotal = 0;
-    let stringsSolved = 0;
-    let bsTotal = 0;
-    let bsSolved = 0;
-    let stackTotal = 0;
-    let stackSolved = 0;
+    let practiceTotal = 0;
+    let practiceCompleted = 0;
 
     let daysCompleted = 0;
 
@@ -254,38 +256,9 @@ export function LearningProvider({ children }) {
         if (task.type === 'java') {
           javaTotal++;
           if (task.completed) javaCompleted++;
-        } else if (task.type === 'dsa') {
-          dsaTotal++;
-          const isDone = Boolean(task.completed);
-          if (isDone) dsaCompleted++;
-
-          // Difficulty breakdown
-          const diff = (task.difficulty || 'Medium').toLowerCase();
-          if (diff === 'easy') {
-            easyTotal++;
-            if (isDone) easySolved++;
-          } else if (diff === 'hard') {
-            hardTotal++;
-            if (isDone) hardSolved++;
-          } else {
-            medTotal++;
-            if (isDone) medSolved++;
-          }
-
-          // Topic breakdown (Array 24, Strings 11, Binary Search 23, Stack 12)
-          if (task.topic === 'Array') {
-            arrayTotal++;
-            if (isDone) arraySolved++;
-          } else if (task.topic === 'Strings') {
-            stringsTotal++;
-            if (isDone) stringsSolved++;
-          } else if (task.topic === 'Binary Search') {
-            bsTotal++;
-            if (isDone) bsSolved++;
-          } else if (task.topic === 'Stack') {
-            stackTotal++;
-            if (isDone) stackSolved++;
-          }
+        } else if (task.type === 'practice') {
+          practiceTotal++;
+          if (task.completed) practiceCompleted++;
         }
       });
       if (allDayDone && day.tasks.length > 0) daysCompleted++;
@@ -293,47 +266,29 @@ export function LearningProvider({ children }) {
 
     const overallPercent = totalTasks === 0 ? 0 : Math.round((completedTasks / totalTasks) * 100);
     const javaPercent = javaTotal === 0 ? 0 : Math.round((javaCompleted / javaTotal) * 100);
-    const dsaPercent = dsaTotal === 0 ? 0 : Math.round((dsaCompleted / dsaTotal) * 100);
+    const practicePercent = practiceTotal === 0 ? 0 : Math.round((practiceCompleted / practiceTotal) * 100);
     const daysPercent = days.length === 0 ? 0 : Math.round((daysCompleted / days.length) * 100);
-
-    const easyPercent = easyTotal === 0 ? 0 : Math.round((easySolved / easyTotal) * 100);
-    const medPercent = medTotal === 0 ? 0 : Math.round((medSolved / medTotal) * 100);
-    const hardPercent = hardTotal === 0 ? 0 : Math.round((hardSolved / hardTotal) * 100);
 
     return {
       totalTasks,
       completedTasks,
       remainingTasks: totalTasks - completedTasks,
       overallPercent,
-      // Java metrics
+      // Java Lectures metrics (140)
       javaTotal,
       javaCompleted,
       javaRemaining: javaTotal - javaCompleted,
       javaPercent,
-      // DSA metrics
-      dsaTotal,
-      dsaCompleted,
-      dsaRemaining: dsaTotal - dsaCompleted,
-      dsaPercent,
-      // Section breakdown (Rising Brain)
-      arrayTotal,
-      arraySolved,
-      stringsTotal,
-      stringsSolved,
-      bsTotal,
-      bsSolved,
-      stackTotal,
-      stackSolved,
-      // Difficulty breakdown (from Rising Brain)
-      easyTotal,
-      easySolved,
-      easyPercent,
-      medTotal,
-      medSolved,
-      medPercent,
-      hardTotal,
-      hardSolved,
-      hardPercent,
+      // Java Practice metrics (140)
+      practiceTotal,
+      practiceCompleted,
+      practiceRemaining: practiceTotal - practiceCompleted,
+      practicePercent,
+      // Compatibility alias
+      dsaTotal: practiceTotal,
+      dsaCompleted: practiceCompleted,
+      dsaRemaining: practiceTotal - practiceCompleted,
+      dsaPercent: practicePercent,
       // Days completed
       totalDays: days.length,
       daysCompleted,
@@ -348,29 +303,56 @@ export function LearningProvider({ children }) {
     return daysWithDates.find(d => d.dayNumber === activeDayNumber) || daysWithDates[0];
   }, [daysWithDates, activeDayNumber]);
 
-  // Toggle Task Completed
+  // Toggle Task Completed (with automatic two-way sync for practice questions)
   const toggleTask = (dayNumber, taskId) => {
-    setDays(prev => prev.map(d => {
-      if (d.dayNumber !== dayNumber) return d;
-      return {
-        ...d,
-        tasks: d.tasks.map(t => {
-          if (t.id !== taskId) return t;
-          const nextCompleted = !t.completed;
-          if (nextCompleted) {
-            try {
-              confetti({
-                particleCount: 40,
-                spread: 60,
-                origin: { y: 0.8 },
-                colors: ['#10B981', '#34D399', '#6EE7B7', '#F59E0B']
-              });
-            } catch (e) {}
+    setDays(prev => {
+      let toggledQuestionId = null;
+      let newDoneStatus = false;
+
+      const nextDays = prev.map(d => {
+        if (d.dayNumber !== dayNumber) return d;
+        return {
+          ...d,
+          tasks: d.tasks.map(t => {
+            if (t.id !== taskId) return t;
+            newDoneStatus = !t.completed;
+            if (t.type === 'practice' && t.questionId) {
+              toggledQuestionId = t.questionId;
+            }
+            if (newDoneStatus) {
+              try {
+                confetti({
+                  particleCount: 40,
+                  spread: 60,
+                  origin: { y: 0.8 },
+                  colors: ['#10B981', '#34D399', '#6EE7B7', '#F59E0B']
+                });
+              } catch (e) {}
+            }
+            return { ...t, completed: newDoneStatus };
+          })
+        };
+      });
+
+      // Synchronize with java_practice_completed_ids_v1
+      if (toggledQuestionId) {
+        try {
+          const raw = localStorage.getItem('java_practice_completed_ids_v1');
+          let currentList = raw ? JSON.parse(raw) : [];
+          if (newDoneStatus) {
+            if (!currentList.includes(toggledQuestionId)) {
+              currentList.push(toggledQuestionId);
+            }
+          } else {
+            currentList = currentList.filter(id => id !== toggledQuestionId);
           }
-          return { ...t, completed: nextCompleted };
-        })
-      };
-    }));
+          localStorage.setItem('java_practice_completed_ids_v1', JSON.stringify(currentList));
+          localStorage.setItem('study_tracker_java_completed_ids_v1', JSON.stringify(currentList));
+        } catch (e) {}
+      }
+
+      return nextDays;
+    });
   };
 
   // Update Task Notes

@@ -22,7 +22,7 @@ import AllTargetsTableView from './AllTargetsTableView';
 
 export default function RoadmapView({ onOpenNotes }) {
   const { days, toggleTask, setActiveDayNumber } = useLearning();
-  const [curriculumTab, setCurriculumTab] = useState('70days'); // '70days', 'java140', 'dsaPatterns'
+  const [curriculumTab, setCurriculumTab] = useState('70days'); // '70days', 'java140'
   const [javaSearch, setJavaSearch] = useState('');
 
   // 9 Modules of Core Java 140 Topics
@@ -295,7 +295,7 @@ export default function RoadmapView({ onOpenNotes }) {
             Master Learning Roadmap
           </h1>
           <p className="text-sm text-theme-muted mt-1 max-w-2xl">
-            Explore the complete syllabus: <strong>140 Core Java Topics</strong> (9 modules) and <strong>Rising Brain DSA Patterns</strong> (Array, Strings, Binary Search, Stack) spanning 70 dedicated days.
+            Explore the complete syllabus: <strong>140 Core Java Topics</strong> (9 modules) and <strong>140 Core Java Practice Drills</strong> spanning 70 dedicated days.
           </p>
         </div>
 
@@ -321,17 +321,6 @@ export default function RoadmapView({ onOpenNotes }) {
             }`}
           >
             140 Java Topics
-          </button>
-
-          <button
-            onClick={() => setCurriculumTab('dsaPatterns')}
-            className={`px-3 sm:px-4 py-2 rounded-xl font-bold transition-all ${
-              curriculumTab === 'dsaPatterns'
-                ? 'bg-theme-accent text-theme-accentBtnText shadow-theme-glow'
-                : 'text-theme-muted hover:text-theme-text hover:bg-theme-cardHover'
-            }`}
-          >
-            DSA Patterns
           </button>
         </div>
       </div>
@@ -443,119 +432,6 @@ export default function RoadmapView({ onOpenNotes }) {
               );
             })}
           </div>
-        </div>
-      )}
-
-      {curriculumTab === 'dsaPatterns' && (
-        <div className="space-y-6">
-          {dsaPatterns.map((cat, cIdx) => (
-            <div key={cIdx} className="bg-theme-card border border-theme-border rounded-3xl p-6 space-y-5 shadow-sm">
-              <div className="flex items-center justify-between border-b border-theme-border pb-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-9 h-9 rounded-xl bg-theme-accentSub border border-theme-accentBorder flex items-center justify-center text-theme-accentText">
-                    <Brain className="w-5 h-5 text-theme-accent" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-theme-text">{cat.category}</h3>
-                    <p className="text-xs text-theme-muted">Pattern-wise questions curated from Rising Brain sheet</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Patterns inside this Category */}
-              <div className="space-y-4">
-                {cat.patterns.map((pat, pIdx) => (
-                  <div key={pIdx} className="bg-theme-cardSub border border-theme-border rounded-2xl p-4 sm:p-5 space-y-3">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-theme-border pb-2.5">
-                      <div>
-                        <h4 className="text-sm font-bold text-theme-accentText flex items-center space-x-1.5">
-                          <Sparkles className="w-3.5 h-3.5 text-theme-accent" />
-                          <span>{pat.name}</span>
-                        </h4>
-                        <p className="text-xs text-theme-muted mt-0.5">{pat.desc}</p>
-                      </div>
-                      <span className="text-[11px] text-theme-muted font-mono">
-                        {pat.problems.length} Problems
-                      </span>
-                    </div>
-
-                    {/* Problem list */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-                      {pat.problems.map((prob, prIdx) => {
-                        const dsaMatch = findDsaTask(prob.name);
-                        const isDone = dsaMatch ? Boolean(dsaMatch.task.completed) : false;
-
-                        return (
-                          <div
-                            key={prIdx}
-                            onClick={() => {
-                              if (dsaMatch && onOpenNotes) {
-                                onOpenNotes(dsaMatch.dayNumber, dsaMatch.task);
-                              }
-                            }}
-                            className={`flex items-center justify-between p-3 rounded-xl border text-xs transition-all cursor-pointer ${
-                              isDone
-                                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-semibold'
-                                : 'bg-theme-card border-theme-border hover:border-theme-borderSub hover:bg-theme-cardSub'
-                            }`}
-                          >
-                            <div className="space-y-1 flex-1 pr-2 min-w-0">
-                              <div className="flex items-center space-x-2">
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (dsaMatch) {
-                                      toggleTask(dsaMatch.dayNumber, dsaMatch.task.id);
-                                    }
-                                  }}
-                                  className="flex-shrink-0 hover:scale-110 transition-transform"
-                                  title={isDone ? "Mark Incomplete" : "Mark Complete"}
-                                >
-                                  {isDone ? (
-                                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                                  ) : (
-                                    <Circle className="w-3.5 h-3.5 text-theme-muted" />
-                                  )}
-                                </button>
-                                <span className="font-semibold text-theme-text block truncate">
-                                  {prob.name}
-                                </span>
-                              </div>
-                              <div className="flex flex-wrap items-center gap-1 pl-5">
-                                {prob.companies.slice(0, 2).map((comp, compIdx) => (
-                                  <span key={compIdx} className="text-[9px] px-1.5 py-0.5 rounded bg-theme-cardSub text-theme-secondary font-medium border border-theme-border">
-                                    {comp}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-
-                            <div className="flex items-center space-x-2 flex-shrink-0">
-                              {dsaMatch && dsaMatch.task.notes && (
-                                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-theme-accentSub text-theme-accentText border border-theme-accentBorder">
-                                  Notes
-                                </span>
-                              )}
-                              <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${
-                                prob.diff.toLowerCase() === 'easy'
-                                  ? 'bg-emerald-500/15 text-emerald-500 border border-emerald-500/30'
-                                  : prob.diff.toLowerCase() === 'hard'
-                                  ? 'bg-rose-500/15 text-rose-500 border border-rose-500/30'
-                                  : 'bg-amber-500/15 text-amber-500 border border-amber-500/30'
-                              }`}>
-                                {prob.diff}
-                              </span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
         </div>
       )}
     </div>

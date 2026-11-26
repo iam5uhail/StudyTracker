@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   TrendingUp, 
-  Brain, 
   Code2, 
+  Coffee,
   Calendar, 
   CheckCircle2, 
   Flame, 
@@ -14,8 +14,8 @@ import {
   ListFilter
 } from 'lucide-react';
 import { useLearning } from '../context/LearningContext';
+import { JAVA_PRACTICE_LEVELS } from '../data/javaPracticeData';
 import ProgressOverviewBars from './ProgressOverviewBars';
-import RisingBrainProgressCard from './RisingBrainProgressCard';
 import RoadmapView from './RoadmapView';
 import DayWiseProgressBarGraph from './DayWiseProgressBarGraph';
 
@@ -36,7 +36,7 @@ export default function ProgressView({ onOpenNotes }) {
             Comprehensive Progress Tracking
           </h1>
           <p className="text-sm text-theme-muted mt-1 max-w-2xl">
-            Live metrics and breakdown across all <strong className="text-theme-accentText">140 Core Java Topics</strong> and <strong className="text-theme-accentText">70 Pattern-Wise DSA Problems</strong>.
+            Live metrics and breakdown across all <strong className="text-theme-accentText">140 Core Java Topics</strong> and <strong className="text-theme-accentText">140 Java Practice Drills</strong>.
           </p>
         </div>
 
@@ -123,19 +123,19 @@ export default function ProgressView({ onOpenNotes }) {
               </div>
             </div>
 
-            {/* DSA Progress - Distinct Electric Cyan */}
+            {/* Java Practice Drills - Warm Amber */}
             <div className="bg-theme-card border border-theme-border rounded-2xl p-5 flex items-center justify-between shadow-sm">
               <div>
-                <span className="text-xs text-theme-muted font-medium">Rising Brain DSA</span>
-                <div className="text-2xl font-bold text-cyan-500 dark:text-cyan-400 font-mono mt-1">
-                  {progressStats.dsaCompleted} <span className="text-xs text-theme-muted font-normal">/ {progressStats.dsaTotal}</span>
+                <span className="text-xs text-theme-muted font-medium">Java Practice Drills</span>
+                <div className="text-2xl font-bold text-amber-500 font-mono mt-1">
+                  {progressStats.practiceCompleted || 0} <span className="text-xs text-theme-muted font-normal">/ {progressStats.practiceTotal || 140}</span>
                 </div>
-                <span className="text-[11px] text-cyan-500 dark:text-cyan-400 font-medium">
-                  {progressStats.dsaPercent}% problems solved
+                <span className="text-[11px] text-amber-500 font-medium">
+                  {progressStats.practicePercent || 0}% drills completed
                 </span>
               </div>
-              <div className="w-12 h-12 rounded-xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-500 dark:text-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.2)]">
-                <Brain className="w-6 h-6 text-cyan-500 dark:text-cyan-400" />
+              <div className="w-12 h-12 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-500 shadow-[0_0_12px_rgba(245,158,11,0.2)]">
+                <Coffee className="w-6 h-6 text-amber-500" />
               </div>
             </div>
 
@@ -159,17 +159,12 @@ export default function ProgressView({ onOpenNotes }) {
           {/* 3. Day-Wise Activity & Work Accomplished Bar Graph */}
           <DayWiseProgressBarGraph />
 
-          {/* 4. Detailed Progress Bars + Rising Brain Analytics */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
-              <ProgressOverviewBars />
-            </div>
-            <div className="lg:col-span-1">
-              <RisingBrainProgressCard />
-            </div>
+          {/* 4. Detailed Progress Bars Overview */}
+          <div>
+            <ProgressOverviewBars />
           </div>
 
-          {/* 4. Pattern Mastery Cards Grid */}
+          {/* 5. Java Practice Level Breakdown Grid */}
           <div className="bg-theme-card border border-theme-border rounded-3xl p-6 sm:p-8 space-y-5 shadow-sm">
             <div className="flex items-center justify-between border-b border-theme-border pb-4">
               <div className="flex items-center space-x-3">
@@ -177,95 +172,55 @@ export default function ProgressView({ onOpenNotes }) {
                   <Layers className="w-5 h-5 text-theme-accent" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-theme-text">DSA Pattern Breakdown</h3>
-                  <p className="text-xs text-theme-muted">Target problems aligned exactly with Rising Brain categories</p>
+                  <h3 className="text-base font-bold text-theme-text">Java Practice Levels Breakdown</h3>
+                  <p className="text-xs text-theme-muted">14 Curated Levels • 140 Hands-on Java 17 problem drills</p>
                 </div>
               </div>
               <span className="text-xs text-theme-accentText font-mono font-bold">
-                {progressStats.dsaCompleted} of 70 Solved
+                {progressStats.practiceCompleted || 0} of {progressStats.practiceTotal || 140} Solved
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Array */}
-              <div className="bg-theme-cardSub border border-theme-border rounded-2xl p-4 space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-bold text-theme-text">Array</span>
-                  <span className="text-xs text-theme-accentText font-mono font-bold">
-                    {progressStats.arrayTotal ? Math.round((progressStats.arraySolved / progressStats.arrayTotal) * 100) : 0}%
-                  </span>
-                </div>
-                <div className="w-full bg-theme-border h-2 rounded-full overflow-hidden">
-                  <div 
-                    className="bg-theme-accent h-full rounded-full transition-all duration-500" 
-                    style={{ width: `${progressStats.arrayTotal ? (progressStats.arraySolved / progressStats.arrayTotal) * 100 : 0}%` }} 
-                  />
-                </div>
-                <div className="flex justify-between text-xs text-theme-muted">
-                  <span>Solved: {progressStats.arraySolved} / {progressStats.arrayTotal}</span>
-                  <span className="text-[10px]">4 Patterns</span>
-                </div>
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {JAVA_PRACTICE_LEVELS.map((lvl, idx) => {
+                const lvlTasks = [];
+                (days || []).forEach(d => {
+                  (d.tasks || []).forEach(t => {
+                    if (t.type === 'practice' && t.levelTitle && t.levelTitle.includes(`Level ${idx + 1}`)) {
+                      lvlTasks.push(t);
+                    }
+                  });
+                });
+                const total = lvlTasks.length || 10;
+                const done = lvlTasks.filter(t => t.completed).length;
+                const pct = total > 0 ? Math.round((done / total) * 100) : 0;
 
-              {/* Strings */}
-              <div className="bg-theme-cardSub border border-theme-border rounded-2xl p-4 space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-bold text-theme-text">Strings</span>
-                  <span className="text-xs text-sky-500 font-mono font-bold">
-                    {progressStats.stringsTotal ? Math.round((progressStats.stringsSolved / progressStats.stringsTotal) * 100) : 0}%
-                  </span>
-                </div>
-                <div className="w-full bg-theme-border h-2 rounded-full overflow-hidden">
-                  <div 
-                    className="bg-sky-500 h-full rounded-full transition-all duration-500" 
-                    style={{ width: `${progressStats.stringsTotal ? (progressStats.stringsSolved / progressStats.stringsTotal) * 100 : 0}%` }} 
-                  />
-                </div>
-                <div className="flex justify-between text-xs text-theme-muted">
-                  <span>Solved: {progressStats.stringsSolved} / {progressStats.stringsTotal}</span>
-                  <span className="text-[10px]">Core Patterns</span>
-                </div>
-              </div>
-
-              {/* Binary Search */}
-              <div className="bg-theme-cardSub border border-theme-border rounded-2xl p-4 space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-bold text-theme-text">Binary Search</span>
-                  <span className="text-xs text-purple-500 font-mono font-bold">
-                    {progressStats.bsTotal ? Math.round((progressStats.bsSolved / progressStats.bsTotal) * 100) : 0}%
-                  </span>
-                </div>
-                <div className="w-full bg-theme-border h-2 rounded-full overflow-hidden">
-                  <div 
-                    className="bg-purple-500 h-full rounded-full transition-all duration-500" 
-                    style={{ width: `${progressStats.bsTotal ? (progressStats.bsSolved / progressStats.bsTotal) * 100 : 0}%` }} 
-                  />
-                </div>
-                <div className="flex justify-between text-xs text-theme-muted">
-                  <span>Solved: {progressStats.bsSolved} / {progressStats.bsTotal}</span>
-                  <span className="text-[10px]">23 Problems</span>
-                </div>
-              </div>
-
-              {/* Stacks & Queues */}
-              <div className="bg-theme-cardSub border border-theme-border rounded-2xl p-4 space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-bold text-theme-text">Stacks & Queues</span>
-                  <span className="text-xs text-amber-500 font-mono font-bold">
-                    {progressStats.stackTotal ? Math.round((progressStats.stackSolved / progressStats.stackTotal) * 100) : 0}%
-                  </span>
-                </div>
-                <div className="w-full bg-theme-border h-2 rounded-full overflow-hidden">
-                  <div 
-                    className="bg-amber-500 h-full rounded-full transition-all duration-500" 
-                    style={{ width: `${progressStats.stackTotal ? (progressStats.stackSolved / progressStats.stackTotal) * 100 : 0}%` }} 
-                  />
-                </div>
-                <div className="flex justify-between text-xs text-theme-muted">
-                  <span>Solved: {progressStats.stackSolved} / {progressStats.stackTotal}</span>
-                  <span className="text-[10px]">12 Problems</span>
-                </div>
-              </div>
+                return (
+                  <div key={lvl.id} className="bg-theme-cardSub border border-theme-border rounded-2xl p-4 space-y-2.5">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-bold text-theme-text truncate max-w-[170px]" title={lvl.title}>
+                        {lvl.title}
+                      </span>
+                      <span className="text-xs text-amber-500 font-mono font-bold">
+                        {pct}%
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-theme-muted truncate" title={lvl.subtitle}>
+                      {lvl.subtitle}
+                    </p>
+                    <div className="w-full bg-theme-border h-2 rounded-full overflow-hidden">
+                      <div 
+                        className="bg-amber-500 h-full rounded-full transition-all duration-500" 
+                        style={{ width: `${pct}%` }} 
+                      />
+                    </div>
+                    <div className="flex justify-between text-[11px] text-theme-muted font-mono">
+                      <span>Solved: {done} / {total}</span>
+                      <span>10 Drills</span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </>

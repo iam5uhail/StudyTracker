@@ -4,7 +4,7 @@ import {
   Circle, 
   ExternalLink, 
   Code2, 
-  Brain, 
+  Coffee, 
   Search,
   Filter
 } from 'lucide-react';
@@ -12,7 +12,7 @@ import { useLearning } from '../context/LearningContext';
 
 export default function AllTargetsTableView({ onOpenNotes }) {
   const { days, toggleTask, setActiveDayNumber } = useLearning();
-  const [filterType, setFilterType] = useState('all'); // 'all', 'pending', 'completed', 'java', 'dsa'
+  const [filterType, setFilterType] = useState('all'); // 'all', 'pending', 'completed', 'java', 'practice'
   const [search, setSearch] = useState('');
 
   // Flatten tasks with day metadata
@@ -31,7 +31,7 @@ export default function AllTargetsTableView({ onOpenNotes }) {
     if (filterType === 'pending' && item.completed) return false;
     if (filterType === 'completed' && !item.completed) return false;
     if (filterType === 'java' && item.type !== 'java') return false;
-    if (filterType === 'dsa' && item.type !== 'dsa') return false;
+    if (filterType === 'practice' && item.type !== 'practice') return false;
 
     if (search.trim()) {
       const q = search.toLowerCase();
@@ -48,7 +48,7 @@ export default function AllTargetsTableView({ onOpenNotes }) {
       {/* Search & Filters */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-theme-border pb-4">
         <div>
-          <h2 className="text-base font-bold text-theme-text">Full 70-Day Target Plan (All 140 Java Topics + 70 DSA Questions)</h2>
+          <h2 className="text-base font-bold text-theme-text">Full 70-Day Target Plan (140 Java Topics + 140 Java Practice Drills)</h2>
           <p className="text-xs text-theme-muted">Search or filter any topic across the complete roadmap</p>
         </div>
 
@@ -67,7 +67,7 @@ export default function AllTargetsTableView({ onOpenNotes }) {
 
           {/* Filter Pills */}
           <div className="flex items-center space-x-1 bg-theme-cardSub border border-theme-border p-1 rounded-xl text-xs shadow-sm">
-            {['all', 'pending', 'completed', 'java', 'dsa'].map(f => (
+            {['all', 'pending', 'completed', 'java', 'practice'].map(f => (
               <button
                 key={f}
                 onClick={() => setFilterType(f)}
@@ -133,9 +133,9 @@ export default function AllTargetsTableView({ onOpenNotes }) {
                     <span className="hidden sm:inline font-mono">Java</span>
                   </span>
                 ) : (
-                  <span className="text-theme-accentText text-xs flex items-center space-x-1 flex-shrink-0">
-                    <Brain className="w-3.5 h-3.5 text-theme-accent" />
-                    <span className="hidden sm:inline font-mono">DSA</span>
+                  <span className="text-amber-400 text-xs flex items-center space-x-1 flex-shrink-0">
+                    <Coffee className="w-3.5 h-3.5 text-amber-400" />
+                    <span className="hidden sm:inline font-mono">Practice</span>
                   </span>
                 )}
 

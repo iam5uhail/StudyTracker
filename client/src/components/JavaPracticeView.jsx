@@ -32,6 +32,7 @@ import { JAVA_PRACTICE_LEVELS, JAVA_PRACTICE_QUESTIONS } from '../data/javaPract
 import CodeEditor from './CodeEditor';
 import { executeJavaProgram } from '../utils/javaRunner';
 import confetti from 'canvas-confetti';
+import { useLearning } from '../context/LearningContext';
 
 const STORAGE_KEY_COMPLETED = 'study_tracker_java_completed_ids_v1';
 const STORAGE_KEY_SELECTED_ID = 'study_tracker_java_selected_id_v1';
@@ -62,16 +63,19 @@ export default function JavaPracticeView() {
   // 3. Completed Problems Set
   const [completedIds, setCompletedIds] = useState(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY_COMPLETED);
+      const saved = localStorage.getItem(STORAGE_KEY_COMPLETED) || localStorage.getItem('java_practice_completed_ids_v1');
       return saved ? JSON.parse(saved) : [];
     } catch (e) {
       return [];
     }
   });
 
+  const learningCtx = useLearning();
+
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY_COMPLETED, JSON.stringify(completedIds));
+      localStorage.setItem('java_practice_completed_ids_v1', JSON.stringify(completedIds));
     } catch (e) {}
   }, [completedIds]);
 
@@ -91,6 +95,17 @@ export default function JavaPracticeView() {
       } catch (err) {}
     }
     setCompletedIds(updated);
+
+    // Sync with LearningContext plan days
+    if (learningCtx && learningCtx.days && learningCtx.toggleTask) {
+      for (const d of learningCtx.days) {
+        const match = (d.tasks || []).find(t => t.type === 'practice' && (t.questionId === qId || t.id === qId));
+        if (match && match.completed === isDone) {
+          learningCtx.toggleTask(d.dayNumber, match.id);
+          break;
+        }
+      }
+    }
   };
 
   // 4. Selected Question & Active Workbench State

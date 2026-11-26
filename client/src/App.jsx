@@ -151,7 +151,7 @@ export default function App() {
                 </span>
               </div>
               <p className="text-[11px] text-theme-muted hidden lg:block truncate">
-                140 Java Topics + DSA • Starts 21 Nov 2026
+                140 Java Lectures + 140 Practice Drills • Starts 21 Nov 2026
               </p>
             </div>
           </div>
@@ -184,20 +184,7 @@ export default function App() {
               <span>Java Practice</span>
             </button>
 
-            {/* 3. DSA Practice (RisingBrain Pattern-Wise Sheet) */}
-            <button
-              onClick={() => setActiveNav('dsa-practice')}
-              className={`flex items-center space-x-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl font-bold transition-all whitespace-nowrap ${
-                activeNav === 'dsa-practice'
-                  ? 'bg-cyan-500 text-black shadow-theme-glow'
-                  : 'text-theme-muted hover:text-cyan-400 hover:bg-theme-cardSub'
-              }`}
-            >
-              <Brain className="w-4 h-4 text-cyan-400" />
-              <span>DSA Practice Sheet</span>
-            </button>
-
-            {/* 4. Progress & Tracking Records */}
+            {/* 3. Progress & Tracking Records */}
             <button
               onClick={() => setActiveNav('progress-tracking')}
               className={`flex items-center space-x-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl font-bold transition-all whitespace-nowrap ${
@@ -409,7 +396,7 @@ export default function App() {
       >
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <span>StudyTracker • 70-Day Target Plan Starting 21 Nov 2026</span>
-          <span className="text-theme-accentText font-medium">Daily Goal: 2 Core Java Topics + 1 Rising Brain DSA Problem</span>
+          <span className="text-theme-accentText font-medium">Daily Goal: 2 Core Java Topics + 2 Java Practice Drills</span>
         </div>
       </footer>
 
@@ -456,25 +443,7 @@ export default function App() {
             <span className="text-[10px] mt-0.5 tracking-tight font-medium">Java Lab</span>
           </button>
 
-          {/* 3. DSA Sheet */}
-          <button
-            onClick={() => {
-              setActiveNav('dsa-practice');
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-            className={`flex flex-col items-center justify-center py-1 px-2 rounded-2xl transition-all ${
-              activeNav === 'dsa-practice'
-                ? 'text-cyan-400 font-bold scale-105'
-                : 'text-theme-muted hover:text-cyan-400'
-            }`}
-          >
-            <div className={`p-1 rounded-xl ${activeNav === 'dsa-practice' ? 'bg-cyan-500/20 text-cyan-400' : ''}`}>
-              <Brain className="w-5 h-5" />
-            </div>
-            <span className="text-[10px] mt-0.5 tracking-tight font-medium">DSA Sheet</span>
-          </button>
-
-          {/* 4. Progress & Records */}
+          {/* 3. Progress & Records */}
           <button
             onClick={() => {
               setActiveNav('progress-tracking');

@@ -22,14 +22,14 @@ export default function DayWiseProgressBarGraph() {
   const [selectedRange, setSelectedRange] = useState('all');
   const [hoveredDay, setHoveredDay] = useState(null);
 
-  // Prepare 70 days data with exact task counts and breakdown
+  // Prepare 70 days data with exact task counts and breakdown (2 Lectures + 2 Practice Drills per day)
   const dailyData = useMemo(() => {
     return (days || []).map(day => {
       const tasks = day.tasks || [];
-      const total = tasks.length || 3;
+      const total = tasks.length || 4;
       const completed = tasks.filter(t => t.completed).length;
       const javaDone = tasks.filter(t => t.type === 'java' && t.completed).length;
-      const dsaDone = tasks.filter(t => t.type === 'dsa' && t.completed).length;
+      const practiceDone = tasks.filter(t => t.type === 'practice' && t.completed).length;
       const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
       const isFull = total > 0 && completed === total;
 
@@ -41,7 +41,7 @@ export default function DayWiseProgressBarGraph() {
         total,
         completed,
         javaDone,
-        dsaDone,
+        practiceDone,
         pct,
         isFull
       };
@@ -79,7 +79,7 @@ export default function DayWiseProgressBarGraph() {
             Day-Wise Learning Progress Bar Graph
           </h2>
           <p className="text-xs text-theme-muted mt-0.5">
-            Visual breakdown of completed Core Java topics and RisingBrain DSA problems across each of the 70 days.
+            Visual breakdown of completed Core Java lectures and Java practice drills across each of the 70 days (4 daily goals).
           </p>
         </div>
 
@@ -158,11 +158,11 @@ export default function DayWiseProgressBarGraph() {
           <div className="flex items-center space-x-3">
             <div className="flex items-center space-x-1.5">
               <span className="w-3 h-3 rounded-md bg-emerald-500" />
-              <span>Full Day Complete (3/3 Tasks)</span>
+              <span>Full Day Complete (4/4 Goals: 2 Lectures + 2 Practice)</span>
             </div>
             <div className="flex items-center space-x-1.5">
               <span className="w-3 h-3 rounded-md bg-amber-500" />
-              <span>Partial Progress (1-2 Tasks)</span>
+              <span>Partial Progress (1-3 Goals)</span>
             </div>
             <div className="flex items-center space-x-1.5">
               <span className="w-3 h-3 rounded-md bg-zinc-800" />
