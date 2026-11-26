@@ -99,9 +99,67 @@ function transpileJavaToJS(javaCode) {
     body = cleanBody;
   }
 
-  // 3. Transform Java types and variable declarations
-  // e.g., "int a = 10, b = 20;" -> "let a = 10, b = 20;"
-  // e.g., "double Celsius=sc.nextDouble();" -> "let Celsius=sc.nextDouble();"
+  // 3. Shelter string literals from modifications
+  const stringLiterals = [];
+  body = body.replace(/"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/g, (m) => {
+    const placeholder = `__STR_${stringLiterals.length}__`;
+    stringLiterals.push(m);
+    return placeholder;
+  });
+
+  // 4. Collect declared double/float variables
+  const floatVars = new Set();
+  const floatDeclRegex = /\b(?:double|float)\s+([^;(){]+)[;)]/g;
+  let fMatch;
+  while ((fMatch = floatDeclRegex.exec(body)) !== null) {
+    const declList = fMatch[1];
+    const parts = declList.split(',');
+    for (const part of parts) {
+      const vm = part.trim().match(/^([a-zA-Z_$][a-zA-Z0-9_$]*)/);
+      if (vm) floatVars.add(vm[1]);
+    }
+  }
+
+  // Helper to check if an expression snippet involves floats/doubles
+  const hasFloat = (str) => {
+    if (/\d+\.\d+|\.\d+/.test(str)) return true;
+    if (/\b(?:double|float|nextDouble|nextFloat|Number)\b/.test(str)) return true;
+    for (const fv of floatVars) {
+      if (new RegExp(`\\b${fv}\\b`).test(str)) return true;
+    }
+    return false;
+  };
+
+  // 5. Type casts: (double) expr -> Number(expr), (int) expr -> Math.trunc(expr)
+  body = body.replace(/\(double\)\s*([a-zA-Z0-9_$]+)/g, 'Number($1)');
+  body = body.replace(/\(double\)\s*\(([^)]+)\)/g, 'Number($1)');
+  body = body.replace(/\(int\)\s*([a-zA-Z0-9_$]+)/g, 'Math.trunc($1)');
+  body = body.replace(/\(int\)\s*\(([^)]+)\)/g, 'Math.trunc($1)');
+
+  // 6. Compound assignment /=
+  // e.g. "n /= 10;" -> "n = Math.trunc(n / 10);"
+  body = body.replace(/\b([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\/=\s*([^;\n]+)/g, (match, v, expr) => {
+    if (floatVars.has(v) || hasFloat(expr)) {
+      return `${v} /= (${expr})`;
+    }
+    return `${v} = Math.trunc(${v} / (${expr}))`;
+  });
+
+  // 7. Java integer division for parenthesized left side: (expr) / right
+  // e.g. (a + b) / 2 -> Math.trunc((a + b) / 2), (num % 100) / 10
+  body = body.replace(/(?<![a-zA-Z0-9_$])(\([^()]+(?:\([^()]*\)[^()]*)*\))\s*\/\s*([a-zA-Z_$][a-zA-Z0-9_$]*|\d+)\b(?!\s*\.)/g, (match, left, right) => {
+    if (hasFloat(left) || hasFloat(right)) return match;
+    return `Math.trunc(${left} / ${right})`;
+  });
+
+  // 8. Java integer division for variables and integer literals: left / right
+  // e.g. n / 10, a / b, 10 / 3, days / 7, num / 100
+  body = body.replace(/(?<![.\w$])\b([a-zA-Z_$][a-zA-Z0-9_$]*|\d+)\s*\/\s*([a-zA-Z_$][a-zA-Z0-9_$]*|\d+)\b(?!\s*[.\w$])/g, (match, left, right) => {
+    if (hasFloat(left) || hasFloat(right)) return match;
+    return `Math.trunc(${left} / ${right})`;
+  });
+
+  // 9. Transform Java types and variable declarations to let
   body = body.replace(
     /\b(?:int|double|float|long|short|byte|boolean|String|char)\s+(?=[a-zA-Z_$])/g,
     'let '
@@ -119,30 +177,18 @@ function transpileJavaToJS(javaCode) {
     'let $1 = [$2]'
   );
 
-  // Type casts:
-  // (double) expr -> Number(expr)
-  body = body.replace(/\(double\)\s*([a-zA-Z0-9_$.()]+)/g, 'Number($1)');
-  // (int) expr -> Math.trunc(expr)
-  body = body.replace(/\(int\)\s*([a-zA-Z0-9_$.()]+)/g, 'Math.trunc($1)');
-
   // Scanner instantiation:
-  // Scanner sc = new Scanner(System.in); -> let sc = new Scanner(stdinInput);
   body = body.replace(
     /\b(?:Scanner\s+)?([a-zA-Z_$][a-zA-Z0-9_$]*)\s*=\s*new\s+Scanner\s*\([^)]*\);?/g,
     'let $1 = new Scanner(stdinInput);'
   );
 
   // String equals:
-  // str1.equals(str2) -> (str1 === str2)
   body = body.replace(/([a-zA-Z0-9_$.()]+)\.equals\(([^)]+)\)/g, '($1 === $2)');
-  // str1.equalsIgnoreCase(str2)
   body = body.replace(/([a-zA-Z0-9_$.()]+)\.equalsIgnoreCase\(([^)]+)\)/g, '(String($1).toLowerCase() === String($2).toLowerCase())');
 
-  // Java integer division simulation for standalone integer literals:
-  // e.g. "10 / 3" -> "Math.trunc(10 / 3)", but NOT "c * 9 / 5"
-  body = body.replace(/(?<![*\/%]\s*)\b(\d+)\s*\/\s*(\d+)\b(?!\s*[*\/%])/g, (match, n1, n2) => {
-    return `Math.trunc(${n1} / ${n2})`;
-  });
+  // 10. Restore string literals
+  body = body.replace(/__STR_(\d+)__/g, (_, idx) => stringLiterals[Number(idx)]);
 
   return body;
 }

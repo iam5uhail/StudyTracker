@@ -327,7 +327,7 @@ Extract each individual digit using \`%\` and \`/\` operators, and calculate the
 
 ### Example:
 - Input: \`384\`
-- Calculation: $3 + 8 + 4 = 15$
+- Calculation: 3 + 8 + 4 = 15
 - Output: \`Sum of digits: 15\``,
     sampleInput: `384`,
     sampleOutput: `Sum of digits: 15`,
