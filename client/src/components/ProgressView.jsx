@@ -14,7 +14,7 @@ import {
   ListFilter
 } from 'lucide-react';
 import { useLearning } from '../context/LearningContext';
-import { JAVA_PRACTICE_LEVELS } from '../data/javaPracticeData';
+import { JAVA_PRACTICE_LEVELS, JAVA_PRACTICE_QUESTIONS } from '../data/javaPracticeData';
 import ProgressOverviewBars from './ProgressOverviewBars';
 import RoadmapView from './RoadmapView';
 import DayWiseProgressBarGraph from './DayWiseProgressBarGraph';
@@ -186,22 +186,38 @@ export default function ProgressView({ onOpenNotes }) {
                 const lvlTasks = [];
                 (days || []).forEach(d => {
                   (d.tasks || []).forEach(t => {
-                    if (t.type === 'practice' && t.levelTitle && t.levelTitle.includes(`Level ${idx + 1}`)) {
-                      lvlTasks.push(t);
+                    if (t.type === 'practice') {
+                      const matches = t.levelId === lvl.id ||
+                        (t.questionId && JAVA_PRACTICE_QUESTIONS.find(q => q.id === t.questionId)?.levelId === lvl.id) ||
+                        (t.levelTitle && (
+                          t.levelTitle.startsWith(`Level ${idx + 1}:`) ||
+                          t.levelTitle.startsWith(`Level ${idx + 1} `)
+                        ));
+                      if (matches) {
+                        lvlTasks.push(t);
+                      }
                     }
                   });
                 });
                 const total = lvlTasks.length || 10;
                 const done = lvlTasks.filter(t => t.completed).length;
                 const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+                const isComplete = pct === 100;
 
                 return (
-                  <div key={lvl.id} className="bg-theme-cardSub border border-theme-border rounded-2xl p-4 space-y-2.5">
+                  <div 
+                    key={lvl.id} 
+                    className={`border rounded-2xl p-4 space-y-2.5 transition-all ${
+                      isComplete 
+                        ? 'bg-emerald-500/10 border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.08)]' 
+                        : 'bg-theme-cardSub border-theme-border'
+                    }`}
+                  >
                     <div className="flex justify-between items-center">
-                      <span className="text-xs font-bold text-theme-text truncate max-w-[170px]" title={lvl.title}>
+                      <span className={`text-xs font-bold truncate max-w-[170px] ${isComplete ? 'text-emerald-400' : 'text-theme-text'}`} title={lvl.title}>
                         {lvl.title}
                       </span>
-                      <span className="text-xs text-amber-500 font-mono font-bold">
+                      <span className={`text-xs font-mono font-bold ${isComplete ? 'text-emerald-400' : 'text-amber-500'}`}>
                         {pct}%
                       </span>
                     </div>
@@ -210,13 +226,19 @@ export default function ProgressView({ onOpenNotes }) {
                     </p>
                     <div className="w-full bg-theme-border h-2 rounded-full overflow-hidden">
                       <div 
-                        className="bg-amber-500 h-full rounded-full transition-all duration-500" 
+                        className={`h-full rounded-full transition-all duration-500 ${
+                          isComplete ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.4)]' : 'bg-amber-500'
+                        }`} 
                         style={{ width: `${pct}%` }} 
                       />
                     </div>
-                    <div className="flex justify-between text-[11px] text-theme-muted font-mono">
-                      <span>Solved: {done} / {total}</span>
-                      <span>10 Drills</span>
+                    <div className="flex justify-between text-[11px] font-mono">
+                      <span className={isComplete ? 'text-emerald-400 font-semibold' : 'text-theme-muted'}>
+                        Solved: {done} / {total} {isComplete && '✓'}
+                      </span>
+                      <span className={isComplete ? 'text-emerald-400 font-semibold' : 'text-theme-muted'}>
+                        {isComplete ? 'Mastered 🎉' : '10 Drills'}
+                      </span>
                     </div>
                   </div>
                 );

@@ -79,15 +79,21 @@ export default function ProgressOverviewBars() {
           </div>
         </div>
 
-        {/* 2. Core Java Topics (140 Topics) - Warm Amber */}
-        <div className="bg-theme-cardSub border border-theme-border rounded-2xl p-4 flex flex-col justify-between shadow-sm">
+        {/* 2. Core Java Topics (140 Topics) */}
+        <div className={`border rounded-2xl p-4 flex flex-col justify-between shadow-sm transition-all ${
+          progressStats.javaPercent === 100 ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-theme-cardSub border-theme-border'
+        }`}>
           <div>
             <div className="flex justify-between items-center mb-1">
-              <span className="text-xs font-semibold text-amber-500 flex items-center space-x-1.5">
-                <Code2 className="w-3.5 h-3.5 text-amber-500" />
+              <span className={`text-xs font-semibold flex items-center space-x-1.5 ${
+                progressStats.javaPercent === 100 ? 'text-emerald-400' : 'text-amber-500'
+              }`}>
+                <Code2 className={`w-3.5 h-3.5 ${progressStats.javaPercent === 100 ? 'text-emerald-400' : 'text-amber-500'}`} />
                 <span>Core Java Topics</span>
               </span>
-              <span className="text-sm font-extrabold text-amber-500 font-mono">
+              <span className={`text-sm font-extrabold font-mono ${
+                progressStats.javaPercent === 100 ? 'text-emerald-400' : 'text-amber-500'
+              }`}>
                 {progressStats.javaPercent}%
               </span>
             </div>
@@ -98,21 +104,31 @@ export default function ProgressOverviewBars() {
           </div>
           <div className="w-full h-2.5 bg-theme-border rounded-full overflow-hidden">
             <div 
-              className="h-full bg-gradient-to-r from-amber-500 to-yellow-400 rounded-full transition-all duration-500" 
+              className={`h-full rounded-full transition-all duration-500 ${
+                progressStats.javaPercent === 100 
+                  ? 'bg-gradient-to-r from-emerald-500 to-green-400 shadow-[0_0_12px_rgba(16,185,129,0.3)]' 
+                  : 'bg-gradient-to-r from-amber-500 to-yellow-400'
+              }`} 
               style={{ width: `${progressStats.javaPercent}%` }}
             />
           </div>
         </div>
 
-        {/* 3. Java Practice Drills (140 Drills) - Warm Amber / Orange */}
-        <div className="bg-theme-cardSub border border-theme-border rounded-2xl p-4 flex flex-col justify-between shadow-sm">
+        {/* 3. Java Practice Drills (140 Drills) */}
+        <div className={`border rounded-2xl p-4 flex flex-col justify-between shadow-sm transition-all ${
+          (progressStats.practicePercent || 0) === 100 ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-theme-cardSub border-theme-border'
+        }`}>
           <div>
             <div className="flex justify-between items-center mb-1">
-              <span className="text-xs font-semibold text-amber-500 flex items-center space-x-1.5">
-                <Coffee className="w-3.5 h-3.5 text-amber-500" />
+              <span className={`text-xs font-semibold flex items-center space-x-1.5 ${
+                (progressStats.practicePercent || 0) === 100 ? 'text-emerald-400' : 'text-amber-500'
+              }`}>
+                <Coffee className={`w-3.5 h-3.5 ${(progressStats.practicePercent || 0) === 100 ? 'text-emerald-400' : 'text-amber-500'}`} />
                 <span>Java Practice Drills</span>
               </span>
-              <span className="text-sm font-extrabold text-amber-500 font-mono">
+              <span className={`text-sm font-extrabold font-mono ${
+                (progressStats.practicePercent || 0) === 100 ? 'text-emerald-400' : 'text-amber-500'
+              }`}>
                 {progressStats.practicePercent || 0}%
               </span>
             </div>
@@ -123,7 +139,11 @@ export default function ProgressOverviewBars() {
           </div>
           <div className="w-full h-2.5 bg-theme-border rounded-full overflow-hidden">
             <div 
-              className="h-full bg-gradient-to-r from-amber-500 to-orange-400 rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(245,158,11,0.3)]" 
+              className={`h-full rounded-full transition-all duration-500 ${
+                (progressStats.practicePercent || 0) === 100 
+                  ? 'bg-gradient-to-r from-emerald-500 to-green-400 shadow-[0_0_12px_rgba(16,185,129,0.3)]' 
+                  : 'bg-gradient-to-r from-amber-500 to-orange-400 shadow-[0_0_12px_rgba(245,158,11,0.3)]'
+              }`} 
               style={{ width: `${progressStats.practicePercent || 0}%` }}
             />
           </div>

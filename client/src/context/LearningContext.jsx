@@ -44,6 +44,7 @@ export function LearningProvider({ children }) {
                 const isDone = Boolean(sTask?.completed || isDoneViaPracticeView);
                 return {
                   ...initTask,
+                  levelId: initTask.levelId || (sTask && sTask.levelId),
                   completed: isDone
                 };
               }

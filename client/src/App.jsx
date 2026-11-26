@@ -21,7 +21,9 @@ import {
   Check,
   X,
   Coffee,
-  BookOpen
+  BookOpen,
+  Terminal,
+  BarChart3
 } from 'lucide-react';
 import { useLearning } from './context/LearningContext';
 import { useTheme } from './context/ThemeContext';
@@ -180,7 +182,7 @@ export default function App() {
                   : 'text-theme-muted hover:text-theme-text hover:bg-theme-cardSub'
               }`}
             >
-              <Coffee className="w-4 h-4 text-amber-400" />
+              <Terminal className={`w-4 h-4 ${activeNav === 'java-practice' ? 'text-inherit' : 'text-emerald-400'}`} />
               <span>Java Practice</span>
             </button>
 
@@ -193,7 +195,7 @@ export default function App() {
                   : 'text-theme-muted hover:text-theme-text hover:bg-theme-cardSub'
               }`}
             >
-              <TrendingUp className="w-4 h-4" />
+              <BarChart3 className={`w-4 h-4 ${(activeNav === 'progress-tracking' || activeNav === 'progress' || activeNav === 'roadmap') ? 'text-inherit' : 'text-cyan-400'}`} />
               <span>Progress & Records</span>
             </button>
           </nav>
@@ -438,7 +440,7 @@ export default function App() {
             }`}
           >
             <div className={`p-1 rounded-xl ${activeNav === 'java-practice' ? 'bg-theme-accentSub text-theme-accent' : ''}`}>
-              <Coffee className="w-5 h-5 text-amber-400" />
+              <Terminal className={`w-5 h-5 ${activeNav === 'java-practice' ? 'text-theme-accent' : 'text-emerald-400'}`} />
             </div>
             <span className="text-[10px] mt-0.5 tracking-tight font-medium">Java Lab</span>
           </button>
@@ -456,7 +458,7 @@ export default function App() {
             }`}
           >
             <div className={`p-1 rounded-xl ${(activeNav === 'progress-tracking' || activeNav === 'progress' || activeNav === 'roadmap') ? 'bg-theme-accentSub text-theme-accent' : ''}`}>
-              <TrendingUp className="w-5 h-5" />
+              <BarChart3 className={`w-5 h-5 ${(activeNav === 'progress-tracking' || activeNav === 'progress' || activeNav === 'roadmap') ? 'text-theme-accent' : 'text-cyan-400'}`} />
             </div>
             <span className="text-[10px] mt-0.5 tracking-tight font-medium">Records</span>
           </button>
