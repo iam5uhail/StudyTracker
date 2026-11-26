@@ -96,26 +96,6 @@ const COMPANY_TAGS_MAP = {
   "Median of Two Sorted Arrays": ["Google", "Amazon", "Microsoft", "Apple"]
 };
 
-// Default starter templates for JavaScript IDE
-function generateStarterTemplate(taskTitle) {
-  const cleanName = taskTitle.replace(/[^a-zA-Z0-9]/g, '');
-  const fnName = cleanName.charAt(0).toLowerCase() + cleanName.slice(1);
-  return `// RisingBrain Problem: ${taskTitle}
-// Write your optimal JavaScript solution below:
-
-function ${fnName}(arr, target) {
-  // TODO: implement your pattern logic here
-  
-  return null;
-}
-
-// Test your solution with sample inputs:
-let sampleArr = [2, 7, 11, 15];
-let sampleTarget = 9;
-console.log("Result:", ${fnName}(sampleArr, sampleTarget));
-`;
-}
-
 export default function DSAPracticeSheetView() {
   const { days, toggleTask, updateTaskCodeSolution } = useLearning();
 
@@ -175,10 +155,23 @@ export default function DSAPracticeSheetView() {
     return allDsaProblems.find(p => p.id === activeProblemId) || allDsaProblems[0] || null;
   }, [allDsaProblems, activeProblemId]);
 
-  // Current code in editor
+  // Current code in editor: clean canvas by default, showing 2-line placeholder comments
   const currentCode = useMemo(() => {
     if (!activeProblem) return '';
-    return codeAnswers[activeProblem.id] || activeProblem.codeSolution || generateStarterTemplate(activeProblem.title);
+    const raw = codeAnswers[activeProblem.id] !== undefined
+      ? codeAnswers[activeProblem.id]
+      : (activeProblem.codeSolution || '');
+
+    // Strip legacy generated boilerplate so the clean placeholder appears
+    if (typeof raw === 'string' && (
+      raw.startsWith('// RisingBrain Problem:') ||
+      raw.trim() === '// Write your JavaScript solution here...' ||
+      raw.trim() === '// Write your Two-Pointer logic here...' ||
+      raw.trim() === '// Write your Java solution here...'
+    )) {
+      return '';
+    }
+    return raw;
   }, [activeProblem, codeAnswers]);
 
   // Metrics summary
@@ -348,12 +341,11 @@ export default function DSAPracticeSheetView() {
     setTimeout(() => setIsCopied(false), 2000);
   };
 
-  // Reset code to starter template
+  // Reset code to blank canvas
   const handleResetCode = () => {
     if (!activeProblem) return;
-    const fresh = generateStarterTemplate(activeProblem.title);
-    handleCodeChange(fresh);
-    setConsoleOutput('Template reset.');
+    handleCodeChange('');
+    setConsoleOutput('');
   };
 
   return (
@@ -1056,7 +1048,7 @@ export default function DSAPracticeSheetView() {
               <CodeEditor
                 value={currentCode}
                 onChange={handleCodeChange}
-                placeholder="// Write your JavaScript solution here..."
+                placeholder={`// Write your JavaScript solution here...\n// (Start typing to write your solution - this canvas is completely blank)`}
                 minRows={16}
               />
 
