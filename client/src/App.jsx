@@ -163,39 +163,43 @@ export default function App() {
             {/* 1. Java Lectures & Notes */}
             <button
               onClick={() => setActiveNav('java-lectures')}
-              className={`flex items-center space-x-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl font-bold transition-all whitespace-nowrap ${
+              className={`group flex items-center space-x-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl font-bold transition-all duration-200 active:scale-95 whitespace-nowrap ${
                 (activeNav === 'java-lectures' || activeNav === 'dashboard')
                   ? 'bg-theme-accent text-theme-accentBtnText shadow-theme-glow'
                   : 'text-theme-muted hover:text-theme-text hover:bg-theme-cardSub'
               }`}
             >
-              <BookOpen className="w-4 h-4" />
+              <BookOpen className="w-4 h-4 transition-transform duration-200 group-hover:scale-110" />
               <span>Java Lectures & Notes</span>
             </button>
 
             {/* 2. Java Practice */}
             <button
               onClick={() => setActiveNav('java-practice')}
-              className={`flex items-center space-x-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl font-bold transition-all whitespace-nowrap ${
+              className={`group flex items-center space-x-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl font-bold transition-all duration-200 active:scale-95 whitespace-nowrap ${
                 activeNav === 'java-practice'
                   ? 'bg-theme-accent text-theme-accentBtnText shadow-theme-glow'
                   : 'text-theme-muted hover:text-theme-text hover:bg-theme-cardSub'
               }`}
             >
-              <Terminal className={`w-4 h-4 ${activeNav === 'java-practice' ? 'text-inherit' : 'text-emerald-400'}`} />
+              <Coffee className={`w-4 h-4 transition-transform duration-200 group-hover:scale-110 ${
+                activeNav === 'java-practice' ? 'text-inherit' : 'text-amber-400 group-hover:text-amber-300'
+              }`} />
               <span>Java Practice</span>
             </button>
 
             {/* 3. Progress & Tracking Records */}
             <button
               onClick={() => setActiveNav('progress-tracking')}
-              className={`flex items-center space-x-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl font-bold transition-all whitespace-nowrap ${
+              className={`group flex items-center space-x-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl font-bold transition-all duration-200 active:scale-95 whitespace-nowrap ${
                 (activeNav === 'progress-tracking' || activeNav === 'progress' || activeNav === 'roadmap')
                   ? 'bg-theme-accent text-theme-accentBtnText shadow-theme-glow'
                   : 'text-theme-muted hover:text-theme-text hover:bg-theme-cardSub'
               }`}
             >
-              <BarChart3 className={`w-4 h-4 ${(activeNav === 'progress-tracking' || activeNav === 'progress' || activeNav === 'roadmap') ? 'text-inherit' : 'text-cyan-400'}`} />
+              <BarChart3 className={`w-4 h-4 transition-transform duration-200 group-hover:scale-110 ${
+                (activeNav === 'progress-tracking' || activeNav === 'progress' || activeNav === 'roadmap') ? 'text-inherit' : 'text-cyan-400'
+              }`} />
               <span>Progress & Records</span>
             </button>
           </nav>
@@ -370,25 +374,27 @@ export default function App() {
 
       {/* Main Content Area - pb-24 on mobile ensures bottom nav dock never overlaps content */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-8 pb-24 md:pb-8">
-        {(activeNav === 'java-lectures' || activeNav === 'dashboard') && (
-          <DashboardView 
-            openAccordionTaskId={openAccordionTaskId} 
-            onClearOpenAccordionTaskId={() => setOpenAccordionTaskId(null)} 
-            onNavigate={(tab) => setActiveNav(tab)}
-          />
-        )}
+        <div key={activeNav} className="animate-page-enter">
+          {(activeNav === 'java-lectures' || activeNav === 'dashboard') && (
+            <DashboardView 
+              openAccordionTaskId={openAccordionTaskId} 
+              onClearOpenAccordionTaskId={() => setOpenAccordionTaskId(null)} 
+              onNavigate={(tab) => setActiveNav(tab)}
+            />
+          )}
 
-        {activeNav === 'java-practice' && (
-          <JavaPracticeView />
-        )}
+          {activeNav === 'java-practice' && (
+            <JavaPracticeView />
+          )}
 
-        {activeNav === 'dsa-practice' && (
-          <DSAPracticeSheetView />
-        )}
+          {activeNav === 'dsa-practice' && (
+            <DSAPracticeSheetView />
+          )}
 
-        {(activeNav === 'progress-tracking' || activeNav === 'progress' || activeNav === 'roadmap') && (
-          <ProgressView onOpenNotes={handleOpenNotes} />
-        )}
+          {(activeNav === 'progress-tracking' || activeNav === 'progress' || activeNav === 'roadmap') && (
+            <ProgressView onOpenNotes={handleOpenNotes} />
+          )}
+        </div>
       </main>
 
       {/* Modern Footer (Desktop only) */}
@@ -397,8 +403,8 @@ export default function App() {
         style={{ backgroundColor: activeTheme.vars['--bg-header'] }}
       >
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <span>StudyTracker • 70-Day Target Plan Starting 21 Nov 2026</span>
-          <span className="text-theme-accentText font-medium">Daily Goal: 2 Core Java Topics + 2 Java Practice Drills</span>
+          <span>StudyTracker • 47-Day Sprint Starting 21 Nov 2026</span>
+          <span className="text-theme-accentText font-medium">Daily Goal: 3 Core Java Topics + 3 Java Practice Drills</span>
         </div>
       </footer>
 
@@ -415,13 +421,13 @@ export default function App() {
               setActiveNav('java-lectures');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className={`flex flex-col items-center justify-center py-1 px-2 rounded-2xl transition-all ${
+            className={`flex flex-col items-center justify-center py-1 px-2 rounded-2xl transition-all duration-200 active:scale-95 ${
               (activeNav === 'java-lectures' || activeNav === 'dashboard')
                 ? 'text-theme-accent font-bold scale-105'
                 : 'text-theme-muted hover:text-theme-text'
             }`}
           >
-            <div className={`p-1 rounded-xl ${(activeNav === 'java-lectures' || activeNav === 'dashboard') ? 'bg-theme-accentSub text-theme-accent' : ''}`}>
+            <div className={`p-1 rounded-xl transition-colors duration-200 ${(activeNav === 'java-lectures' || activeNav === 'dashboard') ? 'bg-theme-accentSub text-theme-accent' : ''}`}>
               <BookOpen className="w-5 h-5" />
             </div>
             <span className="text-[10px] mt-0.5 tracking-tight font-medium">Lectures</span>
@@ -433,14 +439,14 @@ export default function App() {
               setActiveNav('java-practice');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className={`flex flex-col items-center justify-center py-1 px-2 rounded-2xl transition-all ${
+            className={`flex flex-col items-center justify-center py-1 px-2 rounded-2xl transition-all duration-200 active:scale-95 ${
               activeNav === 'java-practice'
                 ? 'text-theme-accent font-bold scale-105'
                 : 'text-theme-muted hover:text-theme-text'
             }`}
           >
-            <div className={`p-1 rounded-xl ${activeNav === 'java-practice' ? 'bg-theme-accentSub text-theme-accent' : ''}`}>
-              <Terminal className={`w-5 h-5 ${activeNav === 'java-practice' ? 'text-theme-accent' : 'text-emerald-400'}`} />
+            <div className={`p-1 rounded-xl transition-colors duration-200 ${activeNav === 'java-practice' ? 'bg-theme-accentSub text-theme-accent' : ''}`}>
+              <Coffee className={`w-5 h-5 transition-transform duration-200 ${activeNav === 'java-practice' ? 'text-theme-accent' : 'text-amber-400'}`} />
             </div>
             <span className="text-[10px] mt-0.5 tracking-tight font-medium">Java Lab</span>
           </button>
@@ -451,13 +457,13 @@ export default function App() {
               setActiveNav('progress-tracking');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className={`flex flex-col items-center justify-center py-1 px-2 rounded-2xl transition-all ${
+            className={`flex flex-col items-center justify-center py-1 px-2 rounded-2xl transition-all duration-200 active:scale-95 ${
               (activeNav === 'progress-tracking' || activeNav === 'progress' || activeNav === 'roadmap')
                 ? 'text-theme-accent font-bold scale-105'
                 : 'text-theme-muted hover:text-theme-text'
             }`}
           >
-            <div className={`p-1 rounded-xl ${(activeNav === 'progress-tracking' || activeNav === 'progress' || activeNav === 'roadmap') ? 'bg-theme-accentSub text-theme-accent' : ''}`}>
+            <div className={`p-1 rounded-xl transition-colors duration-200 ${(activeNav === 'progress-tracking' || activeNav === 'progress' || activeNav === 'roadmap') ? 'bg-theme-accentSub text-theme-accent' : ''}`}>
               <BarChart3 className={`w-5 h-5 ${(activeNav === 'progress-tracking' || activeNav === 'progress' || activeNav === 'roadmap') ? 'text-theme-accent' : 'text-cyan-400'}`} />
             </div>
             <span className="text-[10px] mt-0.5 tracking-tight font-medium">Records</span>
