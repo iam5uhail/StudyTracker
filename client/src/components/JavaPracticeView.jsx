@@ -249,11 +249,9 @@ export default function JavaPracticeView() {
   const completedCount = completedIds.filter(id => allQuestions.some(q => q.id === id)).length;
   const completionPct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
-  const l1Total = allQuestions.filter(q => q.levelId === 'level-1').length;
-  const l1Completed = allQuestions.filter(q => q.levelId === 'level-1' && completedIds.includes(q.id)).length;
-
-  const l2Total = allQuestions.filter(q => q.levelId === 'level-2').length;
-  const l2Completed = allQuestions.filter(q => q.levelId === 'level-2' && completedIds.includes(q.id)).length;
+  const activeLevels = useMemo(() => {
+    return JAVA_PRACTICE_LEVELS.filter(lvl => !lvl.upcoming || allQuestions.some(q => q.levelId === lvl.id));
+  }, [allQuestions]);
 
   // 7. Filtered Questions
   const filteredQuestions = useMemo(() => {
@@ -279,24 +277,14 @@ export default function JavaPracticeView() {
 
   // Group filtered questions by Level (Level-wise accordions just like DSA page)
   const groupedByLevel = useMemo(() => {
-    const groups = [
-      {
-        id: 'level-1',
-        title: 'Level 1: Start Here — Basics, I/O & Types',
-        subtitle: 'Standalone .java programs using Scanner, arithmetic, types & division differences',
-        items: filteredQuestions.filter(q => q.levelId === 'level-1'),
-        allCount: allQuestions.filter(q => q.levelId === 'level-1').length,
-        doneCount: allQuestions.filter(q => q.levelId === 'level-1' && completedIds.includes(q.id)).length
-      },
-      {
-        id: 'level-2',
-        title: 'Level 2: Conditions, Logic & Switch Statements',
-        subtitle: 'Scanner input with if/else if branching, triangle validity, leap year, and switch calculator',
-        items: filteredQuestions.filter(q => q.levelId === 'level-2'),
-        allCount: allQuestions.filter(q => q.levelId === 'level-2').length,
-        doneCount: allQuestions.filter(q => q.levelId === 'level-2' && completedIds.includes(q.id)).length
-      }
-    ];
+    const groups = activeLevels.map(lvl => ({
+      id: lvl.id,
+      title: `${lvl.title} — ${lvl.subtitle}`,
+      subtitle: lvl.subtitle,
+      items: filteredQuestions.filter(q => q.levelId === lvl.id),
+      allCount: allQuestions.filter(q => q.levelId === lvl.id).length,
+      doneCount: allQuestions.filter(q => q.levelId === lvl.id && completedIds.includes(q.id)).length
+    }));
 
     const customItems = filteredQuestions.filter(q => q.id.startsWith('custom_'));
     if (customItems.length > 0 || selectedLevelId === 'custom') {
@@ -312,7 +300,7 @@ export default function JavaPracticeView() {
     }
 
     return groups.filter(g => g.items.length > 0 || (selectedLevelId === 'all' && !searchQuery && selectedStatus === 'all'));
-  }, [filteredQuestions, allQuestions, completedIds, selectedLevelId, searchQuery, selectedStatus]);
+  }, [activeLevels, filteredQuestions, allQuestions, completedIds, selectedLevelId, searchQuery, selectedStatus]);
 
   // Accordion open state: { [levelId]: boolean } - ALL DEFAULT CLOSED!
   const [openLevels, setOpenLevels] = useState({});
@@ -356,7 +344,7 @@ export default function JavaPracticeView() {
     const newQ = {
       id: `custom_${Date.now()}`,
       levelId: customLevel,
-      levelTitle: customLevel === 'level-1' ? 'Level 1: Start Here' : 'Level 2: Conditions',
+      levelTitle: (JAVA_PRACTICE_LEVELS.find(l => l.id === customLevel)?.title) || 'Custom Drill',
       index: allQuestions.length + 1,
       title: customTitle.trim(),
       badge: 'Custom Drill',
@@ -399,7 +387,7 @@ export default function JavaPracticeView() {
 
               <span className="inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-theme-cardSub text-theme-secondary border border-theme-border">
                 <Target className="w-3.5 h-3.5 text-amber-400" />
-                <span>20 Drills • Level 1 & Level 2</span>
+                <span>{allQuestions.length} Drills • All Levels</span>
               </span>
 
               <button
@@ -458,13 +446,24 @@ export default function JavaPracticeView() {
                 </span>
               </div>
 
-              <div className="flex items-center gap-1.5 text-[11px] font-mono">
-                <span className="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-                  L1: {l1Completed}/{l1Total}
-                </span>
-                <span className="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-amber-400">
-                  L2: {l2Completed}/{l2Total}
-                </span>
+              <div className="flex flex-wrap items-center gap-1.5 text-[11px] font-mono">
+                {activeLevels.map((lvl, idx) => {
+                  const total = allQuestions.filter(q => q.levelId === lvl.id).length;
+                  const done = allQuestions.filter(q => q.levelId === lvl.id && completedIds.includes(q.id)).length;
+                  const colorClasses = [
+                    'bg-emerald-500/10 border-emerald-500/20 text-emerald-400',
+                    'bg-amber-500/10 border-amber-500/20 text-amber-400',
+                    'bg-sky-500/10 border-sky-500/20 text-sky-400',
+                    'bg-purple-500/10 border-purple-500/20 text-purple-400',
+                    'bg-pink-500/10 border-pink-500/20 text-pink-400'
+                  ];
+                  const badgeColor = colorClasses[idx % colorClasses.length];
+                  return (
+                    <span key={lvl.id} className={`px-2 py-0.5 rounded border ${badgeColor}`}>
+                      L{idx + 1}: {done}/{total}
+                    </span>
+                  );
+                })}
                 {customQuestions.length > 0 && (
                   <span className="px-2 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
                     Custom: {customQuestions.filter(q => completedIds.includes(q.id)).length}/{customQuestions.length}
@@ -480,8 +479,11 @@ export default function JavaPracticeView() {
           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
             {[
               { id: 'all', label: 'All Levels', count: allQuestions.length },
-              { id: 'level-1', label: 'Level 1: Start Here', count: l1Total },
-              { id: 'level-2', label: 'Level 2: Conditions', count: l2Total },
+              ...activeLevels.map(lvl => ({
+                id: lvl.id,
+                label: lvl.title,
+                count: allQuestions.filter(q => q.levelId === lvl.id).length
+              })),
               ...(customQuestions.length > 0 ? [{ id: 'custom', label: 'Custom Drills', count: customQuestions.length }] : [])
             ].map(tab => (
               <button
@@ -1176,8 +1178,9 @@ export default function JavaPracticeView() {
                   onChange={(e) => setCustomLevel(e.target.value)}
                   className="w-full bg-[#161b22] border border-[#30363d] rounded-xl px-3 py-2 text-zinc-200 focus:outline-none focus:border-amber-500 text-xs"
                 >
-                  <option value="level-1">Level 1: Start Here</option>
-                  <option value="level-2">Level 2: Conditions</option>
+                  {activeLevels.map(lvl => (
+                    <option key={lvl.id} value={lvl.id}>{lvl.title}</option>
+                  ))}
                 </select>
               </div>
 
