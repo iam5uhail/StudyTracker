@@ -654,9 +654,14 @@ export default function JavaPracticeView() {
                     </div>
                   </div>
 
-                  {/* Level Problems List (CLOSED BY DEFAULT) */}
-                  {isOpen && (
-                    <div className="divide-y divide-theme-border">
+                  {/* Level Problems List (Animated Smooth Accordion) */}
+                  <div
+                    className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out ${
+                      isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'
+                    }`}
+                  >
+                    <div className="overflow-hidden">
+                      <div className="divide-y divide-theme-border">
                       {group.items.map(question => {
                         const isDone = completedIds.includes(question.id);
                         const isSelected = selectedQuestionId === question.id;
@@ -737,8 +742,9 @@ export default function JavaPracticeView() {
                           </div>
                         );
                       })}
+                      </div>
                     </div>
-                  )}
+                  </div>
                 </div>
               );
             })

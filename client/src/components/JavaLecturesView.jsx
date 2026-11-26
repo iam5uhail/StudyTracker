@@ -531,9 +531,14 @@ export default function JavaLecturesView({ openAccordionTaskId, onClearOpenAccor
                     </div>
                   </div>
 
-                  {/* Module Topics List (CLOSED BY DEFAULT) */}
-                  {isOpen && (
-                    <div className="divide-y divide-theme-border">
+                  {/* Module Topics List (Animated Smooth Accordion) */}
+                  <div
+                    className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out ${
+                      isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'
+                    }`}
+                  >
+                    <div className="overflow-hidden">
+                      <div className="divide-y divide-theme-border">
                       {mod.items.map(task => {
                         const isDone = Boolean(task.completed);
                         const isExpanded = Boolean(expandedNotes[task.id]);
@@ -623,8 +628,9 @@ export default function JavaLecturesView({ openAccordionTaskId, onClearOpenAccor
                           </div>
                         );
                       })}
+                      </div>
                     </div>
-                  )}
+                  </div>
                 </div>
               );
             })

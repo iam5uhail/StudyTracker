@@ -99,28 +99,34 @@ export default function TopicAccordion({ topic, trackId, onOpenNotes, onOpenAddP
         </div>
       </div>
 
-      {/* Accordion Content */}
-      {isOpen && (
-        <div className="p-4 pt-0 border-t border-[#131F19] bg-[#070C09]/60">
-          {filteredItems.length === 0 ? (
-            <div className="py-6 text-center text-xs text-gray-500">
-              No problems match current filters.
-            </div>
-          ) : (
-            <div className="space-y-2.5 mt-3">
-              {filteredItems.map(item => (
-                <ProblemRow
-                  key={item.id}
-                  item={item}
-                  trackId={trackId}
-                  topicId={topic.id}
-                  onOpenNotes={onOpenNotes}
-                />
-              ))}
-            </div>
-          )}
+      {/* Accordion Content with smooth animation */}
+      <div
+        className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out ${
+          isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'
+        }`}
+      >
+        <div className="overflow-hidden">
+          <div className="p-4 pt-0 border-t border-[#131F19] bg-[#070C09]/60">
+            {filteredItems.length === 0 ? (
+              <div className="py-6 text-center text-xs text-gray-500">
+                No problems match current filters.
+              </div>
+            ) : (
+              <div className="space-y-2.5 mt-3">
+                {filteredItems.map(item => (
+                  <ProblemRow
+                    key={item.id}
+                    item={item}
+                    trackId={trackId}
+                    topicId={topic.id}
+                    onOpenNotes={onOpenNotes}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
