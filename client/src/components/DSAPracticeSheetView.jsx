@@ -1049,14 +1049,6 @@ export default function DSAPracticeSheetView() {
                     <RotateCcw className="w-3.5 h-3.5 text-zinc-400" />
                     <span>Reset</span>
                   </button>
-
-                  <button
-                    onClick={handleRunJS}
-                    className="px-3.5 py-1 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black font-mono font-bold text-xs flex items-center space-x-1.5 shadow-sm transition-all"
-                  >
-                    <Play className="w-3.5 h-3.5 fill-current" />
-                    <span>Run JS Check</span>
-                  </button>
                 </div>
               </div>
 
@@ -1067,6 +1059,22 @@ export default function DSAPracticeSheetView() {
                 placeholder="// Write your JavaScript solution here..."
                 minRows={16}
               />
+
+              {/* Bottom Action Bar: Auto-saved indicator & Run JS Button */}
+              <div className="px-4 py-2.5 bg-[#0d1117] border-t border-[#21262d] flex items-center justify-between gap-2">
+                <span className="text-[11px] text-zinc-500 font-mono flex items-center space-x-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                  <span>Auto-saved to browser</span>
+                </span>
+
+                <button
+                  onClick={handleRunJS}
+                  className="flex items-center space-x-1.5 px-4 py-1.5 rounded-xl font-mono font-bold text-xs bg-cyan-500 hover:bg-cyan-400 text-black shadow-sm transition-all active:scale-95"
+                >
+                  <Play className="w-3.5 h-3.5 fill-current" />
+                  <span>Run JS Check</span>
+                </button>
+              </div>
 
               {/* Console Output Terminal */}
               {consoleOutput && (

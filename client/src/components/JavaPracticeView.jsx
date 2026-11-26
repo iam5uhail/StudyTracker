@@ -1042,14 +1042,6 @@ export default function JavaPracticeView() {
                     <RotateCcw className="w-3.5 h-3.5 text-zinc-400" />
                     <span>Reset</span>
                   </button>
-
-                  <button
-                    onClick={handleRunJavaCheck}
-                    className="px-3.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-mono font-bold text-xs flex items-center space-x-1.5 border border-amber-400 transition-all shadow-sm"
-                  >
-                    <Play className="w-3.5 h-3.5 fill-current" />
-                    <span>Run Java</span>
-                  </button>
                 </div>
               </div>
 
@@ -1061,8 +1053,8 @@ export default function JavaPracticeView() {
                 minRows={16}
               />
 
-              {/* Stdin Input Bar */}
-              <div className="px-4 py-2.5 bg-[#0d1117] border-t border-[#21262d] flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
+              {/* Stdin Input Bar & Run Java Action */}
+              <div className="px-4 py-2.5 bg-[#0d1117] border-t border-[#21262d] flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
                 <div className="flex items-center space-x-2 text-zinc-300 flex-1 min-w-[240px]">
                   <span className="text-[11px] font-bold text-zinc-400 flex items-center space-x-1 flex-shrink-0">
                     <Terminal className="w-3.5 h-3.5 text-amber-400" />
@@ -1075,17 +1067,25 @@ export default function JavaPracticeView() {
                     placeholder="Enter input for Scanner (e.g. 10 10 10 or 25.0)"
                     className="flex-1 bg-[#161b22] border border-[#30363d] focus:border-amber-500/60 rounded-lg px-2.5 py-1 text-xs text-zinc-200 placeholder:text-zinc-600 focus:outline-none transition-colors"
                   />
+                  {currentQuestion?.sampleInput && (
+                    <button
+                      type="button"
+                      onClick={() => setCustomStdin(currentQuestion.sampleInput)}
+                      className="text-[11px] text-zinc-500 hover:text-zinc-300 underline transition-colors whitespace-nowrap"
+                      title="Reset input to sample input"
+                    >
+                      Reset to sample
+                    </button>
+                  )}
                 </div>
-                {currentQuestion?.sampleInput && (
-                  <button
-                    type="button"
-                    onClick={() => setCustomStdin(currentQuestion.sampleInput)}
-                    className="text-[11px] text-zinc-500 hover:text-zinc-300 underline transition-colors"
-                    title="Reset input to sample input"
-                  >
-                    Reset to sample
-                  </button>
-                )}
+
+                <button
+                  onClick={handleRunJavaCheck}
+                  className="px-4 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-mono font-bold text-xs flex items-center space-x-1.5 border border-amber-400 transition-all shadow-sm active:scale-95 flex-shrink-0"
+                >
+                  <Play className="w-3.5 h-3.5 fill-current" />
+                  <span>Run Java</span>
+                </button>
               </div>
 
               {/* Console Output Terminal */}
