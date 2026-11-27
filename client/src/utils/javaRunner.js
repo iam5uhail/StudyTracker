@@ -81,11 +81,69 @@ function transpileJavaToJS(javaCode) {
 
   if (classMatch && hasMain) {
     body = classMatch[1];
-    // Transform all static methods into functions
-    body = body.replace(/(?:public\s+|private\s+|protected\s+)?static\s+(?:int|double|float|long|short|byte|boolean|void|String|char|int\[\]|String\[\])\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(([^)]*)\)\s*\{/g, (match, fnName, params) => {
-      const cleanParams = params.replace(/\b(?:int|double|float|long|short|byte|boolean|String|char)(?:\[\s*\])?\s+/g, '');
-      return `function ${fnName}(${cleanParams}) {`;
-    });
+    // Transform all methods into functions with Java Method Overloading Support
+    const methodRegex = /(?:public\s+|private\s+|protected\s+)?(?:static\s+)?(?:int|double|float|long|short|byte|boolean|void|String|char|int\[\]|String\[\]|[A-Z][a-zA-Z0-9_]*)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(([^)]*)\)\s*\{/g;
+    const methods = [];
+    let m;
+    while ((m = methodRegex.exec(body)) !== null) {
+      const fnName = m[1];
+      const rawParams = m[2];
+      const fullMatch = m[0];
+      const paramList = rawParams.trim() ? rawParams.split(',').map(p => {
+        const parts = p.trim().split(/\s+/);
+        const type = parts.slice(0, -1).join(' ');
+        const name = parts[parts.length - 1];
+        return { type, name };
+      }) : [];
+      methods.push({ fullMatch, fnName, paramList, rawParams });
+    }
+
+    const counts = {};
+    for (const item of methods) {
+      counts[item.fnName] = (counts[item.fnName] || 0) + 1;
+    }
+
+    const dispatchers = [];
+    const overloadTrackers = {};
+
+    for (const item of methods) {
+      const { fullMatch, fnName, paramList, rawParams } = item;
+      const cleanParams = rawParams.replace(/\b(?:int|double|float|long|short|byte|boolean|String|char)(?:\[\s*\])?\s+/g, '');
+      if (counts[fnName] > 1 && fnName !== 'main') {
+        const idx = overloadTrackers[fnName] || 0;
+        overloadTrackers[fnName] = idx + 1;
+        const internalName = `__ovld_${fnName}_${idx}`;
+        body = body.replace(fullMatch, `function ${internalName}(${cleanParams}) {`);
+        let d = dispatchers.find(x => x.fnName === fnName);
+        if (!d) {
+          d = { fnName, overloads: [] };
+          dispatchers.push(d);
+        }
+        d.overloads.push({
+          internalName,
+          paramTypes: paramList.map(p => p.type),
+          arity: paramList.length
+        });
+      } else {
+        body = body.replace(fullMatch, `function ${fnName}(${cleanParams}) {`);
+      }
+    }
+
+    for (const d of dispatchers) {
+      const { fnName, overloads } = d;
+      let dispatcherCode = `\nfunction ${fnName}(...__args) {\n`;
+      for (const ov of overloads) {
+        if (ov.paramTypes.length === 1 && (ov.paramTypes[0] === 'String' || ov.paramTypes[0] === 'boolean')) {
+          const typeCheck = ov.paramTypes[0] === 'String' ? `typeof __args[0] === 'string'` : `typeof __args[0] === 'boolean'`;
+          dispatcherCode += `  if (__args.length === ${ov.arity} && ${typeCheck}) return ${ov.internalName}(...__args);\n`;
+        } else {
+          dispatcherCode += `  if (__args.length === ${ov.arity}) return ${ov.internalName}(...__args);\n`;
+        }
+      }
+      dispatcherCode += `  return ${overloads[0].internalName}(...__args);\n}\n`;
+      body += dispatcherCode;
+    }
+
     hasTranspiledMain = true;
   } else if (hasMain) {
     const mainMatch = code.match(/public\s+static\s+void\s+main\s*\([^)]*\)\s*\{([\s\S]*)\}/);
