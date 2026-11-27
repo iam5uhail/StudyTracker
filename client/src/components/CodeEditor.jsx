@@ -16,72 +16,47 @@ const TOKEN_REGEX = new RegExp(
   'gm'
 );
 
-// Built-in intelligent auto-suggestions tailored for JavaScript (DSA) and Java coding
+// Built-in intelligent auto-suggestions tailored specifically for Java coding
 const BASE_SUGGESTIONS = [
-  { label: 'console.log', kind: 'method', insert: 'console.log()' },
   { label: 'System.out.println', kind: 'method', insert: 'System.out.println();' },
   { label: 'System.out.print', kind: 'method', insert: 'System.out.print();' },
-  { label: 'let', kind: 'keyword', insert: 'let ' },
-  { label: 'const', kind: 'keyword', insert: 'const ' },
-  { label: 'function', kind: 'keyword', insert: 'function ' },
   { label: 'Scanner sc = new Scanner(System.in);', kind: 'snippet', insert: 'Scanner sc = new Scanner(System.in);' },
   { label: 'public static void main', kind: 'snippet', insert: 'public static void main(String[] args) {\n    \n}' },
   { label: 'public class', kind: 'snippet', insert: 'public class Solution {\n    \n}' },
-  { label: 'public', kind: 'keyword', insert: 'public ' },
-  { label: 'private', kind: 'keyword', insert: 'private ' },
-  { label: 'static', kind: 'keyword', insert: 'static ' },
-  { label: 'void', kind: 'keyword', insert: 'void ' },
-  { label: 'int', kind: 'type', insert: 'int ' },
-  { label: 'String', kind: 'type', insert: 'String ' },
-  { label: 'boolean', kind: 'type', insert: 'boolean ' },
-  { label: 'char', kind: 'type', insert: 'char ' },
-  { label: 'double', kind: 'type', insert: 'double ' },
-  { label: 'float', kind: 'type', insert: 'float ' },
-  { label: 'long', kind: 'type', insert: 'long ' },
-  { label: 'if', kind: 'snippet', insert: 'if () {\n    \n}' },
-  { label: 'if...else', kind: 'snippet', insert: 'if () {\n    \n} else {\n    \n}' },
-  { label: 'for (let i = 0; i < n; i++)', kind: 'snippet', insert: 'for (let i = 0; i < ; i++) {\n    \n}' },
   { label: 'for (int i = 0; i < n; i++)', kind: 'snippet', insert: 'for (int i = 0; i < ; i++) {\n    \n}' },
   { label: 'for (int x : arr)', kind: 'snippet', insert: 'for (int x : ) {\n    \n}' },
+  { label: 'if', kind: 'snippet', insert: 'if () {\n    \n}' },
+  { label: 'if...else', kind: 'snippet', insert: 'if () {\n    \n} else {\n    \n}' },
   { label: 'while', kind: 'snippet', insert: 'while () {\n    \n}' },
-  { label: 'push', kind: 'method', insert: 'push()' },
-  { label: 'pop', kind: 'method', insert: 'pop()' },
-  { label: 'shift', kind: 'method', insert: 'shift()' },
-  { label: 'unshift', kind: 'method', insert: 'unshift()' },
-  { label: 'sc.nextInt()', kind: 'method', insert: 'sc.nextInt()' },
-  { label: 'sc.nextDouble()', kind: 'method', insert: 'sc.nextDouble()' },
-  { label: 'sc.nextLine()', kind: 'method', insert: 'sc.nextLine()' },
-  { label: 'sc.next()', kind: 'method', insert: 'sc.next()' },
-  { label: 'sc.nextBoolean()', kind: 'method', insert: 'sc.nextBoolean()' },
-  { label: 'sc.close()', kind: 'method', insert: 'sc.close();' },
-  { label: 'Character.isLetter', kind: 'method', insert: 'Character.isLetter()' },
-  { label: 'Character.toLowerCase', kind: 'method', insert: 'Character.toLowerCase()' },
-  { label: 'Character.toUpperCase', kind: 'method', insert: 'Character.toUpperCase()' },
-  { label: 'length', kind: 'property', insert: 'length' },
-  { label: 'length()', kind: 'method', insert: 'length()' },
-  { label: 'charAt()', kind: 'method', insert: 'charAt()' },
-  { label: 'substring()', kind: 'method', insert: 'substring()' },
-  { label: 'equals()', kind: 'method', insert: 'equals()' },
-  { label: 'toCharArray()', kind: 'method', insert: 'toCharArray()' },
+  { label: 'switch', kind: 'snippet', insert: 'switch () {\n    case :\n        break;\n    default:\n        break;\n}' },
+  { label: 'try...catch', kind: 'snippet', insert: 'try {\n    \n} catch (Exception e) {\n    \n}' },
+  { label: 'ArrayList<Integer>', kind: 'snippet', insert: 'ArrayList<Integer> list = new ArrayList<>();' },
+  { label: 'Scanner', kind: 'type', insert: 'Scanner ' },
+  { label: 'String', kind: 'type', insert: 'String ' },
+  { label: 'StringBuilder', kind: 'type', insert: 'StringBuilder ' },
+  { label: 'int', kind: 'type', insert: 'int ' },
+  { label: 'double', kind: 'type', insert: 'double ' },
+  { label: 'boolean', kind: 'type', insert: 'boolean ' },
+  { label: 'char', kind: 'type', insert: 'char ' },
+  { label: 'long', kind: 'type', insert: 'long ' },
+  { label: 'float', kind: 'type', insert: 'float ' },
+  { label: 'void', kind: 'type', insert: 'void ' },
+  { label: 'public', kind: 'keyword', insert: 'public ' },
+  { label: 'private', kind: 'keyword', insert: 'private ' },
+  { label: 'protected', kind: 'keyword', insert: 'protected ' },
+  { label: 'static', kind: 'keyword', insert: 'static ' },
+  { label: 'class', kind: 'keyword', insert: 'class ' },
+  { label: 'return', kind: 'keyword', insert: 'return ' },
+  { label: 'break', kind: 'keyword', insert: 'break;' },
+  { label: 'continue', kind: 'keyword', insert: 'continue;' },
+  { label: 'new', kind: 'keyword', insert: 'new ' },
   { label: 'Math.max', kind: 'method', insert: 'Math.max()' },
   { label: 'Math.min', kind: 'method', insert: 'Math.min()' },
-  { label: 'Math.floor', kind: 'method', insert: 'Math.floor()' },
-  { label: 'Math.ceil', kind: 'method', insert: 'Math.ceil()' },
   { label: 'Math.abs', kind: 'method', insert: 'Math.abs()' },
   { label: 'Math.sqrt', kind: 'method', insert: 'Math.sqrt()' },
   { label: 'Math.pow', kind: 'method', insert: 'Math.pow()' },
   { label: 'Arrays.sort', kind: 'method', insert: 'Arrays.sort()' },
-  { label: 'Arrays.toString', kind: 'method', insert: 'Arrays.toString()' },
-  { label: 'ArrayList<Integer>', kind: 'snippet', insert: 'ArrayList<Integer> list = new ArrayList<>();' },
-  { label: 'class', kind: 'keyword', insert: 'class ' },
-  { label: 'return', kind: 'keyword', insert: 'return ' },
-  { label: 'true', kind: 'literal', insert: 'true' },
-  { label: 'false', kind: 'literal', insert: 'false' },
-  { label: 'null', kind: 'literal', insert: 'null' },
-  { label: 'break', kind: 'keyword', insert: 'break;' },
-  { label: 'continue', kind: 'keyword', insert: 'continue;' },
-  { label: 'switch', kind: 'snippet', insert: 'switch () {\n    case :\n        break;\n    default:\n        break;\n}' },
-  { label: 'try...catch', kind: 'snippet', insert: 'try {\n    \n} catch (Exception e) {\n    \n}' }
+  { label: 'Arrays.toString', kind: 'method', insert: 'Arrays.toString()' }
 ];
 
 // Bracket pair definitions
@@ -435,7 +410,7 @@ export default function CodeEditor({
     }
 
     // 6. Dot accessor: e.g. "sc." or "sc.next" or "System." or "Math."
-    const dotMatch = textBefore.match(/([a-zA-Z_$][a-zA-Z0-9_$]*)\.([a-zA-Z0-9_$]*)$/);
+    const dotMatch = textBefore.match(/([a-zA-Z_$][a-zA-Z0-9_$.]*)\.([a-zA-Z0-9_$]*)$/);
     if (dotMatch) {
       return {
         show: true,
@@ -446,12 +421,20 @@ export default function CodeEditor({
     }
 
     // 7. Regular identifier prefix (must be actively typing an identifier)
-    const prefixMatch = textBefore.match(/([a-zA-Z_$][a-zA-Z0-9_$]*)$/);
-    if (prefixMatch && prefixMatch[1] && prefixMatch[1].length >= 1) {
+    // Only show if preceded by start of line, whitespace, or open parenthesis/bracket
+    const prefixMatch = textBefore.match(/(?:^|[\s(])([a-zA-Z_$][a-zA-Z0-9_$]*)$/);
+    if (prefixMatch && prefixMatch[1] && prefixMatch[1].length >= 2) {
+      const pfx = prefixMatch[1];
+      // Don't show if typing variable name right after a type (e.g. "int ra", "double len", "String na")
+      const beforePrefix = currentLine.slice(0, currentLine.length - pfx.length).trimEnd();
+      if (/\b(int|double|float|long|short|byte|boolean|char|String|Scanner|void|var)\b$/.test(beforePrefix)) {
+        return { show: false };
+      }
+
       return {
         show: true,
         isDot: false,
-        prefix: prefixMatch[1]
+        prefix: pfx
       };
     }
 
@@ -487,20 +470,26 @@ export default function CodeEditor({
     let filtered = [];
 
     if (check.isDot && check.targetObj) {
-      const obj = check.targetObj.toLowerCase();
+      const fullObj = check.targetObj.toLowerCase();
       let dotList = [];
-      if (obj === 'sc' || obj === 'scanner' || obj.includes('scanner') || obj.includes('sc')) {
+      if (fullObj === 'sc' || fullObj.endsWith('.sc') || fullObj.includes('scanner')) {
         dotList = [
           { label: 'nextInt()', kind: 'method', insert: 'nextInt()' },
+          { label: 'nextDouble()', kind: 'method', insert: 'nextDouble()' },
           { label: 'nextLine()', kind: 'method', insert: 'nextLine()' },
           { label: 'next()', kind: 'method', insert: 'next()' },
-          { label: 'nextDouble()', kind: 'method', insert: 'nextDouble()' },
           { label: 'nextLong()', kind: 'method', insert: 'nextLong()' },
           { label: 'hasNextInt()', kind: 'method', insert: 'hasNextInt()' },
           { label: 'hasNext()', kind: 'method', insert: 'hasNext()' },
           { label: 'close()', kind: 'method', insert: 'close();' }
         ];
-      } else if (obj === 'system' || obj === 'sys') {
+      } else if (fullObj === 'system.out' || fullObj === 'out' || fullObj.endsWith('.out')) {
+        dotList = [
+          { label: 'println()', kind: 'method', insert: 'println();' },
+          { label: 'print()', kind: 'method', insert: 'print();' },
+          { label: 'printf()', kind: 'method', insert: 'printf();' }
+        ];
+      } else if (fullObj === 'system' || fullObj === 'sys') {
         dotList = [
           { label: 'out.println()', kind: 'method', insert: 'out.println();' },
           { label: 'out.print()', kind: 'method', insert: 'out.print();' },
@@ -508,7 +497,7 @@ export default function CodeEditor({
           { label: 'currentTimeMillis()', kind: 'method', insert: 'currentTimeMillis()' },
           { label: 'exit(0)', kind: 'method', insert: 'exit(0);' }
         ];
-      } else if (obj === 'math') {
+      } else if (fullObj === 'math') {
         dotList = [
           { label: 'max()', kind: 'method', insert: 'max()' },
           { label: 'min()', kind: 'method', insert: 'min()' },
@@ -517,43 +506,47 @@ export default function CodeEditor({
           { label: 'pow()', kind: 'method', insert: 'pow()' },
           { label: 'floor()', kind: 'method', insert: 'floor()' },
           { label: 'ceil()', kind: 'method', insert: 'ceil()' },
-          { label: 'random()', kind: 'method', insert: 'random()' }
+          { label: 'round()', kind: 'method', insert: 'round()' }
         ];
-      } else if (obj === 'arrays') {
+      } else if (fullObj === 'arrays') {
         dotList = [
           { label: 'sort()', kind: 'method', insert: 'sort()' },
           { label: 'toString()', kind: 'method', insert: 'toString()' },
           { label: 'binarySearch()', kind: 'method', insert: 'binarySearch()' },
           { label: 'fill()', kind: 'method', insert: 'fill()' }
         ];
+      } else if (fullObj === 'character') {
+        dotList = [
+          { label: 'isLetter()', kind: 'method', insert: 'isLetter()' },
+          { label: 'isDigit()', kind: 'method', insert: 'isDigit()' },
+          { label: 'toLowerCase()', kind: 'method', insert: 'toLowerCase()' },
+          { label: 'toUpperCase()', kind: 'method', insert: 'toUpperCase()' }
+        ];
       } else {
         dotList = [
           { label: 'length()', kind: 'method', insert: 'length()' },
-          { label: 'length', kind: 'property', insert: 'length' },
           { label: 'charAt()', kind: 'method', insert: 'charAt()' },
           { label: 'substring()', kind: 'method', insert: 'substring()' },
           { label: 'equals()', kind: 'method', insert: 'equals()' },
+          { label: 'equalsIgnoreCase()', kind: 'method', insert: 'equalsIgnoreCase()' },
           { label: 'contains()', kind: 'method', insert: 'contains()' },
-          { label: 'add()', kind: 'method', insert: 'add()' },
-          { label: 'get()', kind: 'method', insert: 'get()' },
-          { label: 'size()', kind: 'method', insert: 'size()' }
+          { label: 'indexOf()', kind: 'method', insert: 'indexOf()' },
+          { label: 'toLowerCase()', kind: 'method', insert: 'toLowerCase()' },
+          { label: 'toUpperCase()', kind: 'method', insert: 'toUpperCase()' },
+          { label: 'trim()', kind: 'method', insert: 'trim()' },
+          { label: 'toCharArray()', kind: 'method', insert: 'toCharArray()' }
         ];
       }
 
       filtered = (prefix
         ? dotList.filter(item => item.label.toLowerCase().startsWith(prefix.toLowerCase()))
-        : dotList).slice(0, 5);
+        : dotList).slice(0, 4);
     } else if (prefix && prefix.length >= 2) {
-      // Dynamic words from current code (only trigger after at least 2 characters)
-      const dynamicWords = Array.from(new Set(currentVal.match(/\b[a-zA-Z_$][a-zA-Z0-9_$]{2,}\b/g) || []))
-        .filter(w => !BASE_SUGGESTIONS.some(s => s.label === w) && w.toLowerCase() !== prefix.toLowerCase())
-        .map(w => ({ label: w, kind: 'variable', insert: w }));
-
-      const allList = [...BASE_SUGGESTIONS, ...dynamicWords];
-      filtered = allList.filter(item =>
-        item.label.toLowerCase().startsWith(prefix.toLowerCase()) && 
-        item.label.toLowerCase() !== prefix.toLowerCase()
-      ).slice(0, 5);
+      const pfx = prefix.toLowerCase();
+      filtered = BASE_SUGGESTIONS.filter(item =>
+        item.label.toLowerCase().startsWith(pfx) && 
+        item.label.toLowerCase() !== pfx
+      ).slice(0, 4);
     }
 
     if (filtered.length > 0) {
@@ -566,7 +559,7 @@ export default function CodeEditor({
         setSelectedSuggestionIdx(0);
       }
 
-      // Compact, snug positioning without awkward scrollbars
+      // Natural, clean positioning without fixed height or tiny scrollbars
       const containerHeight = textarea.clientHeight || 360;
       const containerWidth = textarea.clientWidth || 500;
       const scrollTop = textarea.scrollTop || 0;
@@ -579,7 +572,7 @@ export default function CodeEditor({
       const visualY = (line - 1) * lineHeight + 12 - scrollTop;
       const visualX = (col - 1) * charWidth + 16 - scrollLeft;
 
-      const popupHeight = filtered.length * 28 + 26;
+      const estimatedHeight = 28 + filtered.length * 32 + 12;
       const popupWidth = 240;
 
       const spaceBelow = containerHeight - (visualY + lineHeight);
@@ -589,20 +582,20 @@ export default function CodeEditor({
       let isAbove = false;
 
       // If near bottom of editor, flip snugly ABOVE the cursor line!
-      if (spaceBelow < popupHeight + 10 && spaceAbove > popupHeight + 10) {
-        top = Math.max(visualY - popupHeight - 4, 6);
+      if (spaceBelow < estimatedHeight + 10 && spaceAbove > estimatedHeight + 10) {
+        top = Math.max(visualY - estimatedHeight - 4, 6);
         isAbove = true;
       } else {
         top = visualY + lineHeight + 4;
-        if (top + popupHeight > containerHeight - 6) {
-          top = Math.max(containerHeight - popupHeight - 6, 6);
+        if (top + estimatedHeight > containerHeight - 6) {
+          top = Math.max(containerHeight - estimatedHeight - 6, 6);
         }
       }
 
       // Clamp horizontally so it never overflows right or left edge
       const left = Math.min(Math.max(visualX, 8), Math.max(containerWidth - popupWidth - 10, 8));
 
-      setSuggestionMenuPos({ top, left, prefix, isAbove, height: popupHeight });
+      setSuggestionMenuPos({ top, left, prefix, isAbove });
     } else {
       setSuggestions([]);
       setSuggestionMenuPos(null);
@@ -1033,6 +1026,12 @@ export default function CodeEditor({
               requestAnimationFrame(() => updateCursorInfo(false));
             }}
             onClick={() => updateCursorInfo(false)}
+            onBlur={() => {
+              setTimeout(() => {
+                setSuggestions([]);
+                setSuggestionMenuPos(null);
+              }, 150);
+            }}
             onKeyUp={handleKeyUp}
             onKeyDown={handleKeyDown}
             onScroll={handleScroll}
@@ -1056,56 +1055,60 @@ export default function CodeEditor({
           {suggestions.length > 0 && suggestionMenuPos && (
             <div
               ref={suggestionsListRef}
-              className="absolute z-50 bg-[#161b22] border border-[#30363d] rounded-xl shadow-[0_12px_36px_rgba(0,0,0,0.85)] py-1 w-60 backdrop-blur-md overflow-hidden select-none"
+              className="absolute z-50 bg-[#161b22] border border-[#30363d] rounded-xl shadow-[0_16px_40px_rgba(0,0,0,0.9)] min-w-[210px] max-w-[280px] backdrop-blur-md overflow-hidden select-none"
               style={{
                 top: `${suggestionMenuPos.top}px`,
-                left: `${suggestionMenuPos.left}px`,
-                height: `${suggestionMenuPos.height || 166}px`
+                left: `${suggestionMenuPos.left}px`
               }}
             >
-              <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400 border-b border-[#21262d] flex justify-between items-center bg-[#0d1117]/80">
-                <span>Suggestions</span>
-                <span className="font-normal lowercase text-[9px] text-zinc-500">Tab/Enter pick</span>
+              <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-zinc-400 border-b border-[#21262d] flex justify-between items-center bg-[#0d1117]/90">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block"></span>
+                  Suggestions
+                </span>
+                <span className="font-normal lowercase text-[9px] text-zinc-500 font-mono">Tab/Enter pick</span>
               </div>
-              {suggestions.map((item, idx) => (
-                <div
-                  key={idx}
-                  ref={idx === selectedSuggestionIdx ? selectedSuggestionRef : null}
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    applySuggestion(item);
-                  }}
-                  onMouseEnter={() => {
-                    selectedSuggestionIdxRef.current = idx;
-                    setSelectedSuggestionIdx(idx);
-                  }}
-                  className={`px-3 py-1.5 flex items-center justify-between text-xs cursor-pointer transition-colors ${
-                    idx === selectedSuggestionIdx
-                      ? 'bg-amber-500/25 text-amber-300 font-semibold border-l-2 border-amber-400'
-                      : 'text-zinc-300 hover:bg-[#21262d]'
-                  }`}
-                >
-                  <div className="flex items-center space-x-2 truncate">
-                    <span
-                      className={`text-[9px] font-bold px-1 py-0.5 rounded uppercase font-mono ${
-                        item.kind === 'keyword'
-                          ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
-                          : item.kind === 'snippet'
-                          ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                          : item.kind === 'method'
-                          ? 'bg-sky-500/20 text-sky-400 border border-sky-500/30'
-                          : item.kind === 'type'
-                          ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                          : 'bg-zinc-700/50 text-zinc-400'
-                      }`}
-                    >
-                      {item.kind.slice(0, 3)}
-                    </span>
-                    <span className="truncate">{item.label}</span>
+              <div className="py-1">
+                {suggestions.map((item, idx) => (
+                  <div
+                    key={idx}
+                    ref={idx === selectedSuggestionIdx ? selectedSuggestionRef : null}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      applySuggestion(item);
+                    }}
+                    onMouseEnter={() => {
+                      selectedSuggestionIdxRef.current = idx;
+                      setSelectedSuggestionIdx(idx);
+                    }}
+                    className={`px-3 py-1.5 flex items-center justify-between text-xs cursor-pointer transition-colors ${
+                      idx === selectedSuggestionIdx
+                        ? 'bg-amber-500/20 text-amber-200 font-medium border-l-2 border-amber-400 pl-2.5'
+                        : 'text-zinc-300 hover:bg-[#21262d]/60'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-2 truncate">
+                      <span
+                        className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase font-mono ${
+                          item.kind === 'keyword'
+                            ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                            : item.kind === 'snippet'
+                            ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                            : item.kind === 'method'
+                            ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30'
+                            : item.kind === 'type'
+                            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                            : 'bg-zinc-700/50 text-zinc-400'
+                        }`}
+                      >
+                        {item.kind.slice(0, 3)}
+                      </span>
+                      <span className="truncate text-zinc-100 font-mono text-[11px]">{item.label}</span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           )}
         </div>
