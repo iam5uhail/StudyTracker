@@ -99,7 +99,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "Strings",
       "Syntax"
     ],
-    "description": "Write a program in Java to print your **Name**, **City**, and **Favourite Programming Language** on three separate lines using `System.out.println()`.\n\n### Requirements:\n1. Print Name on line 1.\n2. Print City on line 2.\n3. Print Favourite Language on line 3.",
+    "description": "Write a program in Java to print your Name, City, and Favourite Programming Language on three separate lines using `System.out.println()`.\n\nRequirements:\n1. Print Name on line 1.\n2. Print City on line 2.\n3. Print Favourite Language on line 3.",
     "sampleInput": "None (Direct Output)",
     "sampleOutput": "Name: Suhail\nCity: Panaji\nFavourite Language: Java",
     "starterCode": "public class Main {\n    public static void main(String[] args) {\n        // Write your code below to print your name, city, and favourite language\n        \n    }\n}",
@@ -122,7 +122,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "Arithmetic",
       "Integers"
     ],
-    "description": "Read two integers from standard input using `Scanner`.\nCalculate and print:\n1. **Sum** ($a + b$)\n2. **Difference** ($a - b$)\n3. **Product** ($a \\times b$)\n4. **Quotient** ($a / b$, as an integer or double)\n\n### Requirements:\n- Use `Scanner sc = new Scanner(System.in);`\n- Read using `sc.nextInt()`\n- Display each result clearly with its label.",
+    "description": "Read two integers from standard input using `Scanner`.\nCalculate and print:\n1. Sum (a + b)\n2. Difference (a - b)\n3. Product (a * b)\n4. Quotient (a / b, as an integer or double)\n\nRequirements:\n- Use `Scanner sc = new Scanner(System.in);`\n- Read using `sc.nextInt()`\n- Display each result clearly with its label.",
     "sampleInput": "20 4",
     "sampleOutput": "Sum: 24\nDifference: 16\nProduct: 80\nQuotient: 5",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Read two integers and compute sum, difference, product, quotient\n        \n    }\n}",
@@ -146,7 +146,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "Math",
       "Scanner"
     ],
-    "description": "Read the **length** and **width** of a rectangle (can be decimals/doubles) from the user.\nCalculate and print:\n- **Area**: $\\text{length} \\times \\text{width}$\n- **Perimeter**: $2 \\times (\\text{length} + \\text{width})$",
+    "description": "Read the length and width of a rectangle (can be decimals/doubles) from the user.\nCalculate and print:\n- Area: length * width\n- Perimeter: 2 * (length + width)",
     "sampleInput": "7.5 4.0",
     "sampleOutput": "Area: 30.0\nPerimeter: 23.0",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Read length and width (double) and print Area & Perimeter\n        \n    }\n}",
@@ -169,7 +169,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "double",
       "Pitfall"
     ],
-    "description": "Read a temperature in **Celsius** and convert it to **Fahrenheit** using the formula:\n$$F = (C \\times \\frac{9}{5}) + 32$$\n\n> [!WARNING] Common Java Trap:\n> In Java, writing `9 / 5` performs integer division and equals `1`, ruining the calculation!\n> You MUST write `9.0 / 5` or `9 / 5.0` to get `1.8`.",
+    "description": "Read a temperature in Celsius and convert it to Fahrenheit using the formula:\nF = (C * 9 / 5) + 32\n\n> [!WARNING] Common Java Trap:\n> In Java, writing `9 / 5` performs integer division and equals `1`, ruining the calculation!\n> You MUST write `9.0 / 5` or `9 / 5.0` to get `1.8`.",
     "sampleInput": "37.0",
     "sampleOutput": "Temperature in Fahrenheit: 98.6",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Convert Celsius to Fahrenheit\n        \n    }\n}",
@@ -192,7 +192,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "%",
       "Time"
     ],
-    "description": "Read a total number of days as an integer and convert it into **weeks** and **remaining days**.\n\n### Example:\n- If input is `17`, output: `17 days = 2 weeks and 3 days`.\n- If input is `28`, output: `28 days = 4 weeks and 0 days`.",
+    "description": "Read a total number of days as an integer and convert it into weeks and remaining days.\n\nExample:\n- If input is `17`, output: `17 days = 2 weeks and 3 days`.\n- If input is `28`, output: `28 days = 4 weeks and 0 days`.",
     "sampleInput": "17",
     "sampleOutput": "17 days = 2 weeks and 3 days",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Read total days and compute weeks and remainder days\n        \n    }\n}",
@@ -215,7 +215,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "Logic",
       "Interview Basic"
     ],
-    "description": "Read two numbers `a` and `b`.\nDemonstrate variable swapping in **two distinct ways**:\n1. **Method 1**: Using a temporary variable `temp`\n2. **Method 2**: Without using any extra variable (using arithmetic `+` and `-`)",
+    "description": "Read two numbers `a` and `b`.\nDemonstrate variable swapping in two distinct ways:\n1. Method 1: Using a temporary variable `temp`\n2. Method 2: Without using any extra variable (using arithmetic `+` and `-`)",
     "sampleInput": "10 25",
     "sampleOutput": "Original: a = 10, b = 25\nAfter swap with temp: a = 25, b = 10\nAfter swap without temp: a = 10, b = 25",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int a = sc.nextInt();\n        int b = sc.nextInt();\n\n        // 1. Swap with temp\n        \n        // 2. Swap without temp (using + and -)\n        \n    }\n}",
@@ -239,7 +239,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "/",
       "Algorithm"
     ],
-    "description": "Read a 3-digit integer from standard input (e.g. `384`).\nExtract each individual digit using `%` and `/` operators, and calculate their sum.\n\n### Example:\n- Input: `384`\n- Calculation: 3 + 8 + 4 = 15\n- Output: `Sum of digits: 15`",
+    "description": "Read a 3-digit integer from standard input (e.g. `384`).\nExtract each individual digit using `%` and `/` operators, and calculate their sum.\n\nExample:\n- Input: `384`\n- Calculation: 3 + 8 + 4 = 15\n- Output: `Sum of digits: 15`",
     "sampleInput": "384",
     "sampleOutput": "Sum of digits: 15",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Read 3-digit number and sum its digits using % and /\n        \n    }\n}",
@@ -263,7 +263,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "double",
       "Scanner"
     ],
-    "description": "Read Principal amount ($P$), Annual Rate of Interest in percent ($R$), and Time in years ($T$).\nCalculate and print:\n- **Simple Interest**: $SI = \\frac{P \\times R \\times T}{100}$\n- **Total Amount**: $\\text{Principal} + SI$",
+    "description": "Read Principal amount (P), Annual Rate of Interest in percent (R), and Time in years (T).\nCalculate and print:\n- Simple Interest: SI = (P * R * T / 100)\n- Total Amount: \Principal + SI",
     "sampleInput": "10000 7.5 3",
     "sampleOutput": "Simple Interest: 2250.0\nTotal Amount: 12250.0",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Read P, R, T and compute Simple Interest\n        \n    }\n}",
@@ -286,7 +286,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "Casting",
       "Evaluation"
     ],
-    "description": "Write a program to print the result of the following 4 expressions and explain why they differ:\n1. `10 / 3`\n2. `10 % 3`\n3. `10 / 3.0`\n4. `(double) 10 / 3`\n\n### Expected Observations:\n- Explain why `10 / 3` gives `3` and not `3.3333333333333335`.\n- Explain how `10 % 3` produces the remainder.\n- Explain how introducing a double operand promotes the entire expression to floating-point.",
+    "description": "Write a program to print the result of the following 4 expressions and explain why they differ:\n1. `10 / 3`\n2. `10 % 3`\n3. `10 / 3.0`\n4. `(double) 10 / 3`\n\nExpected Observations:\n- Explain why `10 / 3` gives `3` and not `3.3333333333333335`.\n- Explain how `10 % 3` produces the remainder.\n- Explain how introducing a double operand promotes the entire expression to floating-point.",
     "sampleInput": "None (Direct code analysis)",
     "sampleOutput": "10 / 3 = 3\n10 % 3 = 1\n10 / 3.0 = 3.3333333333333335\n(double) 10 / 3 = 3.3333333333333335",
     "starterCode": "public class Main {\n    public static void main(String[] args) {\n        // Print the 4 expressions and examine output\n        \n    }\n}",
@@ -310,7 +310,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "Precedence",
       "Quiz"
     ],
-    "description": "Study this code snippet. First, **predict the output on paper**, then run the program to check your reasoning:\n\n```java\nint a = 5;\nint b = a++ + ++a * 2;\nint c = --b - a--;\nSystem.out.println(\"a = \" + a);\nSystem.out.println(\"b = \" + b);\nSystem.out.println(\"c = \" + c);\n```\n\n### Step-by-Step Breakdown:\n1. `a++`: uses current `a` ($5$), then `a` becomes $6$.\n2. `++a`: `a` increments first to $7$, then used as $7$.\n3. Multiplication has higher precedence: $7 \\times 2 = 14$.\n4. $b = 5 + 14 = 19$.",
+    "description": "Study this code snippet. First, predict the output on paper, then run the program to check your reasoning:\n\n```java\nint a = 5;\nint b = a++ + ++a * 2;\nint c = --b - a--;\nSystem.out.println(\"a = \" + a);\nSystem.out.println(\"b = \" + b);\nSystem.out.println(\"c = \" + c);\n```\n\nStep-by-Step Breakdown:\n1. `a++`: uses current `a` (5), then `a` becomes 6.\n2. `++a`: `a` increments first to 7, then used as 7.\n3. Multiplication has higher precedence: 7 * 2 = 14.\n4. b = 5 + 14 = 19.",
     "sampleInput": "None",
     "sampleOutput": "a = 6\nb = 19\nc = 11",
     "starterCode": "public class Main {\n    public static void main(String[] args) {\n        int a = 5;\n        int b = a++ + ++a * 2;\n        int c = --b - a--;\n\n        System.out.println(\"a = \" + a);\n        System.out.println(\"b = \" + b);\n        System.out.println(\"c = \" + c);\n    }\n}",
@@ -333,7 +333,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "Conditionals",
       "Comparison"
     ],
-    "description": "Read an integer from the user using `Scanner`.\nCheck and print whether the number is:\n- **Positive** ($n > 0$)\n- **Negative** ($n < 0$)\n- **Zero** ($n == 0$)",
+    "description": "Read an integer from the user using `Scanner`.\nCheck and print whether the number is:\n- Positive (n > 0)\n- Negative (n < 0)\n- Zero (n == 0)",
     "sampleInput": "-15",
     "sampleOutput": "-15 is Negative",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Read number and check positive, negative, or zero\n        \n    }\n}",
@@ -356,7 +356,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "Modulo",
       "Bitwise"
     ],
-    "description": "Read an integer from the user.\nDetermine and print whether the number is **Even** or **Odd**.\n\n### Logic:\n- A number is **Even** if `n % 2 == 0`.\n- Otherwise, it is **Odd**.",
+    "description": "Read an integer from the user.\nDetermine and print whether the number is Even or Odd.\n\nLogic:\n- A number is Even if `n % 2 == 0`.\n- Otherwise, it is Odd.",
     "sampleInput": "42",
     "sampleOutput": "42 is Even",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Check even or odd\n        \n    }\n}",
@@ -379,7 +379,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "Comparison",
       "Max"
     ],
-    "description": "Read three integers `a`, `b`, and `c` from the user.\nFind and print the largest number **using `if / else if` statements** (do NOT use arrays or `Math.max`).\n\n### Requirements:\n- Handle scenarios where two or all three numbers are equal.",
+    "description": "Read three integers `a`, `b`, and `c` from the user.\nFind and print the largest number using `if / else if` statements (do NOT use arrays or `Math.max`).\n\nRequirements:\n- Handle scenarios where two or all three numbers are equal.",
     "sampleInput": "45 92 18",
     "sampleOutput": "The largest number is: 92",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Find largest of 3 numbers using if / else if\n        \n    }\n}",
@@ -403,7 +403,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "&&",
       "||"
     ],
-    "description": "Read a year (e.g. `2024`, `1900`, `2000`).\nCheck whether it is a **Leap Year** based on standard Gregorian calendar rules:\n- A year is a leap year if it is divisible by `4`.\n- **Except** century years (ending in `00`), which MUST be divisible by `400`.\n\n### Examples:\n- `2024` -> Leap Year (divisible by 4, not century)\n- `1900` -> NOT a Leap Year (divisible by 4 and 100, but not 400)\n- `2000` -> Leap Year (divisible by 400)",
+    "description": "Read a year (e.g. `2024`, `1900`, `2000`).\nCheck whether it is a Leap Year based on standard Gregorian calendar rules:\n- A year is a leap year if it is divisible by `4`.\n- Except century years (ending in `00`), which MUST be divisible by `400`.\n\nExamples:\n- `2024` -> Leap Year (divisible by 4, not century)\n- `1900` -> NOT a Leap Year (divisible by 4 and 100, but not 400)\n- `2000` -> Leap Year (divisible by 400)",
     "sampleInput": "2000",
     "sampleOutput": "2000 is a Leap Year",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Read year and check if it is a leap year\n        \n    }\n}",
@@ -426,7 +426,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "Ranges",
       "Validation"
     ],
-    "description": "Read a student's marks out of `100` (can be 0 to 100).\nValidate that marks are between 0 and 100, then assign and print the grade:\n- **Grade A**: Marks $\\ge 90$\n- **Grade B**: Marks $\\ge 75$ and $< 90$\n- **Grade C**: Marks $\\ge 50$ and $< 75$\n- **Fail**: Marks $< 50$\n- If marks $< 0$ or $> 100$, print `\"Invalid Marks\"`.",
+    "description": "Read a student's marks out of `100` (can be 0 to 100).\nValidate that marks are between 0 and 100, then assign and print the grade:\n- Grade A: Marks \>= 90\n- Grade B: Marks \>= 75 and < 90\n- Grade C: Marks \>= 50 and < 75\n- Fail: Marks < 50\n- If marks < 0 or > 100, print `\"Invalid Marks\"`.",
     "sampleInput": "84",
     "sampleOutput": "Grade: B",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Read marks out of 100 and print grade\n        \n    }\n}",
@@ -449,7 +449,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "Character",
       "Vowels"
     ],
-    "description": "Read a single character from the user.\nPrint whether the character is:\n1. **A Vowel** (`A, E, I, O, U` or `a, e, i, o, u`)\n2. **A Consonant** (any other English letter)\n3. **Not a letter** (digit, symbol, whitespace, etc.)\n\n### How to read a char in Java:\n`char ch = sc.next().charAt(0);`",
+    "description": "Read a single character from the user.\nPrint whether the character is:\n1. A Vowel (`A, E, I, O, U` or `a, e, i, o, u`)\n2. A Consonant (any other English letter)\n3. Not a letter (digit, symbol, whitespace, etc.)\n\nHow to read a char in Java:\n`char ch = sc.next().charAt(0);`",
     "sampleInput": "e",
     "sampleOutput": "'e' is a Vowel",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Read single char and classify as Vowel, Consonant, or Not a Letter\n        \n    }\n}",
@@ -497,7 +497,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "char",
       "Defensive"
     ],
-    "description": "Build a console calculator:\n1. Read the first number (`double num1`).\n2. Read an operator (`char op`: `+`, `-`, `*`, `/`).\n3. Read the second number (`double num2`).\n4. Use a `switch` statement on `op` to calculate and print the result.\n5. **Defensive Guard**: If `op == '/'` and `num2 == 0`, print an error message `\"Error: Division by zero is not allowed!\"` instead of computing.",
+    "description": "Build a console calculator:\n1. Read the first number (`double num1`).\n2. Read an operator (`char op`: `+`, `-`, `*`, `/`).\n3. Read the second number (`double num2`).\n4. Use a `switch` statement on `op` to calculate and print the result.\n5. Defensive Guard: If `op == '/'` and `num2 == 0`, print an error message `\"Error: Division by zero is not allowed!\"` instead of computing.",
     "sampleInput": "15.0 / 3.0",
     "sampleOutput": "Result: 15.0 / 3.0 = 5.0",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Build mini calculator using switch\n        \n    }\n}",
@@ -521,7 +521,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "Inequality",
       "Nested if"
     ],
-    "description": "Read three side lengths (`a`, `b`, `c`) of a triangle.\n1. **Check Validity**: A triangle is valid if and only if the sum of any two sides is greater than the third side:\n   - $a + b > c$ AND $a + c > b$ AND $b + c > a$\n2. If **Valid**, classify it as:\n   - **Equilateral**: All 3 sides are equal ($a == b == c$)\n   - **Isosceles**: Exactly 2 sides are equal ($a == b$ or $b == c$ or $a == c$)\n   - **Scalene**: All 3 sides are different\n3. If **Invalid**, print `\"Invalid Triangle: Cannot form a triangle with these sides.\"`",
+    "description": "Read three side lengths (`a`, `b`, `c`) of a triangle.\n1. Check Validity: A triangle is valid if and only if the sum of any two sides is greater than the third side:\n   - a + b > c AND a + c > b AND b + c > a\n2. If Valid, classify it as:\n   - Equilateral: All 3 sides are equal (a == b == c)\n   - Isosceles: Exactly 2 sides are equal (a == b or b == c or a == c)\n   - Scalene: All 3 sides are different\n3. If Invalid, print `\"Invalid Triangle: Cannot form a triangle with these sides.\"`",
     "sampleInput": "5 5 8",
     "sampleOutput": "Valid Triangle: Isosceles",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Check triangle validity and classify type\n        \n    }\n}",
@@ -545,7 +545,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "Discount",
       "Ternary"
     ],
-    "description": "Read an **age** (`int`) and a **membership status** (`boolean isMember`: `true` or `false`).\n\nCalculate and print the final ticket price based on:\n1. **Base Price**:\n   - Age $< 5$: **Free** (₹0)\n   - Age $5$ to $17$: **₹100**\n   - Age $\\ge 18$: **₹200**\n2. **Member Discount**:\n   - If `isMember` is `true`, apply a **20% discount** on the base price ($20\\% = 0.20$).\n   - (Free tickets remain ₹0).",
+    "description": "Read an age (`int`) and a membership status (`boolean isMember`: `true` or `false`).\n\nCalculate and print the final ticket price based on:\n1. Base Price:\n   - Age < 5: Free (₹0)\n   - Age 5 to 17: ₹100\n   - Age \>= 18: ₹200\n2. Member Discount:\n   - If `isMember` is `true`, apply a 20% discount on the base price (20% = 0.20).\n   - (Free tickets remain ₹0).",
     "sampleInput": "24 true",
     "sampleOutput": "Base Price: ₹200.0\nDiscount Applied (20%): ₹40.0\nFinal Ticket Price: ₹160.0",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Read age and boolean isMember, compute ticket price with discount\n        \n    }\n}",
@@ -569,7 +569,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "for",
       "Counters"
     ],
-    "description": "Read an integer $N$ from standard input.\nPrint all numbers from **1 to $N$** in ascending order on one line, and from **$N$ down to 1** in descending order on the next line.\n\n### Example:\n- Input: `5`\n- Output:\n  `Forward: 1 2 3 4 5`\n  `Backward: 5 4 3 2 1`",
+    "description": "Read an integer N from standard input.\nPrint all numbers from 1 to N in ascending order on one line, and from N down to 1 in descending order on the next line.\n\nExample:\n- Input: `5`\n- Output:\n  `Forward: 1 2 3 4 5`\n  `Backward: 5 4 3 2 1`",
     "sampleInput": "5",
     "sampleOutput": "Forward: 1 2 3 4 5\nBackward: 5 4 3 2 1",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Read N and print 1 to N forward and backward\n        \n    }\n}",
@@ -592,7 +592,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "Factorial",
       "Math"
     ],
-    "description": "Read a positive integer $N$.\nCompute and print:\n1. **Sum of first $N$ natural numbers** ($1 + 2 + \\dots + N$)\n2. **Factorial of $N$** ($N! = 1 \\times 2 \\times \\dots \\times N$)\n\n### Example:\n- Input: `5`\n- Output:\n  `Sum: 15`\n  `Factorial: 120`",
+    "description": "Read a positive integer N.\nCompute and print:\n1. Sum of first N natural numbers (1 + 2 + \... + N)\n2. Factorial of N (N! = 1 * 2 * \... * N)\n\nExample:\n- Input: `5`\n- Output:\n  `Sum: 15`\n  `Factorial: 120`",
     "sampleInput": "5",
     "sampleOutput": "Sum: 15\nFactorial: 120",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Compute sum and factorial of N\n        \n    }\n}",
@@ -615,7 +615,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "Multiplication",
       "for"
     ],
-    "description": "Read an integer $N$ from standard input.\nPrint its multiplication table from $1$ to $10$ in the format: `N x i = Result`.\n\n### Example:\n- Input: `7`\n- Output:\n  `7 x 1 = 7`\n  `7 x 2 = 14`\n  ...\n  `7 x 10 = 70`",
+    "description": "Read an integer N from standard input.\nPrint its multiplication table from 1 to 10 in the format: `N x i = Result`.\n\nExample:\n- Input: `7`\n- Output:\n  `7 x 1 = 7`\n  `7 x 2 = 14`\n  ...\n  `7 x 10 = 70`",
     "sampleInput": "7",
     "sampleOutput": "7 x 1 = 7\n7 x 2 = 14\n7 x 3 = 21\n7 x 4 = 28\n7 x 5 = 35\n7 x 6 = 42\n7 x 7 = 49\n7 x 8 = 56\n7 x 9 = 63\n7 x 10 = 70",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Print multiplication table\n        \n    }\n}",
@@ -639,7 +639,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "/",
       "Reverse"
     ],
-    "description": "Read an integer $N$.\n1. Count the total number of digits.\n2. Reverse the digits of the number.\n\n### Example:\n- Input: `12345`\n- Output:\n  `Number of digits: 5`\n  `Reversed: 54321`",
+    "description": "Read an integer N.\n1. Count the total number of digits.\n2. Reverse the digits of the number.\n\nExample:\n- Input: `12345`\n- Output:\n  `Number of digits: 5`\n  `Reversed: 54321`",
     "sampleInput": "12345",
     "sampleOutput": "Number of digits: 5\nReversed: 54321",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Extract digits, count them, and construct reversed number\n        \n    }\n}",
@@ -663,7 +663,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "while",
       "Logic"
     ],
-    "description": "A number is a **Palindrome** if it reads the same backward as forward (e.g., `1221`, `1331`).\nRead an integer and print whether it is a palindrome.\n\n### Example:\n- Input: `1221` -> Output: `1221 is a Palindrome`\n- Input: `1234` -> Output: `1234 is not a Palindrome`",
+    "description": "A number is a Palindrome if it reads the same backward as forward (e.g., `1221`, `1331`).\nRead an integer and print whether it is a palindrome.\n\nExample:\n- Input: `1221` -> Output: `1221 is a Palindrome`\n- Input: `1234` -> Output: `1234 is not a Palindrome`",
     "sampleInput": "1221",
     "sampleOutput": "1221 is a Palindrome",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Check if number is palindrome\n        \n    }\n}",
@@ -686,7 +686,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "Square Root",
       "Optimization"
     ],
-    "description": "Read an integer $N$.\nDetermine if $N$ is a **Prime Number** (a number greater than 1 that has no positive divisors other than 1 and itself).\n\n### Requirements:\n- Optimized loop checking up to $\\sqrt{N}$ ($i \\times i \\le N$).\n- Numbers $\\le 1$ are not prime.",
+    "description": "Read an integer N.\nDetermine if N is a Prime Number (a number greater than 1 that has no positive divisors other than 1 and itself).\n\nRequirements:\n- Optimized loop checking up to \√(N) (i * i \<= N).\n- Numbers \<= 1 are not prime.",
     "sampleInput": "29",
     "sampleOutput": "29 is Prime",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Check if N is prime\n        \n    }\n}",
@@ -709,7 +709,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "Series",
       "Variables"
     ],
-    "description": "Read an integer $N$ representing the number of terms.\nPrint the first $N$ numbers in the **Fibonacci Sequence**:\n$0, 1, 1, 2, 3, 5, 8, 13, \\dots$\n\n### Example:\n- Input: `8`\n- Output: `Fibonacci: 0 1 1 2 3 5 8 13`",
+    "description": "Read an integer N representing the number of terms.\nPrint the first N numbers in the Fibonacci Sequence:\n0, 1, 1, 2, 3, 5, 8, 13, \...\n\nExample:\n- Input: `8`\n- Output: `Fibonacci: 0 1 1 2 3 5 8 13`",
     "sampleInput": "8",
     "sampleOutput": "Fibonacci: 0 1 1 2 3 5 8 13",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Print first N Fibonacci terms\n        \n    }\n}",
@@ -732,7 +732,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "LCM",
       "Euclid"
     ],
-    "description": "Read two integers $A$ and $B$.\nCalculate and print:\n1. **Greatest Common Divisor (GCD)** using the Euclidean algorithm: $\\gcd(A, B) = \\gcd(B, A \\% B)$\n2. **Least Common Multiple (LCM)** using formula: $\\text{LCM} = \\frac{A \\times B}{\\text{GCD}}$\n\n### Example:\n- Input: `12 18`\n- Output:\n  `GCD: 6`\n  `LCM: 36`",
+    "description": "Read two integers A and B.\nCalculate and print:\n1. Greatest Common Divisor (GCD) using the Euclidean algorithm: gcd(A, B) = gcd(B, A % B)\n2. Least Common Multiple (LCM) using formula: \LCM = (A * B / \GCD)\n\nExample:\n- Input: `12 18`\n- Output:\n  `GCD: 6`\n  `LCM: 36`",
     "sampleInput": "12 18",
     "sampleOutput": "GCD: 6\nLCM: 36",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Calculate GCD and LCM\n        \n    }\n}",
@@ -755,7 +755,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "Stars",
       "Nested"
     ],
-    "description": "Read an integer $N$ representing the number of rows.\nPrint a right-angled triangle of stars (`*`) where row $i$ has $i$ stars separated by spaces.\n\n### Example for $N = 4$:\n`* `\n`* * `\n`* * * `\n`* * * * `",
+    "description": "Read an integer N representing the number of rows.\nPrint a right-angled triangle of stars (`*`) where row i has i stars separated by spaces.\n\nExample for N = 4:\n`* `\n`* * `\n`* * * `\n`* * * * `",
     "sampleInput": "4",
     "sampleOutput": "*\n* *\n* * *\n* * * *",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Print right-angled triangle pattern\n        \n    }\n}",
@@ -778,7 +778,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "Numbers",
       "Matrix"
     ],
-    "description": "Read an integer $N$.\nPrint a number triangle where row $i$ prints numbers from $1$ up to $i$:\n\n### Example for $N = 4$:\n`1`\n`1 2`\n`1 2 3`\n`1 2 3 4`",
+    "description": "Read an integer N.\nPrint a number triangle where row i prints numbers from 1 up to i:\n\nExample for N = 4:\n`1`\n`1 2`\n`1 2 3`\n`1 2 3 4`",
     "sampleInput": "4",
     "sampleOutput": "1\n1 2\n1 2 3\n1 2 3 4",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Print number triangle\n        \n    }\n}",
@@ -801,7 +801,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "Power",
       "Functions"
     ],
-    "description": "Write a static method `int power(int base, int exp)` that computes $base^{exp}$ using a loop.\nRead two integers `base` and `exp` and print the result.\n\n### Example:\n- Input: `2 5`\n- Output: `2^5 = 32`",
+    "description": "Write a static method `int power(int base, int exp)` that computes base^{exp} using a loop.\nRead two integers `base` and `exp` and print the result.\n\nExample:\n- Input: `2 5`\n- Output: `2^5 = 32`",
     "sampleInput": "2 5",
     "sampleOutput": "2^5 = 32",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    // Write static int power(int base, int exp)\n    \n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        int base = sc.nextInt();\n        int exp = sc.nextInt();\n        // Call power() and print result\n        \n    }\n}",
@@ -824,7 +824,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "Math",
       "Signatures"
     ],
-    "description": "Demonstrate method overloading by creating two overloaded static methods:\n1. `double area(double radius)` -> returns circle area: $\\pi r^2$\n2. `int area(int length, int width)` -> returns rectangle area: $l \\times w$\n\nRead: `radius` (double), `length` (int), `width` (int) and print both areas.",
+    "description": "Demonstrate method overloading by creating two overloaded static methods:\n1. `double area(double radius)` -> returns circle area: \π r^2\n2. `int area(int length, int width)` -> returns rectangle area: l * w\n\nRead: `radius` (double), `length` (int), `width` (int) and print both areas.",
     "sampleInput": "7.0 4 6",
     "sampleOutput": "Circle Area: 153.93804002589985\nRectangle Area: 24",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    // Implement overloaded area methods\n    \n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        double r = sc.nextDouble();\n        int l = sc.nextInt();\n        int w = sc.nextInt();\n        \n    }\n}",
@@ -847,7 +847,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "Average",
       "Traversal"
     ],
-    "description": "Read $N$, then read an array of $N$ integers.\nCalculate and print:\n1. **Sum** of all elements.\n2. **Average** as a floating-point number.\n\n### Example:\n- Input: `5 10 20 30 40 50`\n- Output:\n  `Sum: 150`\n  `Average: 30.0`",
+    "description": "Read N, then read an array of N integers.\nCalculate and print:\n1. Sum of all elements.\n2. Average as a floating-point number.\n\nExample:\n- Input: `5 10 20 30 40 50`\n- Output:\n  `Sum: 150`\n  `Average: 30.0`",
     "sampleInput": "5 10 20 30 40 50",
     "sampleOutput": "Sum: 150\nAverage: 30.0",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Read N, create array, compute sum & average\n        \n    }\n}",
@@ -870,7 +870,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "Min",
       "Comparison"
     ],
-    "description": "Read $N$, followed by $N$ integers into an array.\nFind and print the **Maximum** and **Minimum** elements.\n\n### Example:\n- Input: `6 45 12 89 34 23 7`\n- Output:\n  `Max: 89`\n  `Min: 7`",
+    "description": "Read N, followed by N integers into an array.\nFind and print the Maximum and Minimum elements.\n\nExample:\n- Input: `6 45 12 89 34 23 7`\n- Output:\n  `Max: 89`\n  `Min: 7`",
     "sampleInput": "6 45 12 89 34 23 7",
     "sampleOutput": "Max: 89\nMin: 7",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Find max and min in array\n        \n    }\n}",
@@ -893,7 +893,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "Two-Pointer",
       "In-Place"
     ],
-    "description": "Read $N$ and $N$ integers into an array.\nReverse the array **in-place** using the Two-Pointer technique without creating a second array.\nPrint the reversed array on a single line.\n\n### Example:\n- Input: `5 1 2 3 4 5`\n- Output: `Reversed Array: 5 4 3 2 1`",
+    "description": "Read N and N integers into an array.\nReverse the array in-place using the Two-Pointer technique without creating a second array.\nPrint the reversed array on a single line.\n\nExample:\n- Input: `5 1 2 3 4 5`\n- Output: `Reversed Array: 5 4 3 2 1`",
     "sampleInput": "5 1 2 3 4 5",
     "sampleOutput": "Reversed Array: 5 4 3 2 1",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Reverse array in-place\n        \n    }\n}",
@@ -916,7 +916,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "Frequency",
       "Counting"
     ],
-    "description": "Read $N$, then $N$ elements of an array, followed by a target element $K$.\nFind and print how many times $K$ occurs in the array.\n\n### Example:\n- Input: `7 4 2 5 2 8 2 9 2` (where 2 is target K)\n- Output: `Element 2 found 3 times`",
+    "description": "Read N, then N elements of an array, followed by a target element K.\nFind and print how many times K occurs in the array.\n\nExample:\n- Input: `7 4 2 5 2 8 2 9 2` (where 2 is target K)\n- Output: `Element 2 found 3 times`",
     "sampleInput": "7 4 2 5 2 8 2 9 2",
     "sampleOutput": "Element 2 found 3 times",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Linear search and count frequency\n        \n    }\n}",
@@ -938,7 +938,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "Order",
       "Boolean"
     ],
-    "description": "Read $N$ and $N$ integers into an array.\nCheck whether the array is strictly sorted in non-decreasing (ascending) order ($arr[i] \\le arr[i+1]$ for all $i$).\nPrint `Array is Sorted: true` or `Array is Sorted: false`.\n\n### Example:\n- Input: `5 10 20 30 40 50` -> Output: `Array is Sorted: true`\n- Input: `5 10 50 30 40 20` -> Output: `Array is Sorted: false`",
+    "description": "Read N and N integers into an array.\nCheck whether the array is strictly sorted in non-decreasing (ascending) order (arr[i] \<= arr[i+1] for all i).\nPrint `Array is Sorted: true` or `Array is Sorted: false`.\n\nExample:\n- Input: `5 10 20 30 40 50` -> Output: `Array is Sorted: true`\n- Input: `5 10 50 30 40 20` -> Output: `Array is Sorted: false`",
     "sampleInput": "5 10 20 30 40 50",
     "sampleOutput": "Array is Sorted: true",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Check if array is sorted\n        \n    }\n}",
@@ -961,7 +961,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "Single Pass",
       "Optimization"
     ],
-    "description": "Read $N$, then $N$ integers into an array.\nFind the **Second Largest distinct element** in a single pass without sorting.\n\n### Example:\n- Input: `5 12 35 1 10 34`\n- Output: `Second Largest: 34`",
+    "description": "Read N, then N integers into an array.\nFind the Second Largest distinct element in a single pass without sorting.\n\nExample:\n- Input: `5 12 35 1 10 34`\n- Output: `Second Largest: 34`",
     "sampleInput": "5 12 35 1 10 34",
     "sampleOutput": "Second Largest: 34",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Find second largest element\n        \n    }\n}",
@@ -984,7 +984,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "Matrix",
       "Nested Loops"
     ],
-    "description": "Read dimensions $R$ (rows) and $C$ (columns).\nThen read two $R \\times C$ matrices $A$ and $B$.\nCompute and print their sum matrix $A + B$.\n\n### Example:\n- Input: `2 2  1 2 3 4  5 6 7 8`\n- Output:\n  `6 8`\n  `10 12`",
+    "description": "Read dimensions R (rows) and C (columns).\nThen read two R * C matrices A and B.\nCompute and print their sum matrix A + B.\n\nExample:\n- Input: `2 2  1 2 3 4  5 6 7 8`\n- Output:\n  `6 8`\n  `10 12`",
     "sampleInput": "2 2 1 2 3 4 5 6 7 8",
     "sampleOutput": "6 8\n10 12",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Matrix addition\n        \n    }\n}",
@@ -1007,7 +1007,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "2D Array",
       "Rows/Cols"
     ],
-    "description": "Read $R$ (rows) and $C$ (columns), followed by an $R \\times C$ matrix.\nCompute and print its **Transpose** (flipping matrix over its diagonal, converting $R \\times C$ into $C \\times R$ where $\\text{transposed}[j][i] = \\text{matrix}[i][j]$).\n\n### Example:\n- Input: `2 3 1 2 3 4 5 6`\n- Output:\n  `1 4`\n  `2 5`\n  `3 6`",
+    "description": "Read R (rows) and C (columns), followed by an R * C matrix.\nCompute and print its Transpose (flipping matrix over its diagonal, converting R * C into C * R where \transposed[j][i] = \matrix[i][j]).\n\nExample:\n- Input: `2 3 1 2 3 4 5 6`\n- Output:\n  `1 4`\n  `2 5`\n  `3 6`",
     "sampleInput": "2 3 1 2 3 4 5 6",
     "sampleOutput": "1 4\n2 5\n3 6",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        // Compute matrix transpose\n        \n    }\n}",
@@ -1158,7 +1158,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "Math.hypot",
       "Distance"
     ],
-    "description": "Create a `Point` class with coordinates `x` and `y`. Method `distanceFrom(Point other)` computes Euclidean distance: $\\sqrt{(x_2 - x_1)^2 + (y_2 - y_1)^2}$. Read coordinates of two points and print distance rounded to 2 decimals.",
+    "description": "Create a `Point` class with coordinates `x` and `y`. Method `distanceFrom(Point other)` computes Euclidean distance: \√((x_2 - x_1)^2 + (y_2 - y_1)^2). Read coordinates of two points and print distance rounded to 2 decimals.",
     "sampleInput": "0 0 3 4",
     "sampleOutput": "Distance: 5.00",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        \n    }\n}",
@@ -1200,7 +1200,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "Time",
       "Conversion"
     ],
-    "description": "Create a `Time` class with fields `hours`, `minutes`, and `seconds`. Implement `toTotalSeconds()` and `displayFormatted()` ($HH:MM:SS$). Read $H, M, S$ and output total seconds and formatted string.",
+    "description": "Create a `Time` class with fields `hours`, `minutes`, and `seconds`. Implement `toTotalSeconds()` and `displayFormatted()` (HH:MM:SS). Read H, M, S and output total seconds and formatted string.",
     "sampleInput": "2 45 30",
     "sampleOutput": "Total Seconds: 9930\nFormatted: 02:45:30",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        \n    }\n}",
@@ -1432,7 +1432,7 @@ export const JAVA_PRACTICE_QUESTIONS = [
       "ReturnObject",
       "Factory"
     ],
-    "description": "Create a method `Complex add(Complex c1, Complex c2)` that returns a new `Complex` number object representing their sum ($r_1 + r_2, i_1 + i_2$).",
+    "description": "Create a method `Complex add(Complex c1, Complex c2)` that returns a new `Complex` number object representing their sum (r_1 + r_2, i_1 + i_2).",
     "sampleInput": "3 4 1 2",
     "sampleOutput": "Sum: 4 + 6i",
     "starterCode": "import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}",

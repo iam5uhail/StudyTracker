@@ -38,6 +38,154 @@ const STORAGE_KEY_COMPLETED = 'study_tracker_java_completed_ids_v1';
 const STORAGE_KEY_SELECTED_ID = 'study_tracker_java_selected_id_v1';
 const STORAGE_KEY_CUSTOM_QUESTIONS = 'study_tracker_java_custom_questions_v1';
 
+// Clean, simple and structured problem description renderer
+function FormattedProblemDescription({ content }) {
+  if (!content) return null;
+
+  // Thorough sanitization for any residual LaTeX math, dollar signs, or escaped characters
+  const sanitized = content
+    .replace(/\\sqrt\{([^}]+)\}/g, '√$1')
+    .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '($1 / $2)')
+    .replace(/\\times/g, '×')
+    .replace(/\\le/g, '<=')
+    .replace(/\\ge/g, '>=')
+    .replace(/\\dots/g, '...')
+    .replace(/\\text\{([^}]+)\}/g, '$1')
+    .replace(/\\pi/g, 'π')
+    .replace(/\\gcd/g, 'gcd')
+    .replace(/\\%/g, '%')
+    .replace(/\\\\√/g, '√')
+    .replace(/\\√/g, '√')
+    .replace(/\\\\<=/g, '<=')
+    .replace(/\\<=/g, '<=')
+    .replace(/\\\\>=/g, '>=')
+    .replace(/\\>=/g, '>=')
+    .replace(/\$([^\$\n]+)\$/g, '$1')
+    .replace(/\$/g, '');
+
+  const lines = sanitized.split('\n');
+
+  // Inline formatting for `code` and **bold**
+  const renderInline = (str) => {
+    if (!str) return null;
+    const parts = str.split(/(`[^`]+`|\*\*[^*]+\*\*)/g);
+    return parts.map((part, pIdx) => {
+      if (part.startsWith('`') && part.endsWith('`')) {
+        return (
+          <code
+            key={pIdx}
+            className="px-1.5 py-0.5 rounded bg-[#161b22] text-amber-300 font-mono text-[11px] border border-[#30363d] mx-0.5 font-semibold"
+          >
+            {part.slice(1, -1)}
+          </code>
+        );
+      }
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return (
+          <strong key={pIdx} className="text-zinc-100 font-bold">
+            {part.slice(2, -2)}
+          </strong>
+        );
+      }
+      return part;
+    });
+  };
+
+  const elements = [];
+  let i = 0;
+
+  while (i < lines.length) {
+    const rawLine = lines[i];
+    const line = rawLine.trim();
+
+    if (!line) {
+      i++;
+      continue;
+    }
+
+    // Callout box (> [!WARNING] or > [!NOTE])
+    if (line.startsWith('>')) {
+      const calloutLines = [];
+      while (i < lines.length && lines[i].trim().startsWith('>')) {
+        calloutLines.push(lines[i].trim().replace(/^>\s*/, ''));
+        i++;
+      }
+      const calloutText = calloutLines.join(' ');
+      const isWarning = calloutText.includes('[!WARNING]');
+      const cleanCallout = calloutText.replace(/\[!(WARNING|NOTE|TIP|IMPORTANT)\]\s*/g, '');
+      elements.push(
+        <div
+          key={elements.length}
+          className={`p-3 rounded-2xl border text-xs leading-relaxed my-2.5 ${
+            isWarning
+              ? 'bg-amber-500/10 border-amber-500/30 text-amber-300'
+              : 'bg-sky-500/10 border-sky-500/30 text-sky-300'
+          }`}
+        >
+          {renderInline(cleanCallout)}
+        </div>
+      );
+      continue;
+    }
+
+    // Header (### Heading or "Requirements:" or "Example:" etc.)
+    if (
+      line.startsWith('###') ||
+      line.startsWith('##') ||
+      line === 'Requirements:' ||
+      line === 'Example:' ||
+      line === 'Expected Observations:' ||
+      line === 'Step-by-Step Breakdown:'
+    ) {
+      const headingText = line.replace(/^#{1,4}\s*/, '');
+      elements.push(
+        <div key={elements.length} className="pt-2 pb-1 text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center space-x-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+          <span>{headingText}</span>
+        </div>
+      );
+      i++;
+      continue;
+    }
+
+    // Bullet items (- or *)
+    if (line.startsWith('- ') || line.startsWith('* ')) {
+      const bulletText = line.replace(/^[-*]\s+/, '');
+      elements.push(
+        <div key={elements.length} className="flex items-start space-x-2 pl-2 text-zinc-300 leading-relaxed text-xs sm:text-sm">
+          <span className="text-amber-400 mt-1 select-none text-xs flex-shrink-0">•</span>
+          <div className="flex-1">{renderInline(bulletText)}</div>
+        </div>
+      );
+      i++;
+      continue;
+    }
+
+    // Numbered list items (1. 2. 3.)
+    const numMatch = line.match(/^(\d+)\.\s+(.*)$/);
+    if (numMatch) {
+      elements.push(
+        <div key={elements.length} className="flex items-start space-x-2 pl-2 text-zinc-300 leading-relaxed text-xs sm:text-sm">
+          <span className="text-amber-400 font-mono text-xs font-bold select-none flex-shrink-0">{numMatch[1]}.</span>
+          <div className="flex-1">{renderInline(numMatch[2])}</div>
+        </div>
+      );
+      i++;
+      continue;
+    }
+
+    // Standard paragraph
+    elements.push(
+      <p key={elements.length} className="text-zinc-200 leading-relaxed text-xs sm:text-sm">
+        {renderInline(line)}
+      </p>
+    );
+    i++;
+  }
+
+  return <div className="space-y-2">{elements}</div>;
+}
+
 export default function JavaPracticeView() {
   // 1. Custom Questions loaded from localStorage
   const [customQuestions, setCustomQuestions] = useState(() => {
@@ -936,9 +1084,7 @@ export default function JavaPracticeView() {
               {/* Tab 1: Description */}
               {workbenchTab === 'description' && (
                 <div className="space-y-4 text-xs sm:text-sm text-theme-text leading-relaxed">
-                  <div className="whitespace-pre-line text-theme-text/90">
-                    {currentQuestion.description}
-                  </div>
+                  <FormattedProblemDescription content={currentQuestion.description} />
 
                   {/* Sample I/O */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">

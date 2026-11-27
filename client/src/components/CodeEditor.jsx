@@ -540,11 +540,11 @@ export default function CodeEditor({
         ];
       }
 
-      filtered = prefix
+      filtered = (prefix
         ? dotList.filter(item => item.label.toLowerCase().startsWith(prefix.toLowerCase()))
-        : dotList;
-    } else if (prefix && prefix.length >= 1) {
-      // Dynamic words from current code
+        : dotList).slice(0, 5);
+    } else if (prefix && prefix.length >= 2) {
+      // Dynamic words from current code (only trigger after at least 2 characters)
       const dynamicWords = Array.from(new Set(currentVal.match(/\b[a-zA-Z_$][a-zA-Z0-9_$]{2,}\b/g) || []))
         .filter(w => !BASE_SUGGESTIONS.some(s => s.label === w) && w.toLowerCase() !== prefix.toLowerCase())
         .map(w => ({ label: w, kind: 'variable', insert: w }));
@@ -553,7 +553,7 @@ export default function CodeEditor({
       filtered = allList.filter(item =>
         item.label.toLowerCase().startsWith(prefix.toLowerCase()) && 
         item.label.toLowerCase() !== prefix.toLowerCase()
-      ).slice(0, 8);
+      ).slice(0, 5);
     }
 
     if (filtered.length > 0) {
@@ -566,7 +566,7 @@ export default function CodeEditor({
         setSelectedSuggestionIdx(0);
       }
 
-      // Smart Position & Auto-Flip calculation to prevent popup from hiding/clipping
+      // Compact, snug positioning without awkward scrollbars
       const containerHeight = textarea.clientHeight || 360;
       const containerWidth = textarea.clientWidth || 500;
       const scrollTop = textarea.scrollTop || 0;
@@ -575,12 +575,12 @@ export default function CodeEditor({
       const lineHeight = 22;
       const charWidth = 7.8;
 
-      // Coordinates relative to the visible viewport of textarea
+      // Coordinates relative to visible viewport
       const visualY = (line - 1) * lineHeight + 12 - scrollTop;
       const visualX = (col - 1) * charWidth + 16 - scrollLeft;
 
-      const popupHeight = Math.min(filtered.length * 28 + 32, 210);
-      const popupWidth = 260;
+      const popupHeight = filtered.length * 28 + 26;
+      const popupWidth = 240;
 
       const spaceBelow = containerHeight - (visualY + lineHeight);
       const spaceAbove = visualY;
@@ -588,12 +588,11 @@ export default function CodeEditor({
       let top;
       let isAbove = false;
 
-      // If near bottom of editor, FLIP UPWARD above the cursor!
-      if (spaceBelow < popupHeight + 16 && spaceAbove > popupHeight) {
+      // If near bottom of editor, flip snugly ABOVE the cursor line!
+      if (spaceBelow < popupHeight + 10 && spaceAbove > popupHeight + 10) {
         top = Math.max(visualY - popupHeight - 4, 6);
         isAbove = true;
       } else {
-        // Position below cursor, clamped so it never overflows editor bottom
         top = visualY + lineHeight + 4;
         if (top + popupHeight > containerHeight - 6) {
           top = Math.max(containerHeight - popupHeight - 6, 6);
@@ -601,9 +600,9 @@ export default function CodeEditor({
       }
 
       // Clamp horizontally so it never overflows right or left edge
-      const left = Math.min(Math.max(visualX, 8), Math.max(containerWidth - popupWidth - 12, 8));
+      const left = Math.min(Math.max(visualX, 8), Math.max(containerWidth - popupWidth - 10, 8));
 
-      setSuggestionMenuPos({ top, left, prefix, isAbove, maxHeight: popupHeight });
+      setSuggestionMenuPos({ top, left, prefix, isAbove, height: popupHeight });
     } else {
       setSuggestions([]);
       setSuggestionMenuPos(null);
@@ -1057,16 +1056,16 @@ export default function CodeEditor({
           {suggestions.length > 0 && suggestionMenuPos && (
             <div
               ref={suggestionsListRef}
-              className="absolute z-50 bg-[#161b22] border border-[#30363d] rounded-xl shadow-[0_12px_36px_rgba(0,0,0,0.85)] overflow-hidden py-1 w-64 overflow-y-auto backdrop-blur-md transition-[top,left] duration-75"
+              className="absolute z-50 bg-[#161b22] border border-[#30363d] rounded-xl shadow-[0_12px_36px_rgba(0,0,0,0.85)] py-1 w-60 backdrop-blur-md overflow-hidden select-none"
               style={{
                 top: `${suggestionMenuPos.top}px`,
                 left: `${suggestionMenuPos.left}px`,
-                maxHeight: `${suggestionMenuPos.maxHeight || 210}px`
+                height: `${suggestionMenuPos.height || 166}px`
               }}
             >
-              <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400 border-b border-[#21262d] flex justify-between items-center bg-[#0d1117]/60">
+              <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400 border-b border-[#21262d] flex justify-between items-center bg-[#0d1117]/80">
                 <span>Suggestions</span>
-                <span className="font-normal lowercase text-[9px] text-zinc-500">↑/↓ navigate • Tab/Enter pick</span>
+                <span className="font-normal lowercase text-[9px] text-zinc-500">Tab/Enter pick</span>
               </div>
               {suggestions.map((item, idx) => (
                 <div
