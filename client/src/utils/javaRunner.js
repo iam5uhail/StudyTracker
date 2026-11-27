@@ -184,9 +184,9 @@ function transpileJavaToJS(javaCode) {
   };
 
   // 5. Type casts: (double) expr -> Number(expr), (int) expr -> Math.trunc(expr)
-  body = body.replace(/\(double\)\s*([a-zA-Z0-9_$]+)/g, 'Number($1)');
+  body = body.replace(/\(double\)\s*([a-zA-Z0-9_$.]+(?:\[[^\]]+\])?)/g, 'Number($1)');
   body = body.replace(/\(double\)\s*\(([^)]+)\)/g, 'Number($1)');
-  body = body.replace(/\(int\)\s*([a-zA-Z0-9_$]+)/g, 'Math.trunc($1)');
+  body = body.replace(/\(int\)\s*([a-zA-Z0-9_$.]+(?:\[[^\]]+\])?)/g, 'Math.trunc($1)');
   body = body.replace(/\(int\)\s*\(([^)]+)\)/g, 'Math.trunc($1)');
 
   // 6. Compound assignment /=
@@ -198,22 +198,17 @@ function transpileJavaToJS(javaCode) {
     return `${v} = Math.trunc(${v} / (${expr}))`;
   });
 
-  // 7. Java integer division for parenthesized left side: (expr) / right
-  // e.g. (a + b) / 2 -> Math.trunc((a + b) / 2), (num % 100) / 10
-  body = body.replace(/(?<![a-zA-Z0-9_$])(\([^()]+(?:\([^()]*\)[^()]*)*\))\s*\/\s*([a-zA-Z_$][a-zA-Z0-9_$]*|\d+)\b(?!\s*\.)/g, (match, left, right) => {
-    if (hasFloat(left) || hasFloat(right)) return match;
-    return `Math.trunc(${left} / ${right})`;
-  });
+  // 7. Atomic operand term: parenthesized expr, identifier with optional .prop / [idx], or integer literal
+  const TERM = '(?:\\([^()]+\\)|[a-zA-Z_$][a-zA-Z0-9_$]*(?:\\.[a-zA-Z_$][a-zA-Z0-9_$]*|\\[[^\\]]+\\])*|\\d+)';
 
-  // 8. Multiplication chain before division: e.g. price * 20 / 100 or a * b * c / d
-  body = body.replace(/(?<![.*\/%\w$]\s*)((?:[a-zA-Z_$][a-zA-Z0-9_$]*|\d+)(?:\s*[*]\s*(?:[a-zA-Z_$][a-zA-Z0-9_$]*|\d+))+)\s*\/\s*([a-zA-Z_$][a-zA-Z0-9_$]*|\d+)\b(?!\s*\.)/g, (match, leftChain, right) => {
+  // 8. Multiplication chain before division: e.g. price * 20 / arr.length or a * b * c / d
+  body = body.replace(new RegExp(`(?<![.*\\/%\\w$]\\s*)((?:${TERM})(?:\\s*[*]\\s*(?:${TERM}))+)\\s*\\/\\s*(${TERM})`, 'g'), (match, leftChain, right) => {
     if (hasFloat(leftChain) || hasFloat(right)) return match;
     return `Math.trunc((${leftChain}) / ${right})`;
   });
 
-  // 9. Java integer division for standalone variables and integer literals: left / right
-  // e.g. n / 10, a / b, 10 / 3, days / 7, num / 100 (NOT preceded by *, /, or %)
-  body = body.replace(/(?<![.*\/%\w$]\s*)\b([a-zA-Z_$][a-zA-Z0-9_$]*|\d+)\s*\/\s*([a-zA-Z_$][a-zA-Z0-9_$]*|\d+)\b(?!\s*[.\w$])/g, (match, left, right) => {
+  // 9. Java integer division between two terms: e.g. sum / arr.length, a / b, n / 10, arr[i] / 2
+  body = body.replace(new RegExp(`(?<![.*\\/%\\w$]\\s*)(${TERM})\\s*\\/\\s*(${TERM})`, 'g'), (match, left, right) => {
     if (hasFloat(left) || hasFloat(right)) return match;
     return `Math.trunc(${left} / ${right})`;
   });
