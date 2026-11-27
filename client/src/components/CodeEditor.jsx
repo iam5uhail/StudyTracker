@@ -387,6 +387,77 @@ export default function CodeEditor({
     }
   }, [selectedSuggestionIdx]);
 
+  // Helper: Strictly validate whether auto-suggestions are allowed at the current cursor location
+  const checkAutocompleteContext = (textBefore) => {
+    if (!textBefore || textBefore.length === 0) return { show: false };
+
+    const lastChar = textBefore.slice(-1);
+
+    // 1. Never show if immediately preceded by statement terminator, structural brackets or operators
+    if (/[\s;}{()\[\]:,=+\-*\/%><!&|^]/.test(lastChar)) {
+      return { show: false };
+    }
+
+    const lines = textBefore.split('\n');
+    const currentLine = lines[lines.length - 1];
+    const col = currentLine.length;
+
+    // 2. Never show inside single-line comments (//)
+    const commentIdx = currentLine.indexOf('//');
+    if (commentIdx !== -1 && commentIdx < col) {
+      return { show: false };
+    }
+
+    // 3. Never show inside block comments (/* ... */)
+    const lastBlockOpen = textBefore.lastIndexOf('/*');
+    const lastBlockClose = textBefore.lastIndexOf('*/');
+    if (lastBlockOpen !== -1 && lastBlockOpen > lastBlockClose) {
+      return { show: false };
+    }
+
+    // 4. Never show inside string literals ("..." or '...')
+    let inDouble = false;
+    let inSingle = false;
+    for (let i = 0; i < currentLine.length; i++) {
+      const ch = currentLine[i];
+      const prev = i > 0 ? currentLine[i - 1] : '';
+      if (ch === '"' && prev !== '\\' && !inSingle) inDouble = !inDouble;
+      if (ch === "'" && prev !== '\\' && !inDouble) inSingle = !inSingle;
+    }
+    if (inDouble || inSingle) {
+      return { show: false };
+    }
+
+    // 5. Never show if the trimmed line ends with statement terminator or closing brace
+    const trimmed = currentLine.trimEnd();
+    if (trimmed.endsWith(';') || trimmed.endsWith('}')) {
+      return { show: false };
+    }
+
+    // 6. Dot accessor: e.g. "sc." or "sc.next" or "System." or "Math."
+    const dotMatch = textBefore.match(/([a-zA-Z_$][a-zA-Z0-9_$]*)\.([a-zA-Z0-9_$]*)$/);
+    if (dotMatch) {
+      return {
+        show: true,
+        isDot: true,
+        targetObj: dotMatch[1],
+        prefix: dotMatch[2] || ''
+      };
+    }
+
+    // 7. Regular identifier prefix (must be actively typing an identifier)
+    const prefixMatch = textBefore.match(/([a-zA-Z_$][a-zA-Z0-9_$]*)$/);
+    if (prefixMatch && prefixMatch[1] && prefixMatch[1].length >= 1) {
+      return {
+        show: true,
+        isDot: false,
+        prefix: prefixMatch[1]
+      };
+    }
+
+    return { show: false };
+  };
+
   // Update cursor position and line/col indicator
   const updateCursorInfo = useCallback((forceResetIndex = false) => {
     const textarea = textareaRef.current;
@@ -401,44 +472,138 @@ export default function CodeEditor({
     const col = lines[lines.length - 1].length + 1;
     setCursorCoords({ line, col });
 
-    // Inspect word prefix before cursor for autocomplete suggestions
-    const prefixMatch = textBefore.match(/([a-zA-Z_$][a-zA-Z0-9_$]*)$/);
-    if (prefixMatch && prefixMatch[1] && prefixMatch[1].length >= 1) {
-      const prefix = prefixMatch[1];
+    // Validate autocomplete placement
+    const check = checkAutocompleteContext(textBefore);
+    if (!check.show) {
+      setSuggestions([]);
+      setSuggestionMenuPos(null);
+      lastPrefixRef.current = '';
+      selectedSuggestionIdxRef.current = 0;
+      setSelectedSuggestionIdx(0);
+      return;
+    }
 
+    const prefix = check.prefix || '';
+    let filtered = [];
+
+    if (check.isDot && check.targetObj) {
+      const obj = check.targetObj.toLowerCase();
+      let dotList = [];
+      if (obj === 'sc' || obj === 'scanner' || obj.includes('scanner') || obj.includes('sc')) {
+        dotList = [
+          { label: 'nextInt()', kind: 'method', insert: 'nextInt()' },
+          { label: 'nextLine()', kind: 'method', insert: 'nextLine()' },
+          { label: 'next()', kind: 'method', insert: 'next()' },
+          { label: 'nextDouble()', kind: 'method', insert: 'nextDouble()' },
+          { label: 'nextLong()', kind: 'method', insert: 'nextLong()' },
+          { label: 'hasNextInt()', kind: 'method', insert: 'hasNextInt()' },
+          { label: 'hasNext()', kind: 'method', insert: 'hasNext()' },
+          { label: 'close()', kind: 'method', insert: 'close();' }
+        ];
+      } else if (obj === 'system' || obj === 'sys') {
+        dotList = [
+          { label: 'out.println()', kind: 'method', insert: 'out.println();' },
+          { label: 'out.print()', kind: 'method', insert: 'out.print();' },
+          { label: 'out.printf()', kind: 'method', insert: 'out.printf();' },
+          { label: 'currentTimeMillis()', kind: 'method', insert: 'currentTimeMillis()' },
+          { label: 'exit(0)', kind: 'method', insert: 'exit(0);' }
+        ];
+      } else if (obj === 'math') {
+        dotList = [
+          { label: 'max()', kind: 'method', insert: 'max()' },
+          { label: 'min()', kind: 'method', insert: 'min()' },
+          { label: 'abs()', kind: 'method', insert: 'abs()' },
+          { label: 'sqrt()', kind: 'method', insert: 'sqrt()' },
+          { label: 'pow()', kind: 'method', insert: 'pow()' },
+          { label: 'floor()', kind: 'method', insert: 'floor()' },
+          { label: 'ceil()', kind: 'method', insert: 'ceil()' },
+          { label: 'random()', kind: 'method', insert: 'random()' }
+        ];
+      } else if (obj === 'arrays') {
+        dotList = [
+          { label: 'sort()', kind: 'method', insert: 'sort()' },
+          { label: 'toString()', kind: 'method', insert: 'toString()' },
+          { label: 'binarySearch()', kind: 'method', insert: 'binarySearch()' },
+          { label: 'fill()', kind: 'method', insert: 'fill()' }
+        ];
+      } else {
+        dotList = [
+          { label: 'length()', kind: 'method', insert: 'length()' },
+          { label: 'length', kind: 'property', insert: 'length' },
+          { label: 'charAt()', kind: 'method', insert: 'charAt()' },
+          { label: 'substring()', kind: 'method', insert: 'substring()' },
+          { label: 'equals()', kind: 'method', insert: 'equals()' },
+          { label: 'contains()', kind: 'method', insert: 'contains()' },
+          { label: 'add()', kind: 'method', insert: 'add()' },
+          { label: 'get()', kind: 'method', insert: 'get()' },
+          { label: 'size()', kind: 'method', insert: 'size()' }
+        ];
+      }
+
+      filtered = prefix
+        ? dotList.filter(item => item.label.toLowerCase().startsWith(prefix.toLowerCase()))
+        : dotList;
+    } else if (prefix && prefix.length >= 1) {
       // Dynamic words from current code
       const dynamicWords = Array.from(new Set(currentVal.match(/\b[a-zA-Z_$][a-zA-Z0-9_$]{2,}\b/g) || []))
-        .filter(w => !BASE_SUGGESTIONS.some(s => s.label === w))
+        .filter(w => !BASE_SUGGESTIONS.some(s => s.label === w) && w.toLowerCase() !== prefix.toLowerCase())
         .map(w => ({ label: w, kind: 'variable', insert: w }));
 
       const allList = [...BASE_SUGGESTIONS, ...dynamicWords];
-      const filtered = allList.filter(item =>
-        item.label.toLowerCase().startsWith(prefix.toLowerCase()) && item.label !== prefix
+      filtered = allList.filter(item =>
+        item.label.toLowerCase().startsWith(prefix.toLowerCase()) && 
+        item.label.toLowerCase() !== prefix.toLowerCase()
       ).slice(0, 8);
+    }
 
-      if (filtered.length > 0) {
-        setSuggestions(filtered);
+    if (filtered.length > 0) {
+      setSuggestions(filtered);
 
-        // ONLY reset index to 0 if the prefix changed or explicitly requested!
-        if (prefix !== lastPrefixRef.current || forceResetIndex) {
-          lastPrefixRef.current = prefix;
-          selectedSuggestionIdxRef.current = 0;
-          setSelectedSuggestionIdx(0);
-        }
-
-        // Position suggestions box near cursor
-        const lineHeight = 22;
-        const charWidth = 7.8;
-        const top = Math.min((line * lineHeight) + 6, Math.max(lineCount * lineHeight, 300));
-        const left = Math.min(Math.max((col * charWidth) + 38, 48), 350);
-        setSuggestionMenuPos({ top, left, prefix });
-      } else {
-        setSuggestions([]);
-        setSuggestionMenuPos(null);
-        lastPrefixRef.current = '';
+      // ONLY reset index to 0 if the prefix changed or explicitly requested!
+      if (prefix !== lastPrefixRef.current || forceResetIndex) {
+        lastPrefixRef.current = prefix;
         selectedSuggestionIdxRef.current = 0;
         setSelectedSuggestionIdx(0);
       }
+
+      // Smart Position & Auto-Flip calculation to prevent popup from hiding/clipping
+      const containerHeight = textarea.clientHeight || 360;
+      const containerWidth = textarea.clientWidth || 500;
+      const scrollTop = textarea.scrollTop || 0;
+      const scrollLeft = textarea.scrollLeft || 0;
+
+      const lineHeight = 22;
+      const charWidth = 7.8;
+
+      // Coordinates relative to the visible viewport of textarea
+      const visualY = (line - 1) * lineHeight + 12 - scrollTop;
+      const visualX = (col - 1) * charWidth + 16 - scrollLeft;
+
+      const popupHeight = Math.min(filtered.length * 28 + 32, 210);
+      const popupWidth = 260;
+
+      const spaceBelow = containerHeight - (visualY + lineHeight);
+      const spaceAbove = visualY;
+
+      let top;
+      let isAbove = false;
+
+      // If near bottom of editor, FLIP UPWARD above the cursor!
+      if (spaceBelow < popupHeight + 16 && spaceAbove > popupHeight) {
+        top = Math.max(visualY - popupHeight - 4, 6);
+        isAbove = true;
+      } else {
+        // Position below cursor, clamped so it never overflows editor bottom
+        top = visualY + lineHeight + 4;
+        if (top + popupHeight > containerHeight - 6) {
+          top = Math.max(containerHeight - popupHeight - 6, 6);
+        }
+      }
+
+      // Clamp horizontally so it never overflows right or left edge
+      const left = Math.min(Math.max(visualX, 8), Math.max(containerWidth - popupWidth - 12, 8));
+
+      setSuggestionMenuPos({ top, left, prefix, isAbove, maxHeight: popupHeight });
     } else {
       setSuggestions([]);
       setSuggestionMenuPos(null);
@@ -446,7 +611,7 @@ export default function CodeEditor({
       selectedSuggestionIdxRef.current = 0;
       setSelectedSuggestionIdx(0);
     }
-  }, [value, lineCount]);
+  }, [value]);
 
   // Handle format document
   const handleFormatDocument = () => {
@@ -465,6 +630,11 @@ export default function CodeEditor({
     }
     if (gutterRef.current) {
       gutterRef.current.scrollTop = scrollTop;
+    }
+    // Close suggestions on scroll to prevent detached floating popup
+    if (suggestions.length > 0) {
+      setSuggestions([]);
+      setSuggestionMenuPos(null);
     }
   };
 
@@ -522,22 +692,37 @@ export default function CodeEditor({
     });
   };
 
-  // KeyUp handler: do NOT recalculate suggestions or reset index on arrow keys or navigation
+  // KeyUp handler: close suggestions on navigation or escape, recalculate on typing
   const handleKeyUp = (e) => {
-    const ignored = [
-      'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
-      'Up', 'Down', 'Left', 'Right',
-      'Tab', 'Enter', 'Escape', 'Esc',
-      'Shift', 'Alt', 'Control', 'Meta',
-      'PageUp', 'PageDown', 'Home', 'End'
-    ];
-    if (ignored.includes(e.key)) {
+    if (e.key === 'Escape' || e.key === 'Esc') {
+      setSuggestions([]);
+      setSuggestionMenuPos(null);
+      return;
+    }
+
+    // When cursor is navigated with arrow keys or home/end/page keys, close suggestions
+    if ([
+      'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+      'Left', 'Right', 'Up', 'Down',
+      'Home', 'End', 'PageUp', 'PageDown'
+    ].includes(e.key)) {
+      const textarea = textareaRef.current;
+      if (textarea) {
+        setCursorPos(textarea.selectionStart);
+      }
+      setSuggestions([]);
+      setSuggestionMenuPos(null);
+      return;
+    }
+
+    if (['Shift', 'Alt', 'Control', 'Meta', 'Tab', 'Enter'].includes(e.key)) {
       const textarea = textareaRef.current;
       if (textarea) {
         setCursorPos(textarea.selectionStart);
       }
       return;
     }
+
     updateCursorInfo(false);
   };
 
@@ -872,10 +1057,11 @@ export default function CodeEditor({
           {suggestions.length > 0 && suggestionMenuPos && (
             <div
               ref={suggestionsListRef}
-              className="absolute z-30 bg-[#161b22] border border-[#30363d] rounded-xl shadow-2xl overflow-hidden py-1 w-64 max-h-56 overflow-y-auto backdrop-blur-md"
+              className="absolute z-50 bg-[#161b22] border border-[#30363d] rounded-xl shadow-[0_12px_36px_rgba(0,0,0,0.85)] overflow-hidden py-1 w-64 overflow-y-auto backdrop-blur-md transition-[top,left] duration-75"
               style={{
                 top: `${suggestionMenuPos.top}px`,
-                left: `${suggestionMenuPos.left}px`
+                left: `${suggestionMenuPos.left}px`,
+                maxHeight: `${suggestionMenuPos.maxHeight || 210}px`
               }}
             >
               <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-400 border-b border-[#21262d] flex justify-between items-center bg-[#0d1117]/60">
