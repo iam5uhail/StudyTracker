@@ -3,16 +3,19 @@ import confetti from 'canvas-confetti';
 import { initialPlanDays, DEFAULT_START_DATE } from '../data/planData';
 
 const LearningContext = createContext(null);
-const PLAN_STORAGE_KEY = 'study_daywise_plan_v14_java_focus';
-const LEGACY_STORAGE_KEY = 'study_daywise_plan_v13_namaste_black';
+const PLAN_STORAGE_KEY = 'study_daywise_plan_v16_verified_all_topics';
+const LEGACY_STORAGE_KEY = 'study_daywise_plan_v14_java_focus';
+const OLD_LEGACY_STORAGE_KEY = 'study_daywise_plan_v13_namaste_black';
 const START_DATE_KEY = 'study_plan_start_date_v13_namaste_black';
 const JAVA_PRACTICE_COMPLETED_KEY = 'java_practice_completed_ids_v1';
 
 export function LearningProvider({ children }) {
-  // Plan days: 70 Days with 2 Core Java Lectures + 2 Java Practice Drills per Day
+  // Plan days: 47 Days Sprint with 3 Core Java Lectures + 3 Java Practice Drills per Day
   const [days, setDays] = useState(() => {
     try {
-      const saved = localStorage.getItem(PLAN_STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY);
+      const saved = localStorage.getItem(PLAN_STORAGE_KEY) || 
+                    localStorage.getItem(LEGACY_STORAGE_KEY) || 
+                    localStorage.getItem(OLD_LEGACY_STORAGE_KEY);
       let practiceCompletedIds = [];
       try {
         const rawP = localStorage.getItem('study_tracker_java_completed_ids_v1') || localStorage.getItem(JAVA_PRACTICE_COMPLETED_KEY);
@@ -35,24 +38,29 @@ export function LearningProvider({ children }) {
                     (t.title && initTask.title && t.title.toLowerCase().trim() === initTask.title.toLowerCase().trim())
                   )
                 );
-                if (sTask) {
-                  let restoredNotes = (sTask.notes && sTask.notes.trim()) ? sTask.notes : initTask.notes;
-                  // Self-healing: if an old cached bug gave Topic 25 loops or Topic 24 if-else or Topic 23 keywords, heal it!
-                  if (initTask.num === 25 && (restoredNotes.includes('Iteration & Looping') || restoredNotes.includes('While & Do-While'))) {
-                    restoredNotes = initTask.notes;
+
+                // Strictly validate note: if sTask.notes has a heading from a different topic number, discard it!
+                let validNotes = initTask.notes;
+                if (sTask && sTask.notes && sTask.notes.trim()) {
+                  const headingMatch = sTask.notes.match(/^#\s*0?(\d+)[\.\s]/);
+                  if (headingMatch) {
+                    if (parseInt(headingMatch[1], 10) === parseInt(initTask.num, 10)) {
+                      validNotes = sTask.notes;
+                    } else {
+                      // Mismatched topic number: heal by reverting to initTask.notes
+                      validNotes = initTask.notes;
+                    }
+                  } else {
+                    // Custom user notes without '# XX.' heading
+                    validNotes = sTask.notes;
                   }
-                  if (initTask.num === 24 && (restoredNotes.includes('Selection Statements') || restoredNotes.includes('Conditional Branching'))) {
-                    restoredNotes = initTask.notes;
-                  }
-                  if (initTask.num === 23 && restoredNotes.includes('Keywords and Identifiers')) {
-                    restoredNotes = initTask.notes;
-                  }
-                  return {
-                    ...initTask,
-                    completed: Boolean(sTask.completed),
-                    notes: restoredNotes
-                  };
                 }
+
+                return {
+                  ...initTask,
+                  completed: Boolean(sTask?.completed),
+                  notes: validNotes
+                };
               }
               if (initTask.type === 'practice') {
                 const sTask = allSavedTasks.find(t => 

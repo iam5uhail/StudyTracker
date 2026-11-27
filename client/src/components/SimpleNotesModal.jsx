@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   X, 
   Save, 
@@ -273,10 +273,22 @@ export default function SimpleNotesModal({ taskData, onClose }) {
 
   // Resolve default lecture note by topic number first, then task object
   const defaultLectureNotes = task ? getLectureNote(task.num || task.topicNum || task.id, task) : null;
-  const initialNotes = task?.notes || defaultLectureNotes || '';
 
-  const [notes, setNotes] = useState(initialNotes);
-  const [activeTab, setActiveTab] = useState(initialNotes ? 'study' : 'edit'); // 'study' or 'edit'
+  // Check for mismatched topic content
+  const isMismatched = useMemo(() => {
+    if (!task?.notes) return false;
+    const match = task.notes.match(/^#\s*0?(\d+)[\.\s]/);
+    const currentNum = task?.num || task?.topicNum;
+    if (match && currentNum && parseInt(match[1], 10) !== parseInt(currentNum, 10)) {
+      return true;
+    }
+    return false;
+  }, [task?.notes, task?.num, task?.topicNum]);
+
+  const effectiveNotes = (!isMismatched && task?.notes) ? task.notes : (defaultLectureNotes || '');
+
+  const [notes, setNotes] = useState(effectiveNotes);
+  const [activeTab, setActiveTab] = useState(effectiveNotes ? 'study' : 'edit'); // 'study' or 'edit'
   const [copied, setCopied] = useState(false);
   const [restoredToast, setRestoredToast] = useState(false);
 

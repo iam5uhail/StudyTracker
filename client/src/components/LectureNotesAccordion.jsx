@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   BookOpen, 
   Edit3, 
@@ -267,22 +267,41 @@ function FormattedStudyViewer({ content }) {
 export default function LectureNotesAccordion({ task, dayNumber, isOpen }) {
   const { updateTaskNotes } = useLearning();
 
+  // Canonical lecture note for this specific topic
   const defaultLectureNotes = task ? getLectureNote(task.num || task.topicNum || task.id, task) : null;
-  const initialNotes = task?.notes || defaultLectureNotes || '';
 
-  const [notes, setNotes] = useState(initialNotes);
-  const [activeTab, setActiveTab] = useState(initialNotes ? 'study' : 'edit');
+  // Detect if task.notes is corrupted by an old mismatched topic (e.g. Note starts with # 17. but task is Topic 25)
+  const isMismatched = useMemo(() => {
+    if (!task?.notes) return false;
+    const match = task.notes.match(/^#\s*0?(\d+)[\.\s]/);
+    const currentNum = task?.num || task?.topicNum;
+    if (match && currentNum && parseInt(match[1], 10) !== parseInt(currentNum, 10)) {
+      return true;
+    }
+    return false;
+  }, [task?.notes, task?.num, task?.topicNum]);
+
+  // If task.notes is mismatched or empty, ALWAYS use the official defaultLectureNotes!
+  const effectiveNotes = (!isMismatched && task?.notes) ? task.notes : (defaultLectureNotes || '');
+
+  const [notes, setNotes] = useState(effectiveNotes);
+  const [activeTab, setActiveTab] = useState(effectiveNotes ? 'study' : 'edit');
   const [copied, setCopied] = useState(false);
   const [savedToast, setSavedToast] = useState(false);
 
-  // Sync internal state if task.notes changes from context
+  // Sync internal state and self-heal in context if mismatched
   useEffect(() => {
-    if (task?.notes) {
+    if (defaultLectureNotes && isMismatched) {
+      setNotes(defaultLectureNotes);
+      if (dayNumber && task?.id) {
+        updateTaskNotes(dayNumber, task.id, defaultLectureNotes);
+      }
+    } else if (task?.notes && !isMismatched) {
       setNotes(task.notes);
     } else if (defaultLectureNotes) {
       setNotes(defaultLectureNotes);
     }
-  }, [task?.notes, defaultLectureNotes]);
+  }, [task?.notes, defaultLectureNotes, isMismatched, dayNumber, task?.id]);
 
   const handleCopy = () => {
     if (!notes) return;
