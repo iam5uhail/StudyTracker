@@ -31,16 +31,26 @@ export function LearningProvider({ children }) {
               if (initTask.type === 'java') {
                 const sTask = allSavedTasks.find(t => 
                   t.type === 'java' && (
-                    (t.num && initTask.num && t.num === initTask.num) ||
-                    t.title === initTask.title ||
-                    t.id === initTask.id
+                    (t.num && initTask.num && Number(t.num) === Number(initTask.num)) ||
+                    (t.title && initTask.title && t.title.toLowerCase().trim() === initTask.title.toLowerCase().trim())
                   )
                 );
                 if (sTask) {
+                  let restoredNotes = (sTask.notes && sTask.notes.trim()) ? sTask.notes : initTask.notes;
+                  // Self-healing: if an old cached bug gave Topic 25 loops or Topic 24 if-else or Topic 23 keywords, heal it!
+                  if (initTask.num === 25 && (restoredNotes.includes('Iteration & Looping') || restoredNotes.includes('While & Do-While'))) {
+                    restoredNotes = initTask.notes;
+                  }
+                  if (initTask.num === 24 && (restoredNotes.includes('Selection Statements') || restoredNotes.includes('Conditional Branching'))) {
+                    restoredNotes = initTask.notes;
+                  }
+                  if (initTask.num === 23 && restoredNotes.includes('Keywords and Identifiers')) {
+                    restoredNotes = initTask.notes;
+                  }
                   return {
                     ...initTask,
                     completed: Boolean(sTask.completed),
-                    notes: (sTask.notes && sTask.notes.trim()) ? sTask.notes : initTask.notes
+                    notes: restoredNotes
                   };
                 }
               }

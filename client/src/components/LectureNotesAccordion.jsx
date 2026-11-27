@@ -267,7 +267,7 @@ function FormattedStudyViewer({ content }) {
 export default function LectureNotesAccordion({ task, dayNumber, isOpen }) {
   const { updateTaskNotes } = useLearning();
 
-  const defaultLectureNotes = task?.id ? getLectureNote(task.id) : null;
+  const defaultLectureNotes = task ? getLectureNote(task.num || task.topicNum || task.id, task) : null;
   const initialNotes = task?.notes || defaultLectureNotes || '';
 
   const [notes, setNotes] = useState(initialNotes);
@@ -298,10 +298,11 @@ export default function LectureNotesAccordion({ task, dayNumber, isOpen }) {
   };
 
   const handleRestoreDefault = () => {
-    if (!defaultLectureNotes) return;
+    const defaultNote = getLectureNote(task?.num || task?.topicNum || task?.id, task);
+    if (!defaultNote) return;
     if (window.confirm("Restore original complete lecture notes for this topic? Any manual edits will be overwritten.")) {
-      setNotes(defaultLectureNotes);
-      updateTaskNotes(dayNumber, task.id, defaultLectureNotes);
+      setNotes(defaultNote);
+      updateTaskNotes(dayNumber, task.id, defaultNote);
       setSavedToast(true);
       setTimeout(() => setSavedToast(false), 2000);
     }

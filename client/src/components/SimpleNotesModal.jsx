@@ -268,17 +268,17 @@ function FormattedStudyViewer({ content }) {
 export default function SimpleNotesModal({ taskData, onClose }) {
   const { updateTaskNotes } = useLearning();
 
-  // If taskData has notes, use it; otherwise check lectureNotesData
-  const defaultLectureNotes = taskData?.task?.id ? getLectureNote(taskData.task.id) : null;
-  const initialNotes = taskData?.task?.notes || defaultLectureNotes || '';
+  if (!taskData || !taskData.task) return null;
+  const { dayNumber, task } = taskData;
+
+  // Resolve default lecture note by topic number first, then task object
+  const defaultLectureNotes = task ? getLectureNote(task.num || task.topicNum || task.id, task) : null;
+  const initialNotes = task?.notes || defaultLectureNotes || '';
 
   const [notes, setNotes] = useState(initialNotes);
   const [activeTab, setActiveTab] = useState(initialNotes ? 'study' : 'edit'); // 'study' or 'edit'
   const [copied, setCopied] = useState(false);
   const [restoredToast, setRestoredToast] = useState(false);
-
-  if (!taskData || !taskData.task) return null;
-  const { dayNumber, task } = taskData;
 
   const handleSave = () => {
     updateTaskNotes(dayNumber, task.id, notes);
@@ -293,9 +293,11 @@ export default function SimpleNotesModal({ taskData, onClose }) {
   };
 
   const handleRestoreDefault = () => {
-    if (!defaultLectureNotes) return;
+    const defaultNote = getLectureNote(task?.num || task?.topicNum || task?.id, task);
+    if (!defaultNote) return;
     if (window.confirm("Restore the complete original lecture notes for this topic? Any custom changes you typed will be replaced.")) {
-      setNotes(defaultLectureNotes);
+      setNotes(defaultNote);
+      updateTaskNotes(dayNumber, task.id, defaultNote);
       setRestoredToast(true);
       setTimeout(() => setRestoredToast(false), 2500);
     }

@@ -1,4 +1,4 @@
-import { lectureNotesData } from './lectureNotesData.js';
+import { lectureNotesData, getLectureNote } from './lectureNotesData.js';
 import { JAVA_PRACTICE_QUESTIONS } from './javaPracticeData.js';
 
 // Complete 70-Day Target Plan: All 140 Core Java Topics + 140 Core Java Practice Drills
@@ -2321,7 +2321,8 @@ const rawPlanDays = [
 const allCoreJavaTopics = rawPlanDays.flatMap(day => 
   (day.tasks || []).filter(t => t.type === 'java').map(t => ({
     ...t,
-    notes: lectureNotesData[t.id] || t.notes || ""
+    topicNum: t.num,
+    notes: getLectureNote(t.num, t) || lectureNotesData[t.id] || t.notes || ""
   }))
 );
 
@@ -2336,7 +2337,8 @@ export const initialPlanDays = Array.from({ length: 47 }, (_, i) => {
     ...t,
     id: `d${dayNumber}-j${idx + 1}`,
     dayNumber,
-    notes: lectureNotesData[t.id] || lectureNotesData[`d${dayNumber}-j${idx + 1}`] || t.notes || ""
+    topicNum: t.num,
+    notes: getLectureNote(t.num, t) || lectureNotesData[`d${dayNumber}-j${idx + 1}`] || t.notes || ""
   }));
 
   // 3 Java Practice Drills for this day (2 on day 47)
