@@ -213,7 +213,35 @@ function transpileJavaToJS(javaCode) {
     return `Math.trunc(${left} / ${right})`;
   });
 
-  // 10. Transform Java types and variable declarations to let
+  // 10. Collect declared integer variables (int, long, short, byte) to enforce Java integer semantics
+  const intVars = new Set();
+  const intDeclRegex = /\b(?:int|long|short|byte)\s+([^;(){]+)[;)]/g;
+  let iMatch;
+  while ((iMatch = intDeclRegex.exec(body)) !== null) {
+    const declList = iMatch[1];
+    const parts = declList.split(',');
+    for (const part of parts) {
+      const vm = part.trim().match(/^([a-zA-Z_$][a-zA-Z0-9_$]*)/);
+      if (vm) intVars.add(vm[1]);
+    }
+  }
+
+  // Force integer variable initializations to Math.trunc if assigned a value (e.g. int average = sum/arr.length;)
+  body = body.replace(/\b(?:int|long|short|byte)\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*=\s*([^;]+);/g, (match, v, expr) => {
+    if (/^\s*(?:new\s+|\[)/.test(expr)) return match;
+    return `let ${v} = Math.trunc(${expr});`;
+  });
+
+  // Force subsequent assignments to integer variables to Math.trunc
+  for (const iv of intVars) {
+    const assignRegex = new RegExp(`(?<![a-zA-Z0-9_$.])(${iv})\\s*=\\s*([^;]+);`, 'g');
+    body = body.replace(assignRegex, (match, v, expr) => {
+      if (/^\s*(?:Math\.trunc|new\s+|\[)/.test(expr)) return match;
+      return `${v} = Math.trunc(${expr});`;
+    });
+  }
+
+  // 11. Transform Java types and variable declarations to let
   body = body.replace(
     /\b(?:int|double|float|long|short|byte|boolean|String|char)\s+(?=[a-zA-Z_$])/g,
     'let '
