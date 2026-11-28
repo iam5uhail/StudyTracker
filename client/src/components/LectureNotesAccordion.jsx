@@ -13,6 +13,41 @@ import {
 import { useLearning } from '../context/LearningContext';
 import { getLectureNote } from '../data/lectureNotesData';
 
+// Clean raw LaTeX, math formatting, and KaTeX artifacts
+function cleanStudyNotes(text) {
+  if (!text) return '';
+  return text
+    .replace(/\$\$\s*\\text\{([^}]+)\}\s*\\longrightarrow\s*\\text\{([^}]+)\}\s*\\longrightarrow\s*\\text\{([^}]+)\}\s*\\longrightarrow\s*\\text\{([^}]+)\}\s*\\longrightarrow\s*\\text\{([^}]+)\}\s*\\longrightarrow\s*\\text\{([^}]+)\}\s*\$\$/g, '`$1` → `$2` → `$3` → `$4` → `$5` → `$6`')
+    .replace(/\$\$\s*\(\\text\{([^}]+)\}\s*\\longrightarrow\s*\\text\{([^}]+)\}\)\s*\$\$/g, '(`$1` → `$2`)')
+    .replace(/\$\$([\s\S]*?)\$\$/g, (_, inner) => {
+      return inner
+        .replace(/\\text\{([^}]+)\}/g, '$1')
+        .replace(/\\longrightarrow|\\rightarrow/g, '→')
+        .replace(/\\times/g, '×')
+        .replace(/\\sqrt\{([^}]+)\}/g, '√$1')
+        .replace(/\\le/g, '≤')
+        .replace(/\\ge/g, '≥')
+        .trim();
+    })
+    .replace(/\$([^$\n]+)\$/g, (_, inner) => {
+      return inner
+        .replace(/\\text\{([^}]+)\}/g, '$1')
+        .replace(/\\longrightarrow|\\rightarrow/g, '→')
+        .replace(/\\times/g, '×')
+        .replace(/\\sqrt\{([^}]+)\}/g, '√$1')
+        .replace(/\\le/g, '≤')
+        .replace(/\\ge/g, '≥')
+        .trim();
+    })
+    .replace(/\\text\{([^}]+)\}/g, '$1')
+    .replace(/\\longrightarrow/g, '→')
+    .replace(/\\rightarrow/g, '→')
+    .replace(/\\times/g, '×')
+    .replace(/\\sqrt\{([^}]+)\}/g, '√$1')
+    .replace(/\\le\b/g, '≤')
+    .replace(/\\ge\b/g, '≥');
+}
+
 // Markdown & Study Notes Formatter
 function FormattedStudyViewer({ content }) {
   if (!content || !content.trim()) {
@@ -27,7 +62,7 @@ function FormattedStudyViewer({ content }) {
 
   // Parse lines into structured blocks
   const blocks = [];
-  const lines = content.split('\n');
+  const lines = cleanStudyNotes(content).split('\n');
   let i = 0;
 
   while (i < lines.length) {
@@ -270,12 +305,16 @@ export default function LectureNotesAccordion({ task, dayNumber, isOpen }) {
   // Canonical lecture note for this specific topic
   const defaultLectureNotes = task ? getLectureNote(task.num || task.topicNum || task.id, task) : null;
 
-  // Detect if task.notes is corrupted by an old mismatched topic (e.g. Note starts with # 17. but task is Topic 25)
+  // Detect if task.notes is corrupted by an old mismatched topic or contains raw LaTeX markup
   const isMismatched = useMemo(() => {
     if (!task?.notes) return false;
     const match = task.notes.match(/^#\s*0?(\d+)[\.\s]/);
     const currentNum = task?.num || task?.topicNum;
     if (match && currentNum && parseInt(match[1], 10) !== parseInt(currentNum, 10)) {
+      return true;
+    }
+    // Auto-heal notes containing raw LaTeX or math markup
+    if (task.notes.includes('$$') || task.notes.includes('\\longrightarrow') || task.notes.includes('\\text{')) {
       return true;
     }
     return false;
